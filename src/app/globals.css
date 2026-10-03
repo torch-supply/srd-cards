@@ -1,0 +1,272 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+  --font-heading: var(--font-geist-sans);
+  --font-serif: var(--font-crimson);
+
+  /* Card type colors: accent (bars, icons), fg (text on soft), soft (tinted background). */
+  --color-type-class: var(--type-class);
+  --color-type-class-fg: var(--type-class-fg);
+  --color-type-class-soft: var(--type-class-soft);
+  --color-type-subclass: var(--type-subclass);
+  --color-type-subclass-fg: var(--type-subclass-fg);
+  --color-type-subclass-soft: var(--type-subclass-soft);
+  --color-type-spell: var(--type-spell);
+  --color-type-spell-fg: var(--type-spell-fg);
+  --color-type-spell-soft: var(--type-spell-soft);
+  --color-type-monster: var(--type-monster);
+  --color-type-monster-fg: var(--type-monster-fg);
+  --color-type-monster-soft: var(--type-monster-soft);
+  --color-type-equipment: var(--type-equipment);
+  --color-type-equipment-fg: var(--type-equipment-fg);
+  --color-type-equipment-soft: var(--type-equipment-soft);
+  --color-type-magic-item: var(--type-magic-item);
+  --color-type-magic-item-fg: var(--type-magic-item-fg);
+  --color-type-magic-item-soft: var(--type-magic-item-soft);
+  --color-type-feat: var(--type-feat);
+  --color-type-feat-fg: var(--type-feat-fg);
+  --color-type-feat-soft: var(--type-feat-soft);
+  --color-type-condition: var(--type-condition);
+  --color-type-condition-fg: var(--type-condition-fg);
+  --color-type-condition-soft: var(--type-condition-soft);
+  --color-type-rule: var(--type-rule);
+  --color-type-rule-fg: var(--type-rule-fg);
+  --color-type-rule-soft: var(--type-rule-soft);
+  --color-type-custom: var(--type-custom);
+  --color-type-custom-fg: var(--type-custom-fg);
+  --color-type-custom-soft: var(--type-custom-soft);
+  --color-sidebar-ring: var(--sidebar-ring);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar: var(--sidebar);
+  --color-chart-5: var(--chart-5);
+  --color-chart-4: var(--chart-4);
+  --color-chart-3: var(--chart-3);
+  --color-chart-2: var(--chart-2);
+  --color-chart-1: var(--chart-1);
+  --color-ring: var(--ring);
+  --color-input: var(--input);
+  --color-border: var(--border);
+  --color-destructive: var(--destructive);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-accent: var(--accent);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-muted: var(--muted);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-secondary: var(--secondary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary: var(--primary);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-popover: var(--popover);
+  --color-card-foreground: var(--card-foreground);
+  --color-card: var(--card);
+  --radius-sm: calc(var(--radius) * 0.6);
+  --radius-md: calc(var(--radius) * 0.8);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) * 1.4);
+  --radius-2xl: calc(var(--radius) * 1.8);
+  --radius-3xl: calc(var(--radius) * 2.2);
+  --radius-4xl: calc(var(--radius) * 2.6);
+}
+
+:root {
+  --background: oklch(1 0 0);
+  --foreground: oklch(0.145 0 0);
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.145 0 0);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.145 0 0);
+  --primary: oklch(0.205 0 0);
+  --primary-foreground: oklch(0.985 0 0);
+  --secondary: oklch(0.97 0 0);
+  --secondary-foreground: oklch(0.205 0 0);
+  --muted: oklch(0.97 0 0);
+  --muted-foreground: oklch(0.556 0 0);
+  --accent: oklch(0.97 0 0);
+  --accent-foreground: oklch(0.205 0 0);
+  --destructive: oklch(0.577 0.245 27.325);
+  --border: oklch(0.922 0 0);
+  --input: oklch(0.922 0 0);
+  --ring: oklch(0.708 0 0);
+  --chart-1: oklch(0.87 0 0);
+  --chart-2: oklch(0.556 0 0);
+  --chart-3: oklch(0.439 0 0);
+  --chart-4: oklch(0.371 0 0);
+  --chart-5: oklch(0.269 0 0);
+  --radius: 0.625rem;
+  --sidebar: oklch(0.985 0 0);
+  --sidebar-foreground: oklch(0.145 0 0);
+  --sidebar-primary: oklch(0.205 0 0);
+  --sidebar-primary-foreground: oklch(0.985 0 0);
+  --sidebar-accent: oklch(0.97 0 0);
+  --sidebar-accent-foreground: oklch(0.205 0 0);
+  --sidebar-border: oklch(0.922 0 0);
+  --sidebar-ring: oklch(0.708 0 0);
+
+  /* Card types (light): 600 accents, 700/800 text for AA contrast on tinted backgrounds. */
+  --type-class: var(--color-amber-600);
+  --type-class-fg: var(--color-amber-800);
+  --type-subclass: var(--color-orange-600);
+  --type-subclass-fg: var(--color-orange-800);
+  --type-spell: var(--color-violet-600);
+  --type-spell-fg: var(--color-violet-700);
+  --type-monster: var(--color-red-600);
+  --type-monster-fg: var(--color-red-700);
+  --type-equipment: var(--color-stone-500);
+  --type-equipment-fg: var(--color-stone-700);
+  --type-magic-item: var(--color-sky-600);
+  --type-magic-item-fg: var(--color-sky-800);
+  --type-feat: var(--color-emerald-600);
+  --type-feat-fg: var(--color-emerald-800);
+  --type-condition: var(--color-pink-600);
+  --type-condition-fg: var(--color-pink-700);
+  --type-rule: var(--color-blue-700);
+  --type-rule-fg: var(--color-blue-800);
+  --type-custom: var(--color-zinc-500);
+  --type-custom-fg: var(--color-zinc-700);
+  --type-soft-mix: 10%;
+}
+
+.dark {
+  --background: oklch(0.145 0 0);
+  --foreground: oklch(0.985 0 0);
+  --card: oklch(0.205 0 0);
+  --card-foreground: oklch(0.985 0 0);
+  --popover: oklch(0.205 0 0);
+  --popover-foreground: oklch(0.985 0 0);
+  --primary: oklch(0.922 0 0);
+  --primary-foreground: oklch(0.205 0 0);
+  --secondary: oklch(0.269 0 0);
+  --secondary-foreground: oklch(0.985 0 0);
+  --muted: oklch(0.269 0 0);
+  --muted-foreground: oklch(0.708 0 0);
+  --accent: oklch(0.269 0 0);
+  --accent-foreground: oklch(0.985 0 0);
+  --destructive: oklch(0.704 0.191 22.216);
+  --border: oklch(1 0 0 / 10%);
+  --input: oklch(1 0 0 / 15%);
+  --ring: oklch(0.556 0 0);
+  --chart-1: oklch(0.87 0 0);
+  --chart-2: oklch(0.556 0 0);
+  --chart-3: oklch(0.439 0 0);
+  --chart-4: oklch(0.371 0 0);
+  --chart-5: oklch(0.269 0 0);
+  --sidebar: oklch(0.205 0 0);
+  --sidebar-foreground: oklch(0.985 0 0);
+  --sidebar-primary: oklch(0.488 0.243 264.376);
+  --sidebar-primary-foreground: oklch(0.985 0 0);
+  --sidebar-accent: oklch(0.269 0 0);
+  --sidebar-accent-foreground: oklch(0.985 0 0);
+  --sidebar-border: oklch(1 0 0 / 10%);
+  --sidebar-ring: oklch(0.556 0 0);
+
+  /* Card types (dark): 400 accents, 300 text. */
+  --type-class: var(--color-amber-400);
+  --type-class-fg: var(--color-amber-300);
+  --type-subclass: var(--color-orange-400);
+  --type-subclass-fg: var(--color-orange-300);
+  --type-spell: var(--color-violet-400);
+  --type-spell-fg: var(--color-violet-300);
+  --type-monster: var(--color-red-400);
+  --type-monster-fg: var(--color-red-300);
+  --type-equipment: var(--color-stone-400);
+  --type-equipment-fg: var(--color-stone-300);
+  --type-magic-item: var(--color-sky-400);
+  --type-magic-item-fg: var(--color-sky-300);
+  --type-feat: var(--color-emerald-400);
+  --type-feat-fg: var(--color-emerald-300);
+  --type-condition: var(--color-pink-400);
+  --type-condition-fg: var(--color-pink-300);
+  --type-rule: var(--color-blue-400);
+  --type-rule-fg: var(--color-blue-300);
+  --type-custom: var(--color-zinc-400);
+  --type-custom-fg: var(--color-zinc-300);
+  --type-soft-mix: 14%;
+}
+
+
+:root,
+.dark {
+  --type-class-soft: color-mix(in oklab, var(--type-class) var(--type-soft-mix), transparent);
+  --type-subclass-soft: color-mix(in oklab, var(--type-subclass) var(--type-soft-mix), transparent);
+  --type-spell-soft: color-mix(in oklab, var(--type-spell) var(--type-soft-mix), transparent);
+  --type-monster-soft: color-mix(in oklab, var(--type-monster) var(--type-soft-mix), transparent);
+  --type-equipment-soft: color-mix(in oklab, var(--type-equipment) var(--type-soft-mix), transparent);
+  --type-magic-item-soft: color-mix(in oklab, var(--type-magic-item) var(--type-soft-mix), transparent);
+  --type-feat-soft: color-mix(in oklab, var(--type-feat) var(--type-soft-mix), transparent);
+  --type-condition-soft: color-mix(in oklab, var(--type-condition) var(--type-soft-mix), transparent);
+  --type-rule-soft: color-mix(in oklab, var(--type-rule) var(--type-soft-mix), transparent);
+  --type-custom-soft: color-mix(in oklab, var(--type-custom) var(--type-soft-mix), transparent);
+}
+
+/* Rendered SRD prose (sanitized HTML from markdown). */
+@layer components {
+  .srd-prose {
+    @apply text-sm leading-relaxed text-foreground;
+  }
+  .srd-prose > * + * {
+    @apply mt-2;
+  }
+  .srd-prose strong {
+    @apply font-semibold;
+  }
+  .srd-prose em strong,
+  .srd-prose strong em {
+    @apply font-semibold;
+  }
+  .srd-prose h3,
+  .srd-prose h4 {
+    @apply mt-4 font-serif text-base font-semibold;
+  }
+  .srd-prose ul {
+    @apply list-disc space-y-1 pl-5;
+  }
+  .srd-prose ol {
+    @apply list-decimal space-y-1 pl-5;
+  }
+  .srd-prose blockquote {
+    @apply rounded-md border-l-2 border-border bg-muted/50 px-3 py-2 text-[0.8125rem];
+  }
+  .srd-prose table {
+    @apply my-3 w-full border-collapse text-[0.8125rem];
+  }
+  .srd-prose th {
+    @apply border-b border-border px-2 py-1 text-left align-bottom font-semibold;
+  }
+  .srd-prose td {
+    @apply border-b border-border/60 px-2 py-1 align-top;
+  }
+  .srd-prose tr:nth-child(even) td {
+    @apply bg-muted/40;
+  }
+  .srd-prose a {
+    @apply underline underline-offset-2;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+  button:not(:disabled), [role="button"]:not(:disabled) {
+    cursor: pointer;
+  }
+  html {
+    @apply font-sans;
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "source": "SRD 5.2.1",
+  "pdfSha256": "8974902d109d6e63672d7c490bde9ccf052410503d9cfa768237154fbc5e3d87",
+  "counts": {
+    "class": 12,
+    "subclass": 12,
+    "spell": 339,
+    "monster": 330,
+    "equipment": 213,
+    "magic-item": 258,
+    "feat": 17,
+    "condition": 15,
+    "rule": 284
+  }
+}
