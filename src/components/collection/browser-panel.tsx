@@ -38,6 +38,7 @@ import {
   type FilterState,
   matchesFilterState,
 } from "@/lib/srd/filters";
+import { queryTerms } from "@/lib/srd/match";
 import type { IndexEntry, SrdType } from "@/lib/srd/schema";
 import { useSrdIndex } from "@/lib/srd/use-srd-index";
 import { cn } from "@/lib/utils";
@@ -77,6 +78,7 @@ export function BrowserPanel({
   const [filters, setFilters] = useState<FilterState>({});
   const [previewId, setPreviewId] = useState<string | null>(null);
   const deferredQuery = useDeferredValue(query);
+  const terms = useMemo(() => queryTerms(deferredQuery), [deferredQuery]);
   const singleType = types.length === 1 ? types[0] : undefined;
 
   // Results only change with the search inputs, so they stay put while a row is dragged.
@@ -192,6 +194,7 @@ export function BrowserPanel({
                 >
                   <ResultRow
                     entry={entry}
+                    terms={terms}
                     stacks={stacks}
                     defaultStackId={defaultStackId}
                     onAdd={onAdd}
@@ -212,6 +215,7 @@ export function BrowserPanel({
 
 function ResultRow({
   entry,
+  terms,
   stacks,
   defaultStackId,
   onAdd,
@@ -219,6 +223,7 @@ function ResultRow({
   onToggle,
 }: {
   entry: IndexEntry;
+  terms: string[];
   stacks: { id: string; name: string }[];
   defaultStackId?: string;
   onAdd: (entry: IndexEntry, stackId?: string) => void;
@@ -249,6 +254,7 @@ function ResultRow({
             kind={entry.type}
             name={entry.name}
             subtitle={entry.subtitle}
+            highlight={terms}
           />
         </button>
         <div className="flex items-center">

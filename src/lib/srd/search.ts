@@ -1,4 +1,4 @@
-import MiniSearch from "minisearch";
+import { normalize, occurrences, queryTerms } from "./match";
 import type { IndexEntry, SrdType } from "./schema";
 
 export type FacetValue = string | number | boolean | string[];
@@ -47,34 +47,54 @@ export function compareEntries(
   );
 }
 
-/** Builds an in-memory search over the index (~30ms for the full SRD). */
+/**
+ * Ranks a match: exact name, name starting with the query, every word at a word
+ * start in the name, every word anywhere in the name, then matches that need the
+ * subtitle or keywords. -1 when some word matches nowhere.
+ */
+function rank(name: string, other: string, terms: string[]): number {
+  const phrase = terms.join(" ");
+  if (name === phrase) return 0;
+  if (name.startsWith(phrase)) return 1;
+  if (terms.every((t) => occurrences(name, t, true).length)) return 2;
+  if (terms.every((t) => name.includes(t))) return 3;
+  // Subtitles and keywords only match at word starts: "con" in the middle of a word is noise there.
+  if (
+    terms.every((t) => name.includes(t) || occurrences(other, t, true).length)
+  )
+    return 4;
+  return -1;
+}
+
+/**
+ * An in-memory search over the index. A query's words must each appear in the
+ * name (anywhere) or at the start of a word in the subtitle or keywords.
+ */
 export function createSearch(
   entries: IndexEntry[],
   typeOrder: SrdType[] = [],
 ): SrdSearch {
-  const byId = new Map(entries.map((e) => [e.id, e]));
-  const mini = new MiniSearch<IndexEntry>({
-    fields: ["name", "subtitle", "keywords"],
-    storeFields: [],
-    searchOptions: {
-      boost: { name: 4, keywords: 1.5 },
-      prefix: true,
-      fuzzy: 0.15,
-      combineWith: "AND",
-    },
-    processTerm: (term) => term.toLowerCase().replace(/[’']/g, ""),
-  });
-  mini.addAll(entries);
-  const sorted = [...entries].sort((a, b) => compareEntries(a, b, typeOrder));
+  const sorted = [...entries]
+    .sort((a, b) => compareEntries(a, b, typeOrder))
+    .map((entry) => ({
+      entry,
+      name: normalize(entry.name).text,
+      other: normalize(
+        [entry.subtitle, entry.keywords].filter(Boolean).join(" · "),
+      ).text,
+    }));
 
   return {
     search(query, filters = {}) {
-      const q = query.trim();
-      if (!q) return sorted.filter((e) => matchesFilters(e, filters));
-      return mini
-        .search(q)
-        .map((r) => byId.get(r.id as string)!)
-        .filter((e) => e && matchesFilters(e, filters));
+      const terms = queryTerms(query);
+      const hits: { entry: IndexEntry; rank: number }[] = [];
+      for (const doc of sorted) {
+        const r = terms.length ? rank(doc.name, doc.other, terms) : 0;
+        if (r >= 0 && matchesFilters(doc.entry, filters))
+          hits.push({ entry: doc.entry, rank: r });
+      }
+      // Stable: entries keep the default order within a rank.
+      return hits.sort((a, b) => a.rank - b.rank).map((h) => h.entry);
     },
   };
 }

@@ -35,7 +35,7 @@ export function ensureSrdIndex(): Promise<void> {
   pending ??= (async () => {
     set({ ...state, status: "loading" });
     try {
-      // MiniSearch loads with the index, not with the page.
+      // The search code loads with the index, not with the page.
       const [entries, { createSearch }] = await Promise.all([
         loadIndex(),
         import("./search"),

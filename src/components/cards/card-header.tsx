@@ -1,6 +1,7 @@
 import { NotebookPenIcon } from "lucide-react";
 import { CARD_TYPES, type CardKind } from "@/lib/srd/card-types";
 import { cn } from "@/lib/utils";
+import { Highlight, termsNotIn } from "./highlight";
 import { TypeChip } from "./type-icon";
 
 /** The collapsed card row: type chip, name, subtitle, quantity and notes markers. */
@@ -11,6 +12,7 @@ export function CardHeaderContent({
   quantity = 1,
   hasNotes,
   missing,
+  highlight,
   className,
 }: {
   kind: CardKind;
@@ -19,6 +21,8 @@ export function CardHeaderContent({
   quantity?: number;
   hasNotes?: boolean;
   missing?: boolean;
+  /** Search terms (from `queryTerms`) to mark in the name and subtitle. */
+  highlight?: string[];
   className?: string;
 }) {
   return (
@@ -27,7 +31,11 @@ export function CardHeaderContent({
       <div className="min-w-0 flex-1">
         <div className="flex items-baseline gap-1.5">
           <span className="truncate font-serif text-[1.02rem] font-semibold leading-tight">
-            {name || "Untitled"}
+            {name ? (
+              <Highlight text={name} terms={highlight ?? []} />
+            ) : (
+              "Untitled"
+            )}
           </span>
           {quantity > 1 && (
             <span
@@ -46,7 +54,17 @@ export function CardHeaderContent({
           {missing ? (
             <span className="text-destructive">Missing SRD entry</span>
           ) : (
-            <span className="truncate">{subtitle}</span>
+            <span className="truncate">
+              {subtitle && highlight?.length ? (
+                <Highlight
+                  text={subtitle}
+                  terms={termsNotIn(name, highlight)}
+                  wordStart
+                />
+              ) : (
+                subtitle
+              )}
+            </span>
           )}
           {hasNotes && (
             <NotebookPenIcon

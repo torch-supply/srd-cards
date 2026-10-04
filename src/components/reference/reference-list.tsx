@@ -4,6 +4,7 @@ import { useWindowVirtualizer } from "@tanstack/react-virtual";
 import { SearchIcon } from "lucide-react";
 import Link from "next/link";
 import { useDeferredValue, useMemo, useState } from "react";
+import { Highlight, termsNotIn } from "@/components/cards/highlight";
 import { TypeChip } from "@/components/cards/type-icon";
 import { Input } from "@/components/ui/input";
 import { referenceHref } from "@/lib/srd/card-types";
@@ -12,6 +13,7 @@ import {
   type FilterState,
   matchesFilterState,
 } from "@/lib/srd/filters";
+import { queryTerms } from "@/lib/srd/match";
 import type { IndexEntry, SrdType } from "@/lib/srd/schema";
 import { createSearch } from "@/lib/srd/search";
 import { FilterBar } from "./filter-bar";
@@ -31,6 +33,7 @@ export function ReferenceList({
   const [query, setQuery] = useState("");
   const [filters, setFilters] = useState<FilterState>({});
   const deferredQuery = useDeferredValue(query);
+  const terms = useMemo(() => queryTerms(deferredQuery), [deferredQuery]);
   const search = useMemo(() => createSearch(entries), [entries]);
   const defs = FILTERS[type];
   const results = useMemo(
@@ -97,10 +100,14 @@ export function ReferenceList({
                 <TypeChip kind={entry.type} />
                 <span className="min-w-0 flex-1">
                   <span className="block truncate font-serif text-[1.05rem] font-semibold leading-tight">
-                    {entry.name}
+                    <Highlight text={entry.name} terms={terms} />
                   </span>
                   <span className="block truncate text-xs text-muted-foreground">
-                    {entry.subtitle}
+                    <Highlight
+                      text={entry.subtitle}
+                      terms={termsNotIn(entry.name, terms)}
+                      wordStart
+                    />
                   </span>
                 </span>
               </Link>

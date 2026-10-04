@@ -21,7 +21,7 @@ non-obvious.
   hand-format or add style rules to ESLint. Generated SRD data is in `.prettierignore`.
 - **Git hooks (Husky, installed by `pnpm install` via `prepare`):** pre-commit runs
   lint-staged (`.lintstagedrc.json`: Prettier, then ESLint `--fix`, on staged files; lint errors
-  block the commit), pre-push runs `pnpm test` (failures block the push). Don't bypass with
+  block the commit), pre-push runs `pnpm typecheck && pnpm test` (failures block the push). Don't bypass with
   `--no-verify`.
 
 ## Commands
@@ -88,11 +88,11 @@ non-obvious.
   sample says which layout it covers). After a parser change + `pnpm srd:import`, review the
   snapshot diff; if every change is intended, run `pnpm test -u`. Add a sample whenever you
   fix a parsing bug.
-- CI (`.github/workflows/ci.yml`) runs typecheck, lint, unit tests, build, and e2e against
-  the production build. It doesn't have the PDF, so `srd:import` / `srd:verify` run locally only.
 - Playwright's `dragTo` is unreliable with dnd-kit; use `drag()` in `tests/e2e/helpers.ts`
   (real mouse moves). Drop targets must be visible — columns scroll internally.
 - `playwright.config.ts` reuses a dev server on port 3000 if one is running.
+- `pnpm typecheck` runs `next typegen` first: `PageProps` / `LayoutProps` are global types
+  Next generates into `.next/types`, so plain `tsc` fails on a fresh clone.
 - Shell is zsh: don't name a loop variable `path` (it clobbers `PATH`).
 
 ## Learnings
