@@ -26,7 +26,9 @@ export function CardHeaderContent({
       <TypeChip kind={kind} />
       <div className="min-w-0 flex-1">
         <div className="flex items-baseline gap-1.5">
-          <span className="truncate font-serif text-[1.02rem] font-semibold leading-tight">{name || "Untitled"}</span>
+          <span className="truncate font-serif text-[1.02rem] font-semibold leading-tight">
+            {name || "Untitled"}
+          </span>
           {quantity > 1 && (
             <span
               className={cn(
@@ -41,8 +43,17 @@ export function CardHeaderContent({
           )}
         </div>
         <div className="flex items-center gap-1 text-xs text-muted-foreground">
-          {missing ? <span className="text-destructive">Missing SRD entry</span> : <span className="truncate">{subtitle}</span>}
-          {hasNotes && <NotebookPenIcon className="size-3 shrink-0" aria-label="Has notes" />}
+          {missing ? (
+            <span className="text-destructive">Missing SRD entry</span>
+          ) : (
+            <span className="truncate">{subtitle}</span>
+          )}
+          {hasNotes && (
+            <NotebookPenIcon
+              className="size-3 shrink-0"
+              aria-label="Has notes"
+            />
+          )}
         </div>
       </div>
     </div>

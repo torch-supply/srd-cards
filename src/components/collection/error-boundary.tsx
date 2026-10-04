@@ -2,7 +2,10 @@
 
 import { Component, type ReactNode } from "react";
 
-export class ErrorBoundary extends Component<{ fallback: ReactNode; children: ReactNode }, { error: boolean }> {
+export class ErrorBoundary extends Component<
+  { fallback: ReactNode; children: ReactNode },
+  { error: boolean }
+> {
   state = { error: false };
 
   static getDerivedStateFromError() {

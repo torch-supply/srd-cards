@@ -34,12 +34,22 @@ function BodySkeleton() {
 }
 
 /** Expanded content of a card: SRD details (fetched on demand) or custom markdown. */
-export function CardBody({ card, readOnly }: { card: Card; readOnly: boolean }) {
+export function CardBody({
+  card,
+  readOnly,
+}: {
+  card: Card;
+  readOnly: boolean;
+}) {
   return (
     <div className="space-y-3">
       {card.kind === "srd" && card.ref ? (
         <ErrorBoundary
-          fallback={<p className="text-sm text-destructive">Couldn’t load this SRD entry. Check your connection and try again.</p>}
+          fallback={
+            <p className="text-sm text-destructive">
+              Couldn’t load this SRD entry. Check your connection and try again.
+            </p>
+          }
         >
           <Suspense fallback={<BodySkeleton />}>
             <SrdEntry refId={card.ref} />
@@ -48,7 +58,9 @@ export function CardBody({ card, readOnly }: { card: Card; readOnly: boolean }) 
       ) : card.custom?.body ? (
         <Markdown>{card.custom.body}</Markdown>
       ) : (
-        <p className="text-sm italic text-muted-foreground">No text yet. Use “Edit” in the card menu to write some.</p>
+        <p className="text-sm italic text-muted-foreground">
+          No text yet. Use “Edit” in the card menu to write some.
+        </p>
       )}
       <CardFooter card={card} readOnly={readOnly} />
     </div>
@@ -58,12 +70,17 @@ export function CardBody({ card, readOnly }: { card: Card; readOnly: boolean }) 
 function CardFooter({ card, readOnly }: { card: Card; readOnly: boolean }) {
   const dispatch = useCollectionStore((s) => s.dispatch);
   const setQuantity = (quantity: number) =>
-    dispatch({ type: "updateCard", cardId: card.id, quantity }, { coalesce: `quantity:${card.id}` });
+    dispatch(
+      { type: "updateCard", cardId: card.id, quantity },
+      { coalesce: `quantity:${card.id}` },
+    );
   const ref = card.kind === "srd" && card.ref ? parseRef(card.ref) : undefined;
   return (
     <div className="space-y-2 border-t pt-3">
       <div className="flex items-center gap-2">
-        <span className="text-xs font-medium text-muted-foreground">Quantity</span>
+        <span className="text-xs font-medium text-muted-foreground">
+          Quantity
+        </span>
         <div className="flex items-center rounded-md border">
           <Button
             variant="ghost"
@@ -74,7 +91,10 @@ function CardFooter({ card, readOnly }: { card: Card; readOnly: boolean }) {
           >
             <MinusIcon />
           </Button>
-          <span className="w-8 text-center text-sm tabular-nums" aria-live="polite">
+          <span
+            className="w-8 text-center text-sm tabular-nums"
+            aria-live="polite"
+          >
             {card.quantity}
           </span>
           <Button
@@ -101,7 +121,10 @@ function CardFooter({ card, readOnly }: { card: Card; readOnly: boolean }) {
         value={card.notes ?? ""}
         disabled={readOnly}
         onChange={(e) =>
-          dispatch({ type: "updateCard", cardId: card.id, notes: e.target.value }, { coalesce: `notes:${card.id}` })
+          dispatch(
+            { type: "updateCard", cardId: card.id, notes: e.target.value },
+            { coalesce: `notes:${card.id}` },
+          )
         }
         placeholder="Notes (e.g. prepared, 12 HP left)…"
         aria-label="Card notes"

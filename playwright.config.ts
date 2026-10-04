@@ -11,9 +11,20 @@ export default defineConfig({
     viewport: { width: 1440, height: 900 },
     trace: "retain-on-failure",
   },
-  projects: [{ name: "chromium", use: { ...devices["Desktop Chrome"], viewport: { width: 1440, height: 900 } } }],
+  projects: [
+    {
+      name: "chromium",
+      use: {
+        ...devices["Desktop Chrome"],
+        viewport: { width: 1440, height: 900 },
+      },
+    },
+  ],
   webServer: {
-    command: `pnpm dev --port ${PORT}`,
+    // CI tests the production build (`pnpm build` runs first); locally, a dev server.
+    command: process.env.CI
+      ? `pnpm start --port ${PORT}`
+      : `pnpm dev --port ${PORT}`,
     url: `http://localhost:${PORT}`,
     reuseExistingServer: !process.env.CI,
     timeout: 120_000,

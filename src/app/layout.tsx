@@ -9,8 +9,15 @@ import { srdDataHash } from "@/lib/srd/data-hash";
 import "./globals.css";
 
 const geistSans = Geist({ variable: "--font-geist-sans", subsets: ["latin"] });
-const geistMono = Geist_Mono({ variable: "--font-geist-mono", subsets: ["latin"] });
-const crimson = Crimson_Pro({ variable: "--font-crimson", subsets: ["latin"], weight: ["500", "600", "700"] });
+const geistMono = Geist_Mono({
+  variable: "--font-geist-mono",
+  subsets: ["latin"],
+});
+const crimson = Crimson_Pro({
+  variable: "--font-crimson",
+  subsets: ["latin"],
+  weight: ["500", "600", "700"],
+});
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://srd.cards"),
@@ -29,7 +36,12 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       className={`${geistSans.variable} ${geistMono.variable} ${crimson.variable} h-full antialiased`}
     >
       <body className="flex min-h-full flex-col">
-        <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="system"
+          enableSystem
+          disableTransitionOnChange
+        >
           <TooltipProvider delayDuration={300}>
             <SiteHeader />
             <main className="flex flex-1 flex-col">{children}</main>

@@ -28,16 +28,30 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { downloadJson, exportCollections, exportFileName } from "@/lib/export";
 import { newId } from "@/lib/model/core";
 import { getRepository } from "@/lib/storage";
-import { CollectionStoreProvider, useCollectionStore, useCollectionStoreApi } from "@/stores/collection-store";
+import {
+  CollectionStoreProvider,
+  useCollectionStore,
+  useCollectionStoreApi,
+} from "@/stores/collection-store";
 import { Board } from "./board";
 
 // Dialogs load on first use.
-const ConfirmDialog = dynamic(() => import("@/components/collections/confirm-dialog").then((m) => m.ConfirmDialog));
-const CustomCardDialog = dynamic(() => import("./custom-card-dialog").then((m) => m.CustomCardDialog));
+const ConfirmDialog = dynamic(() =>
+  import("@/components/collections/confirm-dialog").then(
+    (m) => m.ConfirmDialog,
+  ),
+);
+const CustomCardDialog = dynamic(() =>
+  import("./custom-card-dialog").then((m) => m.CustomCardDialog),
+);
 import { InlineEdit } from "./inline-edit";
 
 export function CollectionPage({ id }: { id: string }) {
@@ -70,9 +84,12 @@ function CollectionView() {
   if (status === "missing") {
     return (
       <div className="mx-auto flex max-w-md flex-1 flex-col items-center justify-center gap-3 p-6 text-center">
-        <h1 className="font-serif text-2xl font-semibold">Collection not found</h1>
+        <h1 className="font-serif text-2xl font-semibold">
+          Collection not found
+        </h1>
         <p className="text-sm text-muted-foreground">
-          It may have been deleted, or it was created in a different browser. Collections are stored in this browser only.
+          It may have been deleted, or it was created in a different browser.
+          Collections are stored in this browser only.
         </p>
         <Button asChild>
           <Link href="/">Back to collections</Link>
@@ -84,12 +101,22 @@ function CollectionView() {
     return (
       <div className="mx-auto flex max-w-lg flex-1 flex-col items-center justify-center gap-3 p-6 text-center">
         <CircleAlertIcon className="size-8 text-destructive" />
-        <h1 className="font-serif text-2xl font-semibold">This collection can’t be opened</h1>
+        <h1 className="font-serif text-2xl font-semibold">
+          This collection can’t be opened
+        </h1>
         <p className="text-sm text-muted-foreground">{error}</p>
-        <p className="text-sm text-muted-foreground">Your data hasn’t been changed. You can download it as-is, or delete it.</p>
+        <p className="text-sm text-muted-foreground">
+          Your data hasn’t been changed. You can download it as-is, or delete
+          it.
+        </p>
         <div className="flex gap-2">
           {corruptRaw && (
-            <Button variant="outline" onClick={() => downloadJson(`srd-cards-unreadable-${id}.json`, corruptRaw)}>
+            <Button
+              variant="outline"
+              onClick={() =>
+                downloadJson(`srd-cards-unreadable-${id}.json`, corruptRaw)
+              }
+            >
               <DownloadIcon /> Download raw data
             </Button>
           )}
@@ -128,7 +155,9 @@ function ReadyView() {
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       const target = e.target as HTMLElement;
-      const typing = target.isContentEditable || ["INPUT", "TEXTAREA", "SELECT"].includes(target.tagName);
+      const typing =
+        target.isContentEditable ||
+        ["INPUT", "TEXTAREA", "SELECT"].includes(target.tagName);
       const mod = e.metaKey || e.ctrlKey;
       if (mod && !typing && e.key.toLowerCase() === "z") {
         e.preventDefault();
@@ -163,13 +192,16 @@ function ReadyView() {
   };
 
   const allCardIds = collection.stacks.flatMap((s) => s.cards.map((c) => c.id));
-  const defaultStackId = collection.stacks.some((s) => s.id === lastStackId) ? lastStackId : collection.stacks[0]?.id;
+  const defaultStackId = collection.stacks.some((s) => s.id === lastStackId)
+    ? lastStackId
+    : collection.stacks[0]?.id;
 
   return (
     <div className="flex h-[calc(100dvh-3.5rem)] min-h-[480px] flex-col">
       {readOnly && (
         <div className="border-b bg-amber-500/10 px-6 py-2 text-sm">
-          This collection was saved by a newer version of srd.cards, so it’s read-only here. Reload the page to update.
+          This collection was saved by a newer version of srd.cards, so it’s
+          read-only here. Reload the page to update.
         </div>
       )}
       {storageProblem && (
@@ -179,7 +211,12 @@ function ReadyView() {
             ? "Browser storage is full, so recent changes aren’t saved."
             : "Browser storage is unavailable, so changes aren’t saved."}{" "}
           Export a backup to keep your work.
-          <Button size="xs" variant="outline" className="ml-auto" onClick={() => void exportJson()}>
+          <Button
+            size="xs"
+            variant="outline"
+            className="ml-auto"
+            onClick={() => void exportJson()}
+          >
             <DownloadIcon /> Export JSON
           </Button>
         </div>
@@ -202,34 +239,64 @@ function ReadyView() {
             multiline
             maxLength={5000}
             disabled={readOnly}
-            onSave={(description) => dispatch({ type: "updateCollection", description: description.trim() })}
+            onSave={(description) =>
+              dispatch({
+                type: "updateCollection",
+                description: description.trim(),
+              })
+            }
             className="mt-0.5 line-clamp-2 text-sm text-muted-foreground"
           />
         </div>
         <div className="flex shrink-0 items-center gap-1 pt-1">
           <SaveIndicator state={saveState} />
-          <ToolbarButton label="Undo (⌘Z)" disabled={!canUndo || readOnly} onClick={undo}>
+          <ToolbarButton
+            label="Undo (⌘Z)"
+            disabled={!canUndo || readOnly}
+            onClick={undo}
+          >
             <Undo2Icon />
           </ToolbarButton>
-          <ToolbarButton label="Redo (⇧⌘Z)" disabled={!canRedo || readOnly} onClick={redo}>
+          <ToolbarButton
+            label="Redo (⇧⌘Z)"
+            disabled={!canRedo || readOnly}
+            onClick={redo}
+          >
             <Redo2Icon />
           </ToolbarButton>
-          <ToolbarButton label="Collapse all cards" onClick={() => setExpandedMany(allCardIds, false)}>
+          <ToolbarButton
+            label="Collapse all cards"
+            onClick={() => setExpandedMany(allCardIds, false)}
+          >
             <ChevronsDownUpIcon />
           </ToolbarButton>
           {!readOnly && (
             <>
-              <Button variant="outline" size="sm" onClick={() => setAddingCustom(true)}>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setAddingCustom(true)}
+              >
                 <SquarePenIcon /> Custom card
               </Button>
-              <Button variant="outline" size="sm" onClick={() => setUi({ browserOpen: !browserOpen })} aria-pressed={browserOpen}>
-                {browserOpen ? <PanelLeftCloseIcon /> : <PanelLeftOpenIcon />} Browser
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setUi({ browserOpen: !browserOpen })}
+                aria-pressed={browserOpen}
+              >
+                {browserOpen ? <PanelLeftCloseIcon /> : <PanelLeftOpenIcon />}{" "}
+                Browser
               </Button>
             </>
           )}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="ghost" size="icon-sm" aria-label="Collection actions">
+              <Button
+                variant="ghost"
+                size="icon-sm"
+                aria-label="Collection actions"
+              >
                 <EllipsisVerticalIcon />
               </Button>
             </DropdownMenuTrigger>
@@ -240,7 +307,10 @@ function ReadyView() {
               {!readOnly && (
                 <>
                   <DropdownMenuSeparator />
-                  <DropdownMenuItem variant="destructive" onSelect={() => setDeleting(true)}>
+                  <DropdownMenuItem
+                    variant="destructive"
+                    onSelect={() => setDeleting(true)}
+                  >
                     <Trash2Icon /> Delete collection…
                   </DropdownMenuItem>
                 </>
@@ -250,7 +320,12 @@ function ReadyView() {
         </div>
       </header>
 
-      <Board collection={collection} readOnly={readOnly} browserOpen={browserOpen} searchRef={searchRef} />
+      <Board
+        collection={collection}
+        readOnly={readOnly}
+        browserOpen={browserOpen}
+        searchRef={searchRef}
+      />
 
       {deleting && (
         <ConfirmDialog
@@ -274,7 +349,12 @@ function ReadyView() {
               dispatch({ type: "addStack", stackId: target, name: "Stack 1" });
             }
             const cardId = newId();
-            dispatch({ type: "addCustomCard", stackId: target, cardId, custom });
+            dispatch({
+              type: "addCustomCard",
+              stackId: target,
+              cardId,
+              custom,
+            });
             store.getState().toggleExpanded(cardId, true);
             setUi({ lastStackId: target });
             setAddingCustom(false);
@@ -299,7 +379,13 @@ function ToolbarButton({
   return (
     <Tooltip>
       <TooltipTrigger asChild>
-        <Button variant="ghost" size="icon-sm" aria-label={label} disabled={disabled} onClick={onClick}>
+        <Button
+          variant="ghost"
+          size="icon-sm"
+          aria-label={label}
+          disabled={disabled}
+          onClick={onClick}
+        >
           {children}
         </Button>
       </TooltipTrigger>
@@ -308,15 +394,29 @@ function ToolbarButton({
   );
 }
 
-function SaveIndicator({ state }: { state: "saved" | "pending" | "saving" | "error" }) {
+function SaveIndicator({
+  state,
+}: {
+  state: "saved" | "pending" | "saving" | "error";
+}) {
   const map = {
     saved: { icon: <CloudCheckIcon className="size-3.5" />, text: "Saved" },
     pending: { icon: <LoaderIcon className="size-3.5" />, text: "Saving…" },
-    saving: { icon: <LoaderIcon className="size-3.5 animate-spin" />, text: "Saving…" },
-    error: { icon: <CircleAlertIcon className="size-3.5 text-destructive" />, text: "Not saved" },
+    saving: {
+      icon: <LoaderIcon className="size-3.5 animate-spin" />,
+      text: "Saving…",
+    },
+    error: {
+      icon: <CircleAlertIcon className="size-3.5 text-destructive" />,
+      text: "Not saved",
+    },
   }[state];
   return (
-    <span className="mr-2 inline-flex items-center gap-1 text-xs text-muted-foreground" aria-live="polite" data-testid="save-state">
+    <span
+      className="mr-2 inline-flex items-center gap-1 text-xs text-muted-foreground"
+      aria-live="polite"
+      data-testid="save-state"
+    >
       {map.icon}
       {map.text}
     </span>

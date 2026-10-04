@@ -13,10 +13,22 @@ const ABILITY_LABELS: Record<(typeof ABILITIES)[number], string> = {
 };
 
 /** A compact 5.2.1-style stat block that fits a ~340px column. */
-export function StatBlockView({ block, showName, className }: { block: StatBlock; showName?: boolean; className?: string }) {
+export function StatBlockView({
+  block,
+  showName,
+  className,
+}: {
+  block: StatBlock;
+  showName?: boolean;
+  className?: string;
+}) {
   return (
     <div className={cn("@container space-y-2 text-sm", className)}>
-      {showName && <div className="font-serif text-lg font-semibold leading-tight">{block.name}</div>}
+      {showName && (
+        <div className="font-serif text-lg font-semibold leading-tight">
+          {block.name}
+        </div>
+      )}
       <p className="italic text-muted-foreground">{block.meta}</p>
 
       <div className="space-y-0.5">
@@ -59,22 +71,36 @@ export function StatBlockView({ block, showName, className }: { block: StatBlock
       <div className="space-y-0.5">
         {block.fields.map((f) => (
           <p key={f.label}>
-            <b>{f.label}</b> <span dangerouslySetInnerHTML={{ __html: f.value }} />
+            <b>{f.label}</b>{" "}
+            <span dangerouslySetInnerHTML={{ __html: f.value }} />
           </p>
         ))}
         <p>
           <b>CR</b> {block.cr}
-          {block.crDetail && <span className="text-muted-foreground"> ({block.crDetail})</span>}
+          {block.crDetail && (
+            <span className="text-muted-foreground"> ({block.crDetail})</span>
+          )}
         </p>
       </div>
 
       {block.sections.map((section) => (
         <div key={section.title}>
-          <h4 className="mt-3 border-b pb-0.5 font-serif text-[0.95rem] font-semibold">{section.title}</h4>
-          {section.intro && <Html html={section.intro} className="mt-1.5 italic text-muted-foreground" />}
+          <h4 className="mt-3 border-b pb-0.5 font-serif text-[0.95rem] font-semibold">
+            {section.title}
+          </h4>
+          {section.intro && (
+            <Html
+              html={section.intro}
+              className="mt-1.5 italic text-muted-foreground"
+            />
+          )}
           <div className="mt-1.5 space-y-1.5">
             {section.entries.map((entry, i) => (
-              <RunIn key={`${entry.name}-${i}`} name={entry.name} html={entry.description} />
+              <RunIn
+                key={`${entry.name}-${i}`}
+                name={entry.name}
+                html={entry.description}
+              />
             ))}
           </div>
         </div>

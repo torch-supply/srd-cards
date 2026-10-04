@@ -35,7 +35,10 @@ export interface CollectionRepository {
   list(): Promise<CollectionSummary[]>;
   get(id: string): Promise<LoadResult>;
   /** Saves a whole collection. `baseRev` is the rev the caller last loaded/saved. */
-  save(collection: Collection, opts?: { baseRev?: number }): Promise<SaveResult>;
+  save(
+    collection: Collection,
+    opts?: { baseRev?: number },
+  ): Promise<SaveResult>;
   delete(id: string): Promise<void>;
   /** Notifies about changes made elsewhere (other tabs). `id` is undefined when unknown. */
   subscribe(listener: (change: { id?: string }) => void): () => void;

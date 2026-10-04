@@ -1,13 +1,24 @@
 import type { SpellEntry } from "../../../src/lib/srd/schema";
 import { slugify, spansText } from "../pdf/text";
-import { proseBlocksFor, blocksToMarkdown, CHAPTERS, type Ctx, relocateTables, splitAtHeadings, takeMeta } from "./common";
+import {
+  proseBlocksFor,
+  blocksToMarkdown,
+  CHAPTERS,
+  type Ctx,
+  relocateTables,
+  splitAtHeadings,
+  takeMeta,
+} from "./common";
 import { extractStatBlocks } from "./embedded";
 
 const META = /^(?:Level (\d) (\w+)|(\w+) Cantrip) \((.+)\)$/;
 
 export function parseSpells(ctx: Ctx): SpellEntry[] {
   const blocks = proseBlocksFor(ctx, CHAPTERS.spellDescriptions);
-  const drafts = splitAtHeadings(blocks, (h) => Math.abs(h.size - 12) < 0.3 && h.font !== "gill");
+  const drafts = splitAtHeadings(
+    blocks,
+    (h) => Math.abs(h.size - 12) < 0.3 && h.font !== "gill",
+  );
   relocateTables(drafts, ctx);
   const statBlocks = extractStatBlocks(drafts, ctx);
 
@@ -15,10 +26,16 @@ export function parseSpells(ctx: Ctx): SpellEntry[] {
     const name = draft.heading.text;
     const meta = takeMeta(draft) ?? "";
     const m = meta.match(META);
-    if (!m) ctx.warnings.push(`Spell "${name}": unrecognized level/school line "${meta}".`);
+    if (!m)
+      ctx.warnings.push(
+        `Spell "${name}": unrecognized level/school line "${meta}".`,
+      );
     const level = m?.[1] ? Number(m[1]) : 0;
     const school = m?.[2] ?? m?.[3] ?? "";
-    const classes = (m?.[4] ?? "").split(",").map((c) => c.trim()).filter(Boolean);
+    const classes = (m?.[4] ?? "")
+      .split(",")
+      .map((c) => c.trim())
+      .filter(Boolean);
 
     // Casting Time / Range / Components / Duration: a label/value block, usually
     // set in GillSans (a table block), occasionally in Cambria (a paragraph).
@@ -27,7 +44,8 @@ export function parseSpells(ctx: Ctx): SpellEntry[] {
     const fieldLines =
       fieldBlock?.kind === "table"
         ? fieldBlock.lines
-        : fieldBlock?.kind === "para" && /^Casting Time:/.test(fieldBlock.spans[0]?.text ?? "")
+        : fieldBlock?.kind === "para" &&
+            /^Casting Time:/.test(fieldBlock.spans[0]?.text ?? "")
           ? fieldBlock.lines
           : undefined;
     if (fieldLines) {
@@ -35,7 +53,9 @@ export function parseSpells(ctx: Ctx): SpellEntry[] {
       let label = "";
       for (const line of fieldLines) {
         const first = line.spans[0];
-        const isLabel = (first.font === "gill-sb" || first.font === "body-b") && /:\s*$/.test(first.text);
+        const isLabel =
+          (first.font === "gill-sb" || first.font === "body-b") &&
+          /:\s*$/.test(first.text);
         const value = spansText(isLabel ? line.spans.slice(1) : line.spans);
         if (isLabel) {
           label = first.text.replace(/:\s*$/, "").trim();
@@ -45,7 +65,9 @@ export function parseSpells(ctx: Ctx): SpellEntry[] {
         }
       }
     } else {
-      ctx.warnings.push(`Spell "${name}": missing casting time/range/components/duration block.`);
+      ctx.warnings.push(
+        `Spell "${name}": missing casting time/range/components/duration block.`,
+      );
     }
 
     const castingTime = fields["Casting Time"] ?? "";

@@ -7,7 +7,11 @@ import { useDeferredValue, useMemo, useState } from "react";
 import { TypeChip } from "@/components/cards/type-icon";
 import { Input } from "@/components/ui/input";
 import { referenceHref } from "@/lib/srd/card-types";
-import { FILTERS, type FilterState, matchesFilterState } from "@/lib/srd/filters";
+import {
+  FILTERS,
+  type FilterState,
+  matchesFilterState,
+} from "@/lib/srd/filters";
 import type { IndexEntry, SrdType } from "@/lib/srd/schema";
 import { createSearch } from "@/lib/srd/search";
 import { FilterBar } from "./filter-bar";
@@ -15,7 +19,13 @@ import { FilterBar } from "./filter-bar";
 const ROW_HEIGHT = 52;
 
 /** Searchable, filterable, virtualized list of one SRD type. */
-export function ReferenceList({ type, entries }: { type: SrdType; entries: IndexEntry[] }) {
+export function ReferenceList({
+  type,
+  entries,
+}: {
+  type: SrdType;
+  entries: IndexEntry[];
+}) {
   // TanStack Virtual returns functions the React Compiler can't memoize safely.
   "use no memo";
   const [query, setQuery] = useState("");
@@ -24,11 +34,18 @@ export function ReferenceList({ type, entries }: { type: SrdType; entries: Index
   const search = useMemo(() => createSearch(entries), [entries]);
   const defs = FILTERS[type];
   const results = useMemo(
-    () => search.search(deferredQuery).filter((e) => matchesFilterState(e, defs, filters)),
+    () =>
+      search
+        .search(deferredQuery)
+        .filter((e) => matchesFilterState(e, defs, filters)),
     [search, deferredQuery, defs, filters],
   );
 
-  const virtualizer = useWindowVirtualizer({ count: results.length, estimateSize: () => ROW_HEIGHT, overscan: 12 });
+  const virtualizer = useWindowVirtualizer({
+    count: results.length,
+    estimateSize: () => ROW_HEIGHT,
+    overscan: 12,
+  });
 
   return (
     <div className="space-y-3">
@@ -44,7 +61,12 @@ export function ReferenceList({ type, entries }: { type: SrdType; entries: Index
               aria-label="Search"
             />
           </div>
-          <FilterBar defs={defs} entries={entries} state={filters} onChange={setFilters} />
+          <FilterBar
+            defs={defs}
+            entries={entries}
+            state={filters}
+            onChange={setFilters}
+          />
           <span className="ml-auto text-sm text-muted-foreground tabular-nums">
             {results.length} of {entries.length}
           </span>
@@ -52,9 +74,14 @@ export function ReferenceList({ type, entries }: { type: SrdType; entries: Index
       </div>
 
       {results.length === 0 ? (
-        <p className="py-12 text-center text-sm text-muted-foreground">Nothing matches. Try a different search or clear the filters.</p>
+        <p className="py-12 text-center text-sm text-muted-foreground">
+          Nothing matches. Try a different search or clear the filters.
+        </p>
       ) : (
-        <div className="relative w-full" style={{ height: virtualizer.getTotalSize() }}>
+        <div
+          className="relative w-full"
+          style={{ height: virtualizer.getTotalSize() }}
+        >
           {virtualizer.getVirtualItems().map((item) => {
             const entry = results[item.index];
             return (
@@ -62,12 +89,19 @@ export function ReferenceList({ type, entries }: { type: SrdType; entries: Index
                 key={entry.id}
                 href={referenceHref(entry.type, entry.slug)}
                 className="absolute inset-x-0 flex items-center gap-3 rounded-md border-b border-border/50 px-2 hover:bg-muted/60"
-                style={{ height: ROW_HEIGHT, transform: `translateY(${item.start - virtualizer.options.scrollMargin}px)` }}
+                style={{
+                  height: ROW_HEIGHT,
+                  transform: `translateY(${item.start - virtualizer.options.scrollMargin}px)`,
+                }}
               >
                 <TypeChip kind={entry.type} />
                 <span className="min-w-0 flex-1">
-                  <span className="block truncate font-serif text-[1.05rem] font-semibold leading-tight">{entry.name}</span>
-                  <span className="block truncate text-xs text-muted-foreground">{entry.subtitle}</span>
+                  <span className="block truncate font-serif text-[1.05rem] font-semibold leading-tight">
+                    {entry.name}
+                  </span>
+                  <span className="block truncate text-xs text-muted-foreground">
+                    {entry.subtitle}
+                  </span>
                 </span>
               </Link>
             );

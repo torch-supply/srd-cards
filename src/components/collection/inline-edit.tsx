@@ -76,7 +76,8 @@ export function InlineEdit({
     maxLength,
     "aria-label": ariaLabel,
     placeholder,
-    onChange: (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => setDraft(e.target.value),
+    onChange: (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) =>
+      setDraft(e.target.value),
     onBlur: commit,
     onKeyDown: (e: React.KeyboardEvent) => {
       if (e.key === "Escape") {

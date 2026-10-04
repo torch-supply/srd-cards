@@ -12,7 +12,12 @@ import remarkRehype from "remark-rehype";
 import { unified } from "unified";
 import type { SrdEntry, StatBlock } from "./schema";
 
-const processor = unified().use(remarkParse).use(remarkGfm).use(remarkRehype).use(rehypeSanitize).use(rehypeStringify);
+const processor = unified()
+  .use(remarkParse)
+  .use(remarkGfm)
+  .use(remarkRehype)
+  .use(rehypeSanitize)
+  .use(rehypeStringify);
 
 export function renderSrdMarkdown(markdown: string): string {
   return String(processor.processSync(markdown));
@@ -28,11 +33,17 @@ export function renderSrdInline(markdown: string): string {
 function renderStatBlock(block: StatBlock): StatBlock {
   return {
     ...block,
-    fields: block.fields.map((f) => ({ ...f, value: renderSrdInline(f.value) })),
+    fields: block.fields.map((f) => ({
+      ...f,
+      value: renderSrdInline(f.value),
+    })),
     sections: block.sections.map((s) => ({
       ...s,
       ...(s.intro ? { intro: renderSrdMarkdown(s.intro) } : {}),
-      entries: s.entries.map((e) => ({ ...e, description: renderSrdMarkdown(e.description) })),
+      entries: s.entries.map((e) => ({
+        ...e,
+        description: renderSrdMarkdown(e.description),
+      })),
     })),
   };
 }
@@ -48,25 +59,42 @@ export function renderEntry<T extends SrdEntry>(entry: T): T {
       return {
         ...e,
         description: renderSrdMarkdown(e.description),
-        ...(e.statBlocks ? { statBlocks: e.statBlocks.map(renderStatBlock) } : {}),
+        ...(e.statBlocks
+          ? { statBlocks: e.statBlocks.map(renderStatBlock) }
+          : {}),
       } as T;
     case "class":
       return {
         ...e,
         description: renderSrdMarkdown(e.description),
-        features: e.features.map((f) => ({ ...f, description: renderSrdMarkdown(f.description) })),
+        features: e.features.map((f) => ({
+          ...f,
+          description: renderSrdMarkdown(f.description),
+        })),
       } as T;
     case "subclass":
       return {
         ...e,
         description: renderSrdMarkdown(e.description),
-        features: e.features.map((f) => ({ ...f, description: renderSrdMarkdown(f.description) })),
+        features: e.features.map((f) => ({
+          ...f,
+          description: renderSrdMarkdown(f.description),
+        })),
       } as T;
     case "equipment":
       return {
         ...e,
-        ...(e.description ? { description: renderSrdMarkdown(e.description) } : {}),
-        ...(e.fields ? { fields: e.fields.map((f) => ({ ...f, value: renderSrdInline(f.value) })) } : {}),
+        ...(e.description
+          ? { description: renderSrdMarkdown(e.description) }
+          : {}),
+        ...(e.fields
+          ? {
+              fields: e.fields.map((f) => ({
+                ...f,
+                value: renderSrdInline(f.value),
+              })),
+            }
+          : {}),
       } as T;
     case "feat":
     case "condition":

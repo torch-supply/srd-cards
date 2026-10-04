@@ -36,7 +36,9 @@ import { CARD_TYPES, type CardKind, referenceHref } from "@/lib/srd/card-types";
 import { parseRef, prefetchEntry } from "@/lib/srd/client";
 import { cn } from "@/lib/utils";
 import { useCollectionStore } from "@/stores/collection-store";
-const CustomCardDialog = dynamic(() => import("./custom-card-dialog").then((m) => m.CustomCardDialog));
+const CustomCardDialog = dynamic(() =>
+  import("./custom-card-dialog").then((m) => m.CustomCardDialog),
+);
 
 // Detail renderers load when the first card is expanded.
 const CardBody = dynamic(() => import("./card-body").then((m) => m.CardBody), {
@@ -56,8 +58,17 @@ export interface CardDisplay {
 }
 
 export function cardDisplay(card: Card): CardDisplay {
-  if (card.kind === "custom") return { kind: "custom", name: card.custom?.title ?? "", subtitle: card.custom?.subtitle ?? "Custom card" };
-  return { kind: cardKind(card), name: card.snapshot?.name ?? card.ref ?? "", subtitle: card.snapshot?.subtitle };
+  if (card.kind === "custom")
+    return {
+      kind: "custom",
+      name: card.custom?.title ?? "",
+      subtitle: card.custom?.subtitle ?? "Custom card",
+    };
+  return {
+    kind: cardKind(card),
+    name: card.snapshot?.name ?? card.ref ?? "",
+    subtitle: card.snapshot?.subtitle,
+  };
 }
 
 /** Sortable wrapper: the card header is the drag handle, so text in the expanded body stays selectable. */
@@ -72,7 +83,15 @@ export const SortableCard = memo(function SortableCard({
   missing: boolean;
   readOnly: boolean;
 }) {
-  const { setNodeRef, setActivatorNodeRef, attributes, listeners, transform, transition, isDragging } = useSortable({
+  const {
+    setNodeRef,
+    setActivatorNodeRef,
+    attributes,
+    listeners,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({
     id: `card:${card.id}`,
     data: { kind: "card", cardId: card.id, stackId },
     disabled: readOnly,
@@ -124,13 +143,18 @@ function BoardCard({
       )}
       aria-label={display.name}
     >
-      <span aria-hidden className={cn("absolute inset-y-0 left-0 w-1", cls.accentBg)} />
+      <span
+        aria-hidden
+        className={cn("absolute inset-y-0 left-0 w-1", cls.accentBg)}
+      />
       <div className="flex items-center gap-0.5 py-1.5 pr-1 pl-2.5">
         <button
           type="button"
           {...handle}
           onClick={() => toggleExpanded(card.id)}
-          onPointerEnter={() => card.kind === "srd" && card.ref && prefetchEntry(card.ref)}
+          onPointerEnter={() =>
+            card.kind === "srd" && card.ref && prefetchEntry(card.ref)
+          }
           aria-expanded={open}
           className={cn(
             "flex min-w-0 flex-1 items-center rounded-md py-0.5 text-left outline-none focus-visible:ring-2 focus-visible:ring-ring/50",
@@ -146,7 +170,9 @@ function BoardCard({
             missing={missing}
           />
         </button>
-        {!readOnly && <CardMenu card={card} stackId={stackId} missing={missing} />}
+        {!readOnly && (
+          <CardMenu card={card} stackId={stackId} missing={missing} />
+        )}
         <Button
           variant="ghost"
           size="icon-xs"
@@ -154,7 +180,9 @@ function BoardCard({
           onClick={() => toggleExpanded(card.id)}
           className="text-muted-foreground"
         >
-          <ChevronDownIcon className={cn("transition-transform", open && "rotate-180")} />
+          <ChevronDownIcon
+            className={cn("transition-transform", open && "rotate-180")}
+          />
         </Button>
       </div>
       {open && (
@@ -166,7 +194,15 @@ function BoardCard({
   );
 }
 
-function CardMenu({ card, stackId, missing }: { card: Card; stackId: string; missing: boolean }) {
+function CardMenu({
+  card,
+  stackId,
+  missing,
+}: {
+  card: Card;
+  stackId: string;
+  missing: boolean;
+}) {
   const dispatch = useCollectionStore((s) => s.dispatch);
   const undo = useCollectionStore((s) => s.undo);
   const stacks = useCollectionStore((s) => s.collection?.stacks ?? []);
@@ -175,7 +211,9 @@ function CardMenu({ card, stackId, missing }: { card: Card; stackId: string; mis
 
   const remove = () => {
     dispatch({ type: "removeCard", cardId: card.id });
-    toast(`Removed ${cardName(card)}`, { action: { label: "Undo", onClick: undo } });
+    toast(`Removed ${cardName(card)}`, {
+      action: { label: "Undo", onClick: undo },
+    });
   };
 
   return (
@@ -197,7 +235,15 @@ function CardMenu({ card, stackId, missing }: { card: Card; stackId: string; mis
               <PencilIcon /> Edit…
             </DropdownMenuItem>
           )}
-          <DropdownMenuItem onSelect={() => dispatch({ type: "duplicateCard", cardId: card.id, newCardId: newId() })}>
+          <DropdownMenuItem
+            onSelect={() =>
+              dispatch({
+                type: "duplicateCard",
+                cardId: card.id,
+                newCardId: newId(),
+              })
+            }
+          >
             <CopyIcon /> Duplicate
           </DropdownMenuItem>
           {stacks.length > 1 && (
@@ -211,7 +257,14 @@ function CardMenu({ card, stackId, missing }: { card: Card; stackId: string; mis
                   .map((s) => (
                     <DropdownMenuItem
                       key={s.id}
-                      onSelect={() => dispatch({ type: "moveCard", cardId: card.id, toStackId: s.id, toIndex: s.cards.length })}
+                      onSelect={() =>
+                        dispatch({
+                          type: "moveCard",
+                          cardId: card.id,
+                          toStackId: s.id,
+                          toIndex: s.cards.length,
+                        })
+                      }
                     >
                       {s.name || "Untitled stack"}
                     </DropdownMenuItem>
@@ -227,7 +280,11 @@ function CardMenu({ card, stackId, missing }: { card: Card; stackId: string; mis
             </DropdownMenuItem>
           )}
           {missing && (
-            <DropdownMenuItem onSelect={() => dispatch({ type: "convertToCustom", cardId: card.id })}>
+            <DropdownMenuItem
+              onSelect={() =>
+                dispatch({ type: "convertToCustom", cardId: card.id })
+              }
+            >
               <WandSparklesIcon /> Convert to custom card
             </DropdownMenuItem>
           )}
@@ -253,13 +310,27 @@ function CardMenu({ card, stackId, missing }: { card: Card; stackId: string; mis
 }
 
 /** Lightweight collapsed card for the drag overlay. */
-export function CardPreview({ display, quantity }: { display: CardDisplay; quantity?: number }) {
+export function CardPreview({
+  display,
+  quantity,
+}: {
+  display: CardDisplay;
+  quantity?: number;
+}) {
   const cls = CARD_TYPES[display.kind].className;
   return (
     <div className="relative w-[340px] cursor-grabbing overflow-hidden rounded-lg border bg-card shadow-lg ring-1 ring-black/5">
-      <span aria-hidden className={cn("absolute inset-y-0 left-0 w-1", cls.accentBg)} />
+      <span
+        aria-hidden
+        className={cn("absolute inset-y-0 left-0 w-1", cls.accentBg)}
+      />
       <div className="flex items-center py-2 pr-2 pl-2.5">
-        <CardHeaderContent kind={display.kind} name={display.name} subtitle={display.subtitle} quantity={quantity} />
+        <CardHeaderContent
+          kind={display.kind}
+          name={display.name}
+          subtitle={display.subtitle}
+          quantity={quantity}
+        />
       </div>
     </div>
   );

@@ -28,12 +28,22 @@ export function CollectionDialog({
   title: string;
   submitLabel: string;
   initial?: { name: string; description: string };
-  onSubmit: (values: { name: string; description: string }) => void | Promise<void>;
+  onSubmit: (values: {
+    name: string;
+    description: string;
+  }) => void | Promise<void>;
 }) {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-md">
-        {open && <CollectionForm title={title} submitLabel={submitLabel} initial={initial} onSubmit={onSubmit} />}
+        {open && (
+          <CollectionForm
+            title={title}
+            submitLabel={submitLabel}
+            initial={initial}
+            onSubmit={onSubmit}
+          />
+        )}
       </DialogContent>
     </Dialog>
   );
@@ -48,7 +58,10 @@ function CollectionForm({
   title: string;
   submitLabel: string;
   initial?: { name: string; description: string };
-  onSubmit: (values: { name: string; description: string }) => void | Promise<void>;
+  onSubmit: (values: {
+    name: string;
+    description: string;
+  }) => void | Promise<void>;
 }) {
   const [name, setName] = useState(initial?.name ?? "");
   const [description, setDescription] = useState(initial?.description ?? "");
@@ -57,12 +70,17 @@ function CollectionForm({
       className="space-y-4"
       onSubmit={(e) => {
         e.preventDefault();
-        void onSubmit({ name: name.trim() || "Untitled collection", description: description.trim() });
+        void onSubmit({
+          name: name.trim() || "Untitled collection",
+          description: description.trim(),
+        });
       }}
     >
       <DialogHeader>
         <DialogTitle>{title}</DialogTitle>
-        <DialogDescription>A collection can be a campaign, an encounter, or any group of cards.</DialogDescription>
+        <DialogDescription>
+          A collection can be a campaign, an encounter, or any group of cards.
+        </DialogDescription>
       </DialogHeader>
       <div className="space-y-1.5">
         <Label htmlFor="collection-name">Name</Label>

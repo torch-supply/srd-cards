@@ -51,7 +51,11 @@ export class Dictionary {
     if (hyphenCount > joinedCount) return true;
     if (joinedCount > 0) return false;
     // Neither form seen elsewhere: soft hyphenation is far more common in this layout.
-    if ((this.words.get(l) ?? 0) > 0 && (this.words.get(r) ?? 0) > 0 && hyphenCount === 0) {
+    if (
+      (this.words.get(l) ?? 0) > 0 &&
+      (this.words.get(r) ?? 0) > 0 &&
+      hyphenCount === 0
+    ) {
       this.ambiguous.push(`${left}-${right}`);
     }
     return false;
@@ -81,7 +85,8 @@ export function appendLine(acc: Span[], next: Span[], dict: Dictionary) {
   const firstWord = first.text.match(/^([\p{L}\d’']+)/u);
   if (hyphen && firstWord) {
     // Either keep "Two-" + "Handed" together, or drop a soft hyphen: "suc-" + "ceed".
-    if (!dict.keepHyphen(hyphen[1], firstWord[1])) last.text = last.text.slice(0, -1);
+    if (!dict.keepHyphen(hyphen[1], firstWord[1]))
+      last.text = last.text.slice(0, -1);
   } else if (/[—–/]$/.test(last.text) || /^[—–]/.test(first.text)) {
     // no space around em dashes or after a slash
   } else if (!/\s$/.test(last.text)) {
@@ -126,13 +131,23 @@ function escapeMd(text: string) {
   return text.replace(/([*_`\\])/g, "\\$1");
 }
 
-const MARKERS: Record<Style, string> = { plain: "", bold: "**", italic: "*", bolditalic: "***" };
+const MARKERS: Record<Style, string> = {
+  plain: "",
+  bold: "**",
+  italic: "*",
+  bolditalic: "***",
+};
 
 /** Converts styled spans to inline markdown. Whitespace stays outside the markers. */
-export function spansToMarkdown(spans: Span[], opts: { plainFonts?: FontKey[] } = {}): string {
+export function spansToMarkdown(
+  spans: Span[],
+  opts: { plainFonts?: FontKey[] } = {},
+): string {
   let out = "";
   for (const span of mergeSpans(spans)) {
-    const style = opts.plainFonts?.includes(span.font) ? "plain" : styleOf(span.font);
+    const style = opts.plainFonts?.includes(span.font)
+      ? "plain"
+      : styleOf(span.font);
     const marker = MARKERS[style];
     const m = span.text.match(/^(\s*)([\s\S]*?)(\s*)$/)!;
     if (!m[2]) {

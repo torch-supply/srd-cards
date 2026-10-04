@@ -3,14 +3,23 @@
 import dynamic from "next/dynamic";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
 
-const Markdown = dynamic(() => import("./markdown"), { loading: () => <Skeleton className="h-24 w-full" /> });
+const Markdown = dynamic(() => import("./markdown"), {
+  loading: () => <Skeleton className="h-24 w-full" />,
+});
 
 export interface CustomCardValues {
   title: string;
@@ -71,17 +80,35 @@ function CustomCardForm({
       className="space-y-4"
       onSubmit={(e) => {
         e.preventDefault();
-        onSubmit({ title: title.trim() || "Untitled card", subtitle: subtitle.trim() || undefined, body }, stackId);
+        onSubmit(
+          {
+            title: title.trim() || "Untitled card",
+            subtitle: subtitle.trim() || undefined,
+            body,
+          },
+          stackId,
+        );
       }}
     >
       <DialogHeader>
-        <DialogTitle>{initial ? "Edit custom card" : "New custom card"}</DialogTitle>
-        <DialogDescription>Homebrew rules, NPCs, loot, or anything else. The text supports Markdown.</DialogDescription>
+        <DialogTitle>
+          {initial ? "Edit custom card" : "New custom card"}
+        </DialogTitle>
+        <DialogDescription>
+          Homebrew rules, NPCs, loot, or anything else. The text supports
+          Markdown.
+        </DialogDescription>
       </DialogHeader>
       <div className="grid gap-3 sm:grid-cols-2">
         <div className="space-y-1.5">
           <Label htmlFor="custom-title">Title</Label>
-          <Input id="custom-title" value={title} onChange={(e) => setTitle(e.target.value)} maxLength={200} autoFocus />
+          <Input
+            id="custom-title"
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+            maxLength={200}
+            autoFocus
+          />
         </div>
         <div className="space-y-1.5">
           <Label htmlFor="custom-subtitle">Subtitle</Label>
@@ -123,12 +150,18 @@ function CustomCardForm({
             rows={10}
             maxLength={20000}
             aria-label="Card text"
-            placeholder={"**Bold**, *italic*, lists, and tables work.\n\n- Like this"}
+            placeholder={
+              "**Bold**, *italic*, lists, and tables work.\n\n- Like this"
+            }
             className="font-mono text-sm"
           />
         </TabsContent>
         <TabsContent value="preview" className="min-h-48 rounded-md border p-3">
-          {body.trim() ? <Markdown>{body}</Markdown> : <p className="text-sm text-muted-foreground">Nothing to preview.</p>}
+          {body.trim() ? (
+            <Markdown>{body}</Markdown>
+          ) : (
+            <p className="text-sm text-muted-foreground">Nothing to preview.</p>
+          )}
         </TabsContent>
       </Tabs>
       <DialogFooter>

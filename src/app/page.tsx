@@ -7,10 +7,14 @@ export default function HomePage() {
   return (
     <div className="mx-auto w-full max-w-6xl space-y-10 px-6 py-10">
       <section className="space-y-3">
-        <h1 className="font-serif text-4xl font-semibold tracking-tight">srd.cards</h1>
+        <h1 className="font-serif text-4xl font-semibold tracking-tight">
+          srd.cards
+        </h1>
         <p className="max-w-2xl text-lg text-muted-foreground">
-          Browse the System Reference Document 5.2.1 and organize spells, monsters, classes, and equipment into stacks
-          of cards — for a character, an encounter, or a whole campaign. Everything is saved in your browser.
+          Browse the System Reference Document 5.2.1 and organize spells,
+          monsters, classes, and equipment into stacks of cards — for a
+          character, an encounter, or a whole campaign. Everything is saved in
+          your browser.
         </p>
         <div className="flex flex-wrap gap-1.5 pt-1">
           {REFERENCE_TYPES.map((t) => (

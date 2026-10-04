@@ -2,9 +2,19 @@
 
 import { XIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Toggle } from "@/components/ui/toggle";
-import { type FacetFilterDef, facetOptions, type FilterState } from "@/lib/srd/filters";
+import {
+  type FacetFilterDef,
+  facetOptions,
+  type FilterState,
+} from "@/lib/srd/filters";
 import type { IndexEntry } from "@/lib/srd/schema";
 import { cn } from "@/lib/utils";
 
@@ -25,7 +35,8 @@ export function FilterBar({
 }) {
   if (!defs.length) return null;
   const active = Object.values(state).some(Boolean);
-  const set = (key: string, value: string) => onChange({ ...state, [key]: value });
+  const set = (key: string, value: string) =>
+    onChange({ ...state, [key]: value });
   return (
     <div className={cn("flex flex-wrap items-center gap-1.5", className)}>
       {defs.map((def) => {
@@ -42,10 +53,21 @@ export function FilterBar({
             </Toggle>
           );
         }
-        const options = def.kind === "bucket" ? (def.buckets ?? []) : facetOptions(def, entries);
+        const options =
+          def.kind === "bucket"
+            ? (def.buckets ?? [])
+            : facetOptions(def, entries);
         return (
-          <Select key={def.key} value={state[def.key] || ANY} onValueChange={(v) => set(def.key, v === ANY ? "" : v)}>
-            <SelectTrigger size="sm" className={cn("min-w-28", state[def.key] && "border-primary/50")} aria-label={def.label}>
+          <Select
+            key={def.key}
+            value={state[def.key] || ANY}
+            onValueChange={(v) => set(def.key, v === ANY ? "" : v)}
+          >
+            <SelectTrigger
+              size="sm"
+              className={cn("min-w-28", state[def.key] && "border-primary/50")}
+              aria-label={def.label}
+            >
               <SelectValue placeholder={def.label} />
             </SelectTrigger>
             <SelectContent>

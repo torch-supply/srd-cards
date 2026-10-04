@@ -22,12 +22,17 @@ export async function addEntryToCollection(
 ): Promise<{ collection: Collection; stackId: string }> {
   const repo = getRepository();
   const result = await repo.get(collectionId);
-  if (result.status !== "ok") throw new Error("That collection can't be edited right now.");
+  if (result.status !== "ok")
+    throw new Error("That collection can't be edited right now.");
   let c = result.collection;
   let stackId: string;
   if ("newStackName" in target) {
     stackId = newId();
-    c = apply(c, { type: "addStack", stackId, name: target.newStackName.trim() || "New stack" });
+    c = apply(c, {
+      type: "addStack",
+      stackId,
+      name: target.newStackName.trim() || "New stack",
+    });
   } else {
     stackId = target.stackId;
   }
@@ -44,7 +49,10 @@ export async function addEntryToCollection(
 }
 
 /** Creates a collection with one stack holding the entry. */
-export async function createCollectionWithEntry(name: string, entry: EntryRef): Promise<Collection> {
+export async function createCollectionWithEntry(
+  name: string,
+  entry: EntryRef,
+): Promise<Collection> {
   const stackId = newId();
   let c = createCollection({ name });
   c = apply(c, { type: "addStack", stackId, name: "Cards" });

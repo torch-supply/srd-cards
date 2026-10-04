@@ -4,7 +4,14 @@ import { useDraggable } from "@dnd-kit/core";
 import { useVirtualizer } from "@tanstack/react-virtual";
 import { ChevronDownIcon, PlusIcon, SearchIcon, XIcon } from "lucide-react";
 import dynamic from "next/dynamic";
-import { type RefObject, Suspense, use, useDeferredValue, useMemo, useState } from "react";
+import {
+  type RefObject,
+  Suspense,
+  use,
+  useDeferredValue,
+  useMemo,
+  useState,
+} from "react";
 import { CardHeaderContent } from "@/components/cards/card-header";
 import { TypeIcon } from "@/components/cards/type-icon";
 import { FilterBar } from "@/components/reference/filter-bar";
@@ -19,18 +26,32 @@ import {
 import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
-import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { CARD_TYPES, REFERENCE_TYPES } from "@/lib/srd/card-types";
 import { loadEntry, prefetchEntry } from "@/lib/srd/client";
-import { FILTERS, type FilterState, matchesFilterState } from "@/lib/srd/filters";
+import {
+  FILTERS,
+  type FilterState,
+  matchesFilterState,
+} from "@/lib/srd/filters";
 import type { IndexEntry, SrdType } from "@/lib/srd/schema";
 import { useSrdIndex } from "@/lib/srd/use-srd-index";
 import { cn } from "@/lib/utils";
 import { ErrorBoundary } from "./error-boundary";
 
-const EntryDetail = dynamic(() => import("@/components/cards/details/entry-detail").then((m) => m.EntryDetail), {
-  loading: () => <Skeleton className="h-24" />,
-});
+const EntryDetail = dynamic(
+  () =>
+    import("@/components/cards/details/entry-detail").then(
+      (m) => m.EntryDetail,
+    ),
+  {
+    loading: () => <Skeleton className="h-24" />,
+  },
+);
 
 export const BROWSER_WIDTH = 360;
 
@@ -62,9 +83,12 @@ export function BrowserPanel({
   const results = useMemo(() => {
     if (!index.search) return [];
     const found = index.search.search(deferredQuery, { types });
-    return singleType ? found.filter((e) => matchesFilterState(e, FILTERS[singleType], filters)) : found;
+    return singleType
+      ? found.filter((e) => matchesFilterState(e, FILTERS[singleType], filters))
+      : found;
   }, [index.search, deferredQuery, types, singleType, filters]);
 
+  // eslint-disable-next-line react-hooks/incompatible-library -- handled: this component opts out of the compiler ("use no memo" above)
   const virtualizer = useVirtualizer({
     count: results.length,
     getScrollElement: () => scrollRef.current,
@@ -114,7 +138,13 @@ export function BrowserPanel({
           {REFERENCE_TYPES.map((t) => (
             <Tooltip key={t}>
               <TooltipTrigger asChild>
-                <ToggleGroupItem value={t} size="sm" variant="outline" aria-label={CARD_TYPES[t].plural} className="size-7 px-0">
+                <ToggleGroupItem
+                  value={t}
+                  size="sm"
+                  variant="outline"
+                  aria-label={CARD_TYPES[t].plural}
+                  className="size-7 px-0"
+                >
                   <TypeIcon kind={t} />
                 </ToggleGroupItem>
               </TooltipTrigger>
@@ -146,7 +176,10 @@ export function BrowserPanel({
             ))}
           </div>
         ) : (
-          <div className="relative" style={{ height: virtualizer.getTotalSize() }}>
+          <div
+            className="relative"
+            style={{ height: virtualizer.getTotalSize() }}
+          >
             {virtualizer.getVirtualItems().map((item) => {
               const entry = results[item.index];
               return (
@@ -163,7 +196,9 @@ export function BrowserPanel({
                     defaultStackId={defaultStackId}
                     onAdd={onAdd}
                     expanded={previewId === entry.id}
-                    onToggle={() => setPreviewId((id) => (id === entry.id ? null : entry.id))}
+                    onToggle={() =>
+                      setPreviewId((id) => (id === entry.id ? null : entry.id))
+                    }
                   />
                 </div>
               );
@@ -196,7 +231,9 @@ function ResultRow({
   });
   const defaultStack = stacks.find((s) => s.id === defaultStackId) ?? stacks[0];
   return (
-    <div className={cn("border-b border-border/60", isDragging && "opacity-50")}>
+    <div
+      className={cn("border-b border-border/60", isDragging && "opacity-50")}
+    >
       <div className="group/row flex items-center gap-1 py-1.5 pr-1.5 pl-3 hover:bg-muted/50">
         <button
           type="button"
@@ -208,7 +245,11 @@ function ResultRow({
           aria-expanded={expanded}
           className="flex min-w-0 flex-1 cursor-grab items-center rounded-md text-left outline-none focus-visible:ring-2 focus-visible:ring-ring/50 active:cursor-grabbing"
         >
-          <CardHeaderContent kind={entry.type} name={entry.name} subtitle={entry.subtitle} />
+          <CardHeaderContent
+            kind={entry.type}
+            name={entry.name}
+            subtitle={entry.subtitle}
+          />
         </button>
         <div className="flex items-center">
           <Tooltip>
@@ -222,19 +263,31 @@ function ResultRow({
                 <PlusIcon />
               </Button>
             </TooltipTrigger>
-            <TooltipContent>{defaultStack ? `Add to ${defaultStack.name || "stack"}` : "Add to a new stack"}</TooltipContent>
+            <TooltipContent>
+              {defaultStack
+                ? `Add to ${defaultStack.name || "stack"}`
+                : "Add to a new stack"}
+            </TooltipContent>
           </Tooltip>
           {stacks.length > 1 && (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="icon-xs" aria-label={`Choose a stack for ${entry.name}`} className="w-4 text-muted-foreground">
+                <Button
+                  variant="ghost"
+                  size="icon-xs"
+                  aria-label={`Choose a stack for ${entry.name}`}
+                  className="w-4 text-muted-foreground"
+                >
                   <ChevronDownIcon />
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
                 <DropdownMenuLabel>Add to…</DropdownMenuLabel>
                 {stacks.map((s) => (
-                  <DropdownMenuItem key={s.id} onSelect={() => onAdd(entry, s.id)}>
+                  <DropdownMenuItem
+                    key={s.id}
+                    onSelect={() => onAdd(entry, s.id)}
+                  >
                     {s.name || "Untitled stack"}
                   </DropdownMenuItem>
                 ))}
@@ -245,7 +298,13 @@ function ResultRow({
       </div>
       {expanded && (
         <div className="border-t bg-muted/20 px-3 py-3">
-          <ErrorBoundary fallback={<p className="text-sm text-destructive">Couldn’t load this entry.</p>}>
+          <ErrorBoundary
+            fallback={
+              <p className="text-sm text-destructive">
+                Couldn’t load this entry.
+              </p>
+            }
+          >
             <Suspense fallback={<Skeleton className="h-24" />}>
               <Preview id={entry.id} />
             </Suspense>

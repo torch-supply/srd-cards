@@ -9,5 +9,9 @@ export function getRepository(): CollectionRepository {
   return repository;
 }
 
-export type { CollectionRepository, LoadResult, SaveResult } from "./repository";
+export type {
+  CollectionRepository,
+  LoadResult,
+  SaveResult,
+} from "./repository";
 export { StorageError } from "./repository";

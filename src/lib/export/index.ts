@@ -34,14 +34,20 @@ export function exportCollections(collections: Collection[]): string {
 export function exportFileName(collections: Collection[]): string {
   const date = new Date().toISOString().slice(0, 10);
   if (collections.length === 1) {
-    const slug = collections[0].name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "") || "collection";
+    const slug =
+      collections[0].name
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, "-")
+        .replace(/^-|-$/g, "") || "collection";
     return `srd-cards-${slug}-${date}.json`;
   }
   return `srd-cards-${date}.json`;
 }
 
 export function downloadJson(fileName: string, json: string) {
-  const url = URL.createObjectURL(new Blob([json], { type: "application/json" }));
+  const url = URL.createObjectURL(
+    new Blob([json], { type: "application/json" }),
+  );
   const a = document.createElement("a");
   a.href = url;
   a.download = fileName;
@@ -61,7 +67,11 @@ export interface ImportResult {
  */
 export function parseImport(
   text: string,
-  opts: { knownRefs?: Set<string>; aliases?: Record<string, string>; now?: string } = {},
+  opts: {
+    knownRefs?: Set<string>;
+    aliases?: Record<string, string>;
+    now?: string;
+  } = {},
 ): ImportResult {
   let json: unknown;
   try {
@@ -71,16 +81,22 @@ export function parseImport(
   }
   const file = exportFileSchema.safeParse(json);
   if (!file.success) throw new Error("This file isn't an srd.cards export.");
-  if (file.data.format > EXPORT_FORMAT) throw new Error("This file was exported by a newer version of srd.cards.");
+  if (file.data.format > EXPORT_FORMAT)
+    throw new Error("This file was exported by a newer version of srd.cards.");
 
   const now = opts.now ?? new Date().toISOString();
   const unknownRefs = new Set<string>();
   const collections = file.data.collections.map((raw, i) => {
     const migrated = migrate(raw);
-    if (migrated.status === "newer") throw new Error("This file was exported by a newer version of srd.cards.");
+    if (migrated.status === "newer")
+      throw new Error(
+        "This file was exported by a newer version of srd.cards.",
+      );
     const parsed = collectionSchema.safeParse(migrated.data);
     if (!parsed.success) {
-      throw new Error(`Collection ${i + 1} is invalid: ${parsed.error.issues[0]?.message ?? "unknown error"}`);
+      throw new Error(
+        `Collection ${i + 1} is invalid: ${parsed.error.issues[0]?.message ?? "unknown error"}`,
+      );
     }
     const c = parsed.data;
     return {
@@ -95,7 +111,8 @@ export function parseImport(
         cards: s.cards.map((card) => {
           let ref = card.ref;
           if (ref && opts.aliases?.[ref]) ref = opts.aliases[ref];
-          if (ref && opts.knownRefs && !opts.knownRefs.has(ref)) unknownRefs.add(ref);
+          if (ref && opts.knownRefs && !opts.knownRefs.has(ref))
+            unknownRefs.add(ref);
           return { ...card, id: newId(), ...(ref ? { ref } : {}) };
         }),
       })),

@@ -13,13 +13,23 @@ import {
 } from "@/components/ui/dropdown-menu";
 import type { SrdType } from "@/lib/srd/schema";
 
-export function ReferenceNav({ links }: { links: { href: string; label: string; type: SrdType }[] }) {
+export function ReferenceNav({
+  links,
+}: {
+  links: { href: string; label: string; type: SrdType }[];
+}) {
   const pathname = usePathname();
-  const active = links.find((l) => pathname === l.href || pathname.startsWith(`${l.href}/`));
+  const active = links.find(
+    (l) => pathname === l.href || pathname.startsWith(`${l.href}/`),
+  );
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="ghost" className="text-muted-foreground data-[active=true]:text-foreground" data-active={!!active}>
+        <Button
+          variant="ghost"
+          className="text-muted-foreground data-[active=true]:text-foreground"
+          data-active={!!active}
+        >
           {active ? active.label : "Browse SRD"}
           <ChevronDownIcon />
         </Button>

@@ -4,7 +4,13 @@ import { spansText } from "../pdf/text";
 import type { Ctx, Draft } from "./common";
 import { isStatBlockHeading, parseStatBlock } from "./monsters";
 
-const STAT_SECTIONS = new Set(["Traits", "Actions", "Bonus Actions", "Reactions", "Legendary Actions"]);
+const STAT_SECTIONS = new Set([
+  "Traits",
+  "Actions",
+  "Bonus Actions",
+  "Reactions",
+  "Legendary Actions",
+]);
 
 /** Stat block body text is 9–9.5pt; regular prose is 10pt. */
 function isStatBlockContent(b: Block) {
@@ -20,14 +26,18 @@ function isStatBlockContent(b: Block) {
  * stat block"). Stat blocks are separate frames in the PDF and often sit out
  * of reading order.
  */
-export function extractStatBlocks(drafts: Draft[], ctx: Ctx): Map<Draft, StatBlock[]> {
+export function extractStatBlocks(
+  drafts: Draft[],
+  ctx: Ctx,
+): Map<Draft, StatBlock[]> {
   const found: { block: StatBlock; from: Draft }[] = [];
   for (const draft of drafts) {
     for (let i = 0; i < draft.blocks.length; i++) {
       const b = draft.blocks[i];
       if (!isStatBlockHeading(b) || b.kind !== "heading") continue;
       let end = i + 1;
-      while (end < draft.blocks.length && isStatBlockContent(draft.blocks[end])) end++;
+      while (end < draft.blocks.length && isStatBlockContent(draft.blocks[end]))
+        end++;
       const body = draft.blocks.slice(i + 1, end);
       draft.blocks.splice(i, end - i);
       i--;
@@ -49,7 +59,9 @@ export function extractStatBlocks(drafts: Draft[], ctx: Ctx): Map<Draft, StatBlo
     const ownerIdx = texts.findIndex((t) => t.includes(ref));
     const owner = ownerIdx === -1 ? from : drafts[ownerIdx];
     if (ownerIdx === -1) {
-      ctx.warnings.push(`Stat block "${block.name}" isn't referenced by name; kept with "${from.heading.text}".`);
+      ctx.warnings.push(
+        `Stat block "${block.name}" isn't referenced by name; kept with "${from.heading.text}".`,
+      );
     }
     result.set(owner, [...(result.get(owner) ?? []), block]);
   }

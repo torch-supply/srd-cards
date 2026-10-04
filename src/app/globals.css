@@ -196,19 +196,58 @@
   --type-soft-mix: 14%;
 }
 
-
 :root,
 .dark {
-  --type-class-soft: color-mix(in oklab, var(--type-class) var(--type-soft-mix), transparent);
-  --type-subclass-soft: color-mix(in oklab, var(--type-subclass) var(--type-soft-mix), transparent);
-  --type-spell-soft: color-mix(in oklab, var(--type-spell) var(--type-soft-mix), transparent);
-  --type-monster-soft: color-mix(in oklab, var(--type-monster) var(--type-soft-mix), transparent);
-  --type-equipment-soft: color-mix(in oklab, var(--type-equipment) var(--type-soft-mix), transparent);
-  --type-magic-item-soft: color-mix(in oklab, var(--type-magic-item) var(--type-soft-mix), transparent);
-  --type-feat-soft: color-mix(in oklab, var(--type-feat) var(--type-soft-mix), transparent);
-  --type-condition-soft: color-mix(in oklab, var(--type-condition) var(--type-soft-mix), transparent);
-  --type-rule-soft: color-mix(in oklab, var(--type-rule) var(--type-soft-mix), transparent);
-  --type-custom-soft: color-mix(in oklab, var(--type-custom) var(--type-soft-mix), transparent);
+  --type-class-soft: color-mix(
+    in oklab,
+    var(--type-class) var(--type-soft-mix),
+    transparent
+  );
+  --type-subclass-soft: color-mix(
+    in oklab,
+    var(--type-subclass) var(--type-soft-mix),
+    transparent
+  );
+  --type-spell-soft: color-mix(
+    in oklab,
+    var(--type-spell) var(--type-soft-mix),
+    transparent
+  );
+  --type-monster-soft: color-mix(
+    in oklab,
+    var(--type-monster) var(--type-soft-mix),
+    transparent
+  );
+  --type-equipment-soft: color-mix(
+    in oklab,
+    var(--type-equipment) var(--type-soft-mix),
+    transparent
+  );
+  --type-magic-item-soft: color-mix(
+    in oklab,
+    var(--type-magic-item) var(--type-soft-mix),
+    transparent
+  );
+  --type-feat-soft: color-mix(
+    in oklab,
+    var(--type-feat) var(--type-soft-mix),
+    transparent
+  );
+  --type-condition-soft: color-mix(
+    in oklab,
+    var(--type-condition) var(--type-soft-mix),
+    transparent
+  );
+  --type-rule-soft: color-mix(
+    in oklab,
+    var(--type-rule) var(--type-soft-mix),
+    transparent
+  );
+  --type-custom-soft: color-mix(
+    in oklab,
+    var(--type-custom) var(--type-soft-mix),
+    transparent
+  );
 }
 
 /* Rendered SRD prose (sanitized HTML from markdown). */
@@ -263,7 +302,8 @@
   body {
     @apply bg-background text-foreground;
   }
-  button:not(:disabled), [role="button"]:not(:disabled) {
+  button:not(:disabled),
+  [role="button"]:not(:disabled) {
     cursor: pointer;
   }
   html {

@@ -1,4 +1,12 @@
-import { type Block, buildBlocks, type HeadingBlock, parseTable, type Table, type TableBlock, tableToMarkdown } from "../pdf/blocks";
+import {
+  type Block,
+  buildBlocks,
+  type HeadingBlock,
+  parseTable,
+  type Table,
+  type TableBlock,
+  tableToMarkdown,
+} from "../pdf/blocks";
 import type { Line } from "../pdf/extract";
 import { Dictionary, spansText, spansToMarkdown } from "../pdf/text";
 
@@ -32,7 +40,10 @@ export const CHAPTERS = {
   animals: [344, 364],
 } as const satisfies Record<string, readonly [number, number]>;
 
-export function blocksFor(ctx: Ctx, [from, to]: readonly [number, number]): Block[] {
+export function blocksFor(
+  ctx: Ctx,
+  [from, to]: readonly [number, number],
+): Block[] {
   return buildBlocks(ctx.pages, from, to, ctx.dict);
 }
 
@@ -43,10 +54,14 @@ export interface Draft {
 }
 
 /** Splits blocks into drafts at headings matching `isEntryHeading`. Blocks before the first are dropped. */
-export function splitAtHeadings(blocks: Block[], isEntryHeading: (h: HeadingBlock) => boolean): Draft[] {
+export function splitAtHeadings(
+  blocks: Block[],
+  isEntryHeading: (h: HeadingBlock) => boolean,
+): Draft[] {
   const drafts: Draft[] = [];
   for (const b of blocks) {
-    if (b.kind === "heading" && isEntryHeading(b)) drafts.push({ heading: b, blocks: [] });
+    if (b.kind === "heading" && isEntryHeading(b))
+      drafts.push({ heading: b, blocks: [] });
     else drafts[drafts.length - 1]?.blocks.push(b);
   }
   return drafts;
@@ -70,16 +85,21 @@ export function relocateTables(drafts: Draft[], ctx: Ctx) {
       if (block.kind !== "table" || !block.title) continue;
       const ref = block.title.toLowerCase();
       if (texts[i].toLowerCase().includes(ref)) continue;
-      const owner = texts.findIndex((t) => t.toLowerCase().includes(`${ref} table`));
+      const owner = texts.findIndex((t) =>
+        t.toLowerCase().includes(`${ref} table`),
+      );
       if (owner === -1 || owner === i) continue;
       draft.blocks.splice(draft.blocks.indexOf(block), 1);
       drafts[owner].blocks.push(block);
-      ctx.warnings.push(`Moved table "${block.title}" from "${draft.heading.text}" to "${drafts[owner].heading.text}".`);
+      ctx.warnings.push(
+        `Moved table "${block.title}" from "${draft.heading.text}" to "${drafts[owner].heading.text}".`,
+      );
     }
   }
 }
 
-const isHeaderLine = (line: Line) => line.spans.length >= 2 && line.spans.every((s) => s.font === "gill-sb");
+const isHeaderLine = (line: Line) =>
+  line.spans.length >= 2 && line.spans.every((s) => s.font === "gill-sb");
 
 /**
  * Splits a table block where a different table starts: a new header row after
@@ -127,7 +147,10 @@ export function normalizeTables(blocks: Block[]): Block[] {
     }
     splitTables(b).forEach((panel, i) => {
       const header = headerText(panel);
-      const owner = header && !panel.title && i > 0 ? titledByHeader.get(header) : undefined;
+      const owner =
+        header && !panel.title && i > 0
+          ? titledByHeader.get(header)
+          : undefined;
       if (owner) {
         owner.lines.push(...panel.lines);
         return;
@@ -140,7 +163,10 @@ export function normalizeTables(blocks: Block[]): Block[] {
 }
 
 /** Blocks for prose chapters, with tables normalized (see `normalizeTables`). */
-export function proseBlocksFor(ctx: Ctx, range: readonly [number, number]): Block[] {
+export function proseBlocksFor(
+  ctx: Ctx,
+  range: readonly [number, number],
+): Block[] {
   return normalizeTables(blocksFor(ctx, range));
 }
 
@@ -150,17 +176,29 @@ export function table(block: TableBlock, ctx: Ctx): Table {
 }
 
 /** Renders blocks as markdown: paragraphs, bullet lists, tables, sidebars, sub-headings. */
-export function blocksToMarkdown(blocks: Block[], ctx: Ctx, opts: { headingDepth?: number } = {}): string {
+export function blocksToMarkdown(
+  blocks: Block[],
+  ctx: Ctx,
+  opts: { headingDepth?: number } = {},
+): string {
   const out: string[] = [];
   let prevBullet = false;
   for (const b of blocks) {
     let text = "";
     const bullet = b.kind === "para" && b.bullet;
-    if (b.kind === "para") text = (b.bullet ? "- " : "") + spansToMarkdown(b.spans);
-    else if (b.kind === "table") text = splitTables(b).map((t) => tableToMarkdown(table(t, ctx))).join("\n\n");
-    else if (b.kind === "heading") text = `${"#".repeat(opts.headingDepth ?? 4)} ${b.text}`;
+    if (b.kind === "para")
+      text = (b.bullet ? "- " : "") + spansToMarkdown(b.spans);
+    else if (b.kind === "table")
+      text = splitTables(b)
+        .map((t) => tableToMarkdown(table(t, ctx)))
+        .join("\n\n");
+    else if (b.kind === "heading")
+      text = `${"#".repeat(opts.headingDepth ?? 4)} ${b.text}`;
     else if (b.kind === "sidebar")
-      text = [b.title ? `> **${titleCase(b.title)}**` : "", ...b.paras.map((p) => `> ${spansToMarkdown(p)}`)]
+      text = [
+        b.title ? `> **${titleCase(b.title)}**` : "",
+        ...b.paras.map((p) => `> ${spansToMarkdown(p)}`),
+      ]
         .filter(Boolean)
         .join("\n>\n");
     if (!text.trim()) continue;
@@ -174,14 +212,23 @@ export function blocksToMarkdown(blocks: Block[], ctx: Ctx, opts: { headingDepth
 export function titleCase(text: string) {
   return text
     .toLowerCase()
-    .replace(/(^|[\s(/-])(\p{L})/gu, (_, sep: string, ch: string) => sep + ch.toUpperCase())
-    .replace(/\b(Of|The|And|Or|In|On|To|A|An|For|With)\b/g, (w, _1, offset: number) => (offset === 0 ? w : w.toLowerCase()));
+    .replace(
+      /(^|[\s(/-])(\p{L})/gu,
+      (_, sep: string, ch: string) => sep + ch.toUpperCase(),
+    )
+    .replace(
+      /\b(Of|The|And|Or|In|On|To|A|An|For|With)\b/g,
+      (w, _1, offset: number) => (offset === 0 ? w : w.toLowerCase()),
+    );
 }
 
 /** Plain text of the first paragraph if it is an all-italic meta line. */
 export function takeMeta(draft: Draft): string | undefined {
   const first = draft.blocks[0];
-  if (first?.kind === "para" && first.spans.every((s) => s.font === "body-i" || !s.text.trim())) {
+  if (
+    first?.kind === "para" &&
+    first.spans.every((s) => s.font === "body-i" || !s.text.trim())
+  ) {
     draft.blocks.shift();
     return spansText(first.spans);
   }

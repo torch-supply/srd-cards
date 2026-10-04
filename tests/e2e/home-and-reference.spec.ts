@@ -35,19 +35,25 @@ test("reference pages render and add to a collection", async ({ page }) => {
   await page.getByLabel("Search").fill("wish");
   await page.getByRole("link", { name: /^Wish/ }).click();
   await expect(page.getByRole("heading", { name: "Wish" })).toBeVisible();
-  await expect(page.getByText("Wish is the mightiest spell a mortal can cast.")).toBeVisible();
+  await expect(
+    page.getByText("Wish is the mightiest spell a mortal can cast."),
+  ).toBeVisible();
 
   await page.getByRole("button", { name: "Add to collection" }).click();
   await page.getByRole("button", { name: "From the reference" }).click();
   await page.getByRole("button", { name: /^Stack 1/ }).click();
-  await expect(page.getByText(/Added Wish to From the reference/)).toBeVisible();
+  await expect(
+    page.getByText(/Added Wish to From the reference/),
+  ).toBeVisible();
 });
 
 test("monster stat blocks show SRD 5.2.1 values", async ({ page }) => {
   await page.goto("/monsters/aboleth");
   await expect(page.getByText("Large Aberration, Lawful Evil")).toBeVisible();
   await expect(page.getByText("+7 (17)")).toBeVisible();
-  await expect(page.getByText("XP 5,900, or 7,200 in lair; PB +4")).toBeVisible();
+  await expect(
+    page.getByText("XP 5,900, or 7,200 in lair; PB +4"),
+  ).toBeVisible();
 });
 
 test("dark mode toggle", async ({ page }) => {

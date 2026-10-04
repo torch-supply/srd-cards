@@ -4,7 +4,11 @@ import { useEffect } from "react";
 import { create } from "zustand";
 import type { CollectionSummary } from "@/lib/model/core";
 import { getRepository } from "@/lib/storage";
-import { type GlobalUiState, readGlobalUi, writeGlobalUi } from "@/lib/storage/ui-state";
+import {
+  type GlobalUiState,
+  readGlobalUi,
+  writeGlobalUi,
+} from "@/lib/storage/ui-state";
 
 interface CollectionsListState {
   status: "loading" | "ready" | "error";
@@ -23,7 +27,12 @@ export const useCollectionsList = create<CollectionsListState>()((set) => ({
   async refresh() {
     try {
       const list = await getRepository().list();
-      set({ status: "ready", list, error: undefined, sort: readGlobalUi().homeSort });
+      set({
+        status: "ready",
+        list,
+        error: undefined,
+        sort: readGlobalUi().homeSort,
+      });
     } catch (error) {
       set({ status: "error", error: (error as Error).message });
     }
@@ -38,6 +47,8 @@ export const useCollectionsList = create<CollectionsListState>()((set) => ({
 export function useCollectionsListSync() {
   useEffect(() => {
     void useCollectionsList.getState().refresh();
-    return getRepository().subscribe(() => void useCollectionsList.getState().refresh());
+    return getRepository().subscribe(
+      () => void useCollectionsList.getState().refresh(),
+    );
   }, []);
 }

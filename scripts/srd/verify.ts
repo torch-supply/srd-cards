@@ -10,7 +10,12 @@
  */
 import fs from "node:fs";
 import path from "node:path";
-import type { MonsterEntry, SpellEntry, SrdEntry, SrdType } from "../../src/lib/srd/schema";
+import type {
+  MonsterEntry,
+  SpellEntry,
+  SrdEntry,
+  SrdType,
+} from "../../src/lib/srd/schema";
 import { EXPECTED_COUNTS } from "./expected";
 import { lineText, loadPdfLines } from "./pdf/extract";
 import { CHAPTERS } from "./parse/common";
@@ -44,7 +49,9 @@ async function source<T>(name: keyof typeof SOURCES): Promise<T | undefined> {
 }
 
 function load<T extends SrdEntry>(type: SrdType): T[] {
-  return JSON.parse(fs.readFileSync(path.join(DATA, `${type}.json`), "utf8")) as T[];
+  return JSON.parse(
+    fs.readFileSync(path.join(DATA, `${type}.json`), "utf8"),
+  ) as T[];
 }
 
 const normalize = (s: string) =>
@@ -60,7 +67,8 @@ const normalize = (s: string) =>
 function strings(value: unknown, out: string[] = []): string[] {
   if (typeof value === "string") out.push(value);
   else if (Array.isArray(value)) value.forEach((v) => strings(v, out));
-  else if (value && typeof value === "object") Object.values(value).forEach((v) => strings(v, out));
+  else if (value && typeof value === "object")
+    Object.values(value).forEach((v) => strings(v, out));
   return out;
 }
 
@@ -69,18 +77,39 @@ async function main() {
   let problems = 0;
 
   // 1. Counts.
-  const meta = JSON.parse(fs.readFileSync(path.join(DATA, "meta.json"), "utf8")) as { counts: Record<string, number> };
-  lines.push("## Counts", "", "| Type | Entries | Expected (PDF) |", "| --- | --- | --- |");
+  const meta = JSON.parse(
+    fs.readFileSync(path.join(DATA, "meta.json"), "utf8"),
+  ) as { counts: Record<string, number> };
+  lines.push(
+    "## Counts",
+    "",
+    "| Type | Entries | Expected (PDF) |",
+    "| --- | --- | --- |",
+  );
   for (const [type, count] of Object.entries(meta.counts)) {
     const expected = EXPECTED_COUNTS[type as SrdType];
     if (expected !== undefined && expected !== count) problems++;
-    lines.push(`| ${type} | ${count} | ${expected ?? "—"} ${expected !== undefined && expected !== count ? "❌" : ""} |`);
+    lines.push(
+      `| ${type} | ${count} | ${expected ?? "—"} ${expected !== undefined && expected !== count ? "❌" : ""} |`,
+    );
   }
 
   // 2. Coverage of prose sentences, page by page.
   const { pages } = await loadPdfLines();
   const corpus = normalize(
-    (["class", "subclass", "spell", "monster", "equipment", "magic-item", "feat", "condition", "rule"] as SrdType[])
+    (
+      [
+        "class",
+        "subclass",
+        "spell",
+        "monster",
+        "equipment",
+        "magic-item",
+        "feat",
+        "condition",
+        "rule",
+      ] as SrdType[]
+    )
       .flatMap((t) => load(t).flatMap((e) => strings(e)))
       .join(" \n "),
   );
@@ -100,8 +129,17 @@ async function main() {
     ["Monsters", CHAPTERS.monstersAZ],
     ["Animals", CHAPTERS.animals],
   ];
-  lines.push("", "## Prose coverage", "", "Sentences of 8+ words from body text found verbatim in the output.", "");
-  lines.push("| Chapter | Pages | Sentences | Found | Coverage |", "| --- | --- | --- | --- | --- |");
+  lines.push(
+    "",
+    "## Prose coverage",
+    "",
+    "Sentences of 8+ words from body text found verbatim in the output.",
+    "",
+  );
+  lines.push(
+    "| Chapter | Pages | Sentences | Found | Coverage |",
+    "| --- | --- | --- | --- | --- |",
+  );
   const missing: string[] = [];
   for (const [name, [from, to]] of ranges) {
     let total = 0;
@@ -111,8 +149,15 @@ async function main() {
       // Prose only: skip stat block fields (9pt), and keep all-italic lines
       // (category/meta lines) as separate units.
       const text = pages[p - 1]
-        .filter((l) => l.spans.some((s) => s.font.startsWith("body")) && l.size >= 9.4)
-        .map((l) => (l.spans.every((s) => s.font === "body-i") ? `\u0000${lineText(l)}\u0000` : lineText(l)))
+        .filter(
+          (l) =>
+            l.spans.some((s) => s.font.startsWith("body")) && l.size >= 9.4,
+        )
+        .map((l) =>
+          l.spans.every((s) => s.font === "body-i")
+            ? `\u0000${lineText(l)}\u0000`
+            : lineText(l),
+        )
         .join("\n")
         .replace(/(\p{Ll})-\n(\p{Ll})/gu, "$1$2")
         .replace(/\n/g, " ");
@@ -125,13 +170,17 @@ async function main() {
       }
     }
     const pct = total ? (100 * found) / total : 100;
-    lines.push(`| ${name} | ${from}–${to} | ${total} | ${found} | ${pct.toFixed(1)}% |`);
+    lines.push(
+      `| ${name} | ${from}–${to} | ${total} | ${found} | ${pct.toFixed(1)}% |`,
+    );
   }
   lines.push(
     "",
     "Sentences that span a column or page break, or sit next to an out-of-order table, often show up below even though the text is present; review them by hand.",
     "",
-    "<details><summary>Sentences not found verbatim (" + missing.length + ")</summary>",
+    "<details><summary>Sentences not found verbatim (" +
+      missing.length +
+      ")</summary>",
     "",
     ...missing.map((m) => `- ${m}`),
     "",
@@ -140,10 +189,13 @@ async function main() {
 
   // 3. Cross-checks.
   lines.push("", "## Cross-checks against open datasets", "");
-  const creatures = await source<{ fields: Record<string, unknown> }[]>("open5eCreatures");
+  const creatures =
+    await source<{ fields: Record<string, unknown> }[]>("open5eCreatures");
   if (creatures) {
     const norm = (s: string) => s.toLowerCase().replace(/[^a-z]/g, "");
-    const byName = new Map(creatures.map((c) => [norm(String(c.fields.name)), c.fields]));
+    const byName = new Map(
+      creatures.map((c) => [norm(String(c.fields.name)), c.fields]),
+    );
     const diffs: string[] = [];
     for (const m of load<MonsterEntry>("monster")) {
       const o = byName.get(norm(m.name));
@@ -162,34 +214,62 @@ async function main() {
         ["Wis", m.abilities.wis.score, o.ability_score_wisdom],
         ["Cha", m.abilities.cha.score, o.ability_score_charisma],
       ];
-      for (const [label, ours, theirs] of checks) if (ours !== theirs) diffs.push(`${m.name}: ${label} ${ours} (PDF) vs ${theirs} (Open5e)`);
+      for (const [label, ours, theirs] of checks)
+        if (ours !== theirs)
+          diffs.push(`${m.name}: ${label} ${ours} (PDF) vs ${theirs} (Open5e)`);
     }
-    lines.push(`### Monsters vs Open5e (${creatures.length} creatures)`, "", diffs.length ? diffs.map((d) => `- ${d}`).join("\n") : "No differences.", "");
+    lines.push(
+      `### Monsters vs Open5e (${creatures.length} creatures)`,
+      "",
+      diffs.length ? diffs.map((d) => `- ${d}`).join("\n") : "No differences.",
+      "",
+    );
   }
-  const bitsSpells = await source<{ name: string; level: number; school: { name: string } }[]>("bitsSpells");
+  const bitsSpells =
+    await source<{ name: string; level: number; school: { name: string } }[]>(
+      "bitsSpells",
+    );
   if (bitsSpells) {
-    const byName = new Map(bitsSpells.map((s) => [s.name.toLowerCase().replace(/[’']/g, "'"), s]));
+    const byName = new Map(
+      bitsSpells.map((s) => [s.name.toLowerCase().replace(/[’']/g, "'"), s]),
+    );
     const diffs: string[] = [];
     for (const s of load<SpellEntry>("spell")) {
       const b = byName.get(s.name.toLowerCase().replace(/[’']/g, "'"));
       if (!b) diffs.push(`${s.name}: not in 5e-bits`);
       else if (b.level !== s.level || b.school.name !== s.school) {
-        diffs.push(`${s.name}: Level ${s.level} ${s.school} (PDF) vs Level ${b.level} ${b.school.name} (5e-bits)`);
+        diffs.push(
+          `${s.name}: Level ${s.level} ${s.school} (PDF) vs Level ${b.level} ${b.school.name} (5e-bits)`,
+        );
       }
     }
-    lines.push(`### Spells vs 5e-bits (${bitsSpells.length} spells)`, "", diffs.length ? diffs.map((d) => `- ${d}`).join("\n") : "No differences.", "");
+    lines.push(
+      `### Spells vs 5e-bits (${bitsSpells.length} spells)`,
+      "",
+      diffs.length ? diffs.map((d) => `- ${d}`).join("\n") : "No differences.",
+      "",
+    );
   }
 
   // Import warnings.
   const warningsFile = path.join(ROOT, ".cache", "srd", "import-warnings.json");
   if (fs.existsSync(warningsFile)) {
-    const warnings = JSON.parse(fs.readFileSync(warningsFile, "utf8")) as string[];
-    lines.push("## Import warnings", "", warnings.length ? warnings.map((w) => `- ${w}`).join("\n") : "None.", "");
+    const warnings = JSON.parse(
+      fs.readFileSync(warningsFile, "utf8"),
+    ) as string[];
+    lines.push(
+      "## Import warnings",
+      "",
+      warnings.length ? warnings.map((w) => `- ${w}`).join("\n") : "None.",
+      "",
+    );
   }
 
   fs.writeFileSync(REPORT, `${lines.join("\n")}\n`);
   console.log(lines.filter((l) => l.startsWith("|")).join("\n"));
-  console.log(`\nReport: ${path.relative(ROOT, REPORT)}${problems ? ` — ${problems} count problem(s)` : ""}`);
+  console.log(
+    `\nReport: ${path.relative(ROOT, REPORT)}${problems ? ` — ${problems} count problem(s)` : ""}`,
+  );
   if (problems) process.exit(1);
 }
 

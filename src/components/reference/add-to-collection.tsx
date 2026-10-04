@@ -1,13 +1,22 @@
 "use client";
 
-import { ArrowLeftIcon, FolderPlusIcon, LayersIcon, PlusIcon } from "lucide-react";
+import {
+  ArrowLeftIcon,
+  FolderPlusIcon,
+  LayersIcon,
+  PlusIcon,
+} from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 import type { EntryRef, StackTarget } from "@/lib/model/actions";
 import type { CollectionSummary } from "@/lib/model/core";
 import type { Collection } from "@/lib/model/schema";
@@ -31,7 +40,10 @@ export function AddToCollectionButton({ entry }: { entry: EntryRef }) {
     setStep({ kind: "collections", list: null });
     try {
       const list = await (await loadStorage()).getRepository().list();
-      setStep({ kind: "collections", list: list.sort((a, b) => b.updatedAt.localeCompare(a.updatedAt)) });
+      setStep({
+        kind: "collections",
+        list: list.sort((a, b) => b.updatedAt.localeCompare(a.updatedAt)),
+      });
     } catch {
       setStep({ kind: "collections", list: [] });
     }
@@ -51,11 +63,21 @@ export function AddToCollectionButton({ entry }: { entry: EntryRef }) {
     setBusy(true);
     try {
       const { addEntryToCollection } = await loadActions();
-      const { collection: updated, stackId } = await addEntryToCollection(collection.id, target, entry);
+      const { collection: updated, stackId } = await addEntryToCollection(
+        collection.id,
+        target,
+        entry,
+      );
       const stack = updated.stacks.find((s) => s.id === stackId);
-      toast.success(`Added ${entry.name} to ${updated.name} › ${stack?.name ?? "stack"}`, {
-        action: { label: "Open", onClick: () => router.push(`/collections/${updated.id}`) },
-      });
+      toast.success(
+        `Added ${entry.name} to ${updated.name} › ${stack?.name ?? "stack"}`,
+        {
+          action: {
+            label: "Open",
+            onClick: () => router.push(`/collections/${updated.id}`),
+          },
+        },
+      );
       setOpen(false);
     } catch (error) {
       toast.error((error as Error).message);
@@ -68,9 +90,15 @@ export function AddToCollectionButton({ entry }: { entry: EntryRef }) {
     setBusy(true);
     try {
       const { createCollectionWithEntry } = await loadActions();
-      const c = await createCollectionWithEntry(newName.trim() || "New collection", entry);
+      const c = await createCollectionWithEntry(
+        newName.trim() || "New collection",
+        entry,
+      );
       toast.success(`Created ${c.name} with ${entry.name}`, {
-        action: { label: "Open", onClick: () => router.push(`/collections/${c.id}`) },
+        action: {
+          label: "Open",
+          onClick: () => router.push(`/collections/${c.id}`),
+        },
       });
       setOpen(false);
     } catch (error) {
@@ -96,8 +124,14 @@ export function AddToCollectionButton({ entry }: { entry: EntryRef }) {
       <PopoverContent align="end" className="w-72 p-2">
         {step.kind === "collections" ? (
           <div className="space-y-1">
-            <p className="px-2 pt-1 pb-1.5 text-xs font-medium text-muted-foreground">Add {entry.name} to…</p>
-            {step.list === null && <p className="px-2 py-2 text-sm text-muted-foreground">Loading…</p>}
+            <p className="px-2 pt-1 pb-1.5 text-xs font-medium text-muted-foreground">
+              Add {entry.name} to…
+            </p>
+            {step.list === null && (
+              <p className="px-2 py-2 text-sm text-muted-foreground">
+                Loading…
+              </p>
+            )}
             {step.list?.map((c) => (
               <button
                 key={c.id}
@@ -115,8 +149,18 @@ export function AddToCollectionButton({ entry }: { entry: EntryRef }) {
                 void createNew();
               }}
             >
-              <Input value={newName} onChange={(e) => setNewName(e.target.value)} placeholder="New collection" className="h-8" />
-              <Button type="submit" size="icon" disabled={busy} aria-label="Create collection">
+              <Input
+                value={newName}
+                onChange={(e) => setNewName(e.target.value)}
+                placeholder="New collection"
+                className="h-8"
+              />
+              <Button
+                type="submit"
+                size="icon"
+                disabled={busy}
+                aria-label="Create collection"
+              >
                 <FolderPlusIcon />
               </Button>
             </form>
@@ -137,11 +181,15 @@ export function AddToCollectionButton({ entry }: { entry: EntryRef }) {
                 className="flex w-full items-center justify-between gap-2 rounded-md px-2 py-1.5 text-left text-sm hover:bg-muted"
               >
                 <span className="truncate">{s.name || "Untitled stack"}</span>
-                <span className="text-xs text-muted-foreground tabular-nums">{s.cards.length}</span>
+                <span className="text-xs text-muted-foreground tabular-nums">
+                  {s.cards.length}
+                </span>
               </button>
             ))}
             {step.collection.stacks.length === 0 && (
-              <p className="px-2 py-1 text-sm text-muted-foreground">No stacks yet. Create one:</p>
+              <p className="px-2 py-1 text-sm text-muted-foreground">
+                No stacks yet. Create one:
+              </p>
             )}
             <form
               className="flex gap-1.5 border-t pt-2"
@@ -150,12 +198,25 @@ export function AddToCollectionButton({ entry }: { entry: EntryRef }) {
                 void add(step.collection, { newStackName: newName });
               }}
             >
-              <Input value={newName} onChange={(e) => setNewName(e.target.value)} placeholder="New stack" className="h-8" />
-              <Button type="submit" size="icon" disabled={busy} aria-label="Create stack">
+              <Input
+                value={newName}
+                onChange={(e) => setNewName(e.target.value)}
+                placeholder="New stack"
+                className="h-8"
+              />
+              <Button
+                type="submit"
+                size="icon"
+                disabled={busy}
+                aria-label="Create stack"
+              >
                 <PlusIcon />
               </Button>
             </form>
-            <Link href={`/collections/${step.collection.id}`} className="block px-2 pt-1 text-xs text-muted-foreground hover:underline">
+            <Link
+              href={`/collections/${step.collection.id}`}
+              className="block px-2 pt-1 text-xs text-muted-foreground hover:underline"
+            >
               Open collection
             </Link>
           </div>

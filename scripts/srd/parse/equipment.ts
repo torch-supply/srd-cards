@@ -1,4 +1,8 @@
-import type { EquipmentEntry, LabelValue, RuleEntry } from "../../../src/lib/srd/schema";
+import type {
+  EquipmentEntry,
+  LabelValue,
+  RuleEntry,
+} from "../../../src/lib/srd/schema";
 import {
   type Block,
   type HeadingBlock,
@@ -12,7 +16,13 @@ import {
 } from "../pdf/blocks";
 import type { Line, Span } from "../pdf/extract";
 import { appendLine, slugify, spansText, spansToMarkdown } from "../pdf/text";
-import { blocksFor, blocksToMarkdown, CHAPTERS, type Ctx, titleCase } from "./common";
+import {
+  blocksFor,
+  blocksToMarkdown,
+  CHAPTERS,
+  type Ctx,
+  titleCase,
+} from "./common";
 
 /** A table row; `x` (left edge) tells which rows a group label covers: the ones indented below it. */
 type GridRow = TableRow & { x?: number };
@@ -43,7 +53,11 @@ interface Section {
 }
 
 /** Sections whose subsections stay inside one rule instead of becoming their own. */
-const FOLDED = new Set(["Lifestyle Expenses", "Crafting Nonmagical Items", "Scribing Spell Scrolls"]);
+const FOLDED = new Set([
+  "Lifestyle Expenses",
+  "Crafting Nonmagical Items",
+  "Scribing Spell Scrolls",
+]);
 
 /** Subsections whose 12pt entries become separate rules, with the slug prefix and tag to use. */
 const PROPERTY_LISTS: Record<string, { prefix: string; tag: string }> = {
@@ -52,9 +66,18 @@ const PROPERTY_LISTS: Record<string, { prefix: string; tag: string }> = {
 };
 
 /** Rows of "Tack, Harness, and Drawn Vehicles" that are vehicles rather than tack. */
-const DRAWN_VEHICLES = new Set(["Carriage", "Cart", "Chariot", "Sled", "Wagon"]);
+const DRAWN_VEHICLES = new Set([
+  "Carriage",
+  "Cart",
+  "Chariot",
+  "Sled",
+  "Wagon",
+]);
 
-export function parseEquipment(ctx: Ctx): { equipment: EquipmentEntry[]; rules: RuleEntry[] } {
+export function parseEquipment(ctx: Ctx): {
+  equipment: EquipmentEntry[];
+  rules: RuleEntry[];
+} {
   const blocks = blocksFor(ctx, CHAPTERS.equipment).map(fixText);
   const { preamble, sections } = buildTree(parseTables(blocks, ctx));
   placeTables(sections, ctx);
@@ -67,11 +90,18 @@ export function parseEquipment(ctx: Ctx): { equipment: EquipmentEntry[]; rules: 
     let slug = slugify(entry.name);
     if (taken.has(`equipment:${slug}`)) {
       const alt = `${slug}-${slugify(entry.subcategory ?? entry.category)}`;
-      ctx.warnings.push(`Equipment "${entry.name}": slug "${slug}" taken, using "${alt}".`);
+      ctx.warnings.push(
+        `Equipment "${entry.name}": slug "${slug}" taken, using "${alt}".`,
+      );
       slug = alt;
     }
     taken.add(`equipment:${slug}`);
-    equipment.push({ id: `equipment:${slug}`, type: "equipment", slug, ...entry });
+    equipment.push({
+      id: `equipment:${slug}`,
+      type: "equipment",
+      slug,
+      ...entry,
+    });
   };
 
   const pushRule = (
@@ -83,7 +113,8 @@ export function parseEquipment(ctx: Ctx): { equipment: EquipmentEntry[]; rules: 
   ) => {
     if (!description) return;
     const slug = opts.slug ?? `equipment-${slugify(name)}`;
-    if (taken.has(`rule:${slug}`)) ctx.warnings.push(`Equipment rule "${name}": duplicate slug "${slug}".`);
+    if (taken.has(`rule:${slug}`))
+      ctx.warnings.push(`Equipment rule "${name}": duplicate slug "${slug}".`);
     taken.add(`rule:${slug}`);
     rules.push({
       id: `rule:${slug}`,
@@ -99,25 +130,41 @@ export function parseEquipment(ctx: Ctx): { equipment: EquipmentEntry[]; rules: 
   };
 
   /** A rule from a section's content; titled sidebars in it ("Improvised Weapons") become rules of their own. */
-  const addRule = (heading: HeadingBlock, items: Item[], section: string, opts?: Parameters<typeof pushRule>[4]) => {
-    const sidebars = items.filter((b): b is SidebarBlock => b.kind === "sidebar" && !!b.title);
+  const addRule = (
+    heading: HeadingBlock,
+    items: Item[],
+    section: string,
+    opts?: Parameters<typeof pushRule>[4],
+  ) => {
+    const sidebars = items.filter(
+      (b): b is SidebarBlock => b.kind === "sidebar" && !!b.title,
+    );
     const rest = items.filter((b) => !sidebars.includes(b as SidebarBlock));
     pushRule(heading.text, heading.page, render(rest, ctx), section, opts);
     for (const b of sidebars) {
-      pushRule(titleCase(b.title!), b.page, b.paras.map((p) => spansToMarkdown(p)).join("\n\n"), section);
+      pushRule(
+        titleCase(b.title!),
+        b.page,
+        b.paras.map((p) => spansToMarkdown(p)).join("\n\n"),
+        section,
+      );
     }
   };
 
   const findTable = (title: string) => {
     for (const s of sections) {
-      const t = s.items.find((i): i is GridItem => i.kind === "grid" && i.table.title === title);
+      const t = s.items.find(
+        (i): i is GridItem => i.kind === "grid" && i.table.title === title,
+      );
       if (t) return t;
     }
     ctx.warnings.push(`Equipment: table "${title}" not found.`);
     return undefined;
   };
 
-  const chapter = sections.find((s) => s.level === 1 && s.heading.text === "Equipment");
+  const chapter = sections.find(
+    (s) => s.level === 1 && s.heading.text === "Equipment",
+  );
   if (!chapter) {
     ctx.warnings.push(`Equipment: chapter heading not found.`);
     return { equipment, rules };
@@ -130,14 +177,23 @@ export function parseEquipment(ctx: Ctx): { equipment: EquipmentEntry[]; rules: 
     addRule(h2.heading, folded ? flatten(h2) : h2.items, "Equipment");
     if (folded) continue;
 
-    if (name === "Weapons") weaponItems(findTable("Weapons"), ctx).forEach(addItem);
+    if (name === "Weapons")
+      weaponItems(findTable("Weapons"), ctx).forEach(addItem);
     if (name === "Armor") armorItems(findTable("Armor"), ctx).forEach(addItem);
     if (name === "Mounts and Vehicles") {
       const saddles = h2.children.find((s) => s.heading.text === "Saddles");
-      mountItems(findTable("Mounts and Other Animals"), findTable("Tack, Harness, and Drawn Vehicles"), saddles, ctx).forEach(addItem);
-      vehicleItems(findTable("Airborne and Waterborne Vehicles")).forEach(addItem);
+      mountItems(
+        findTable("Mounts and Other Animals"),
+        findTable("Tack, Harness, and Drawn Vehicles"),
+        saddles,
+        ctx,
+      ).forEach(addItem);
+      vehicleItems(findTable("Airborne and Waterborne Vehicles")).forEach(
+        addItem,
+      );
     }
-    const gearTable = name === "Adventuring Gear" ? findTable("Adventuring Gear") : undefined;
+    const gearTable =
+      name === "Adventuring Gear" ? findTable("Adventuring Gear") : undefined;
     const gearRows = new Set(records(gearTable).map((r) => r.cells.Item));
 
     for (const sub of h2.children) {
@@ -151,20 +207,29 @@ export function parseEquipment(ctx: Ctx): { equipment: EquipmentEntry[]; rules: 
       } else if (list && name === "Weapons") {
         addRule(sub.heading, sub.items, where);
         for (const prop of sub.children) {
-          addRule(prop.heading, flatten(prop), `${where} › ${sub.heading.text}`, {
-            slug: `${list.prefix}-${slugify(prop.heading.text)}`,
-            subtitle: list.tag,
-            tag: list.tag,
-          });
+          addRule(
+            prop.heading,
+            flatten(prop),
+            `${where} › ${sub.heading.text}`,
+            {
+              slug: `${list.prefix}-${slugify(prop.heading.text)}`,
+              subtitle: list.tag,
+              tag: list.tag,
+            },
+          );
         }
       } else if (name === "Tools" && sub.children.length) {
         addRule(sub.heading, sub.items, where);
-        for (const tool of sub.children) toolItems(tool, sub.heading.text, ctx).forEach(addItem);
+        for (const tool of sub.children)
+          toolItems(tool, sub.heading.text, ctx).forEach(addItem);
       } else {
         addRule(sub.heading, flatten(sub), where);
       }
     }
-    for (const row of gearRows) ctx.warnings.push(`Adventuring Gear "${row}": table row without a description.`);
+    for (const row of gearRows)
+      ctx.warnings.push(
+        `Adventuring Gear "${row}": table row without a description.`,
+      );
   }
   return { equipment, rules };
 }
@@ -174,9 +239,12 @@ export function parseEquipment(ctx: Ctx): { equipment: EquipmentEntry[]; rules: 
 type ItemDraft = Omit<EquipmentEntry, "id" | "type" | "slug">;
 
 /** Table rows as header → cell maps, with the group label ("Simple Melee Weapons") they fall under. */
-function records(grid: GridItem | undefined): { cells: Record<string, string>; group?: string; page: number }[] {
+function records(
+  grid: GridItem | undefined,
+): { cells: Record<string, string>; group?: string; page: number }[] {
   if (!grid) return [];
-  const out: { cells: Record<string, string>; group?: string; page: number }[] = [];
+  const out: { cells: Record<string, string>; group?: string; page: number }[] =
+    [];
   let group: GridRow | undefined;
   for (const row of grid.table.rows) {
     if (row.group) {
@@ -184,8 +252,11 @@ function records(grid: GridItem | undefined): { cells: Record<string, string>; g
       continue;
     }
     // "Sled" after the indented saddles is back at the group's indent: no longer a saddle.
-    if (group?.x !== undefined && row.x !== undefined && row.x <= group.x + 2) group = undefined;
-    const cells = Object.fromEntries(grid.table.header.map((h, i) => [h, row.cells[i] ?? ""]));
+    if (group?.x !== undefined && row.x !== undefined && row.x <= group.x + 2)
+      group = undefined;
+    const cells = Object.fromEntries(
+      grid.table.header.map((h, i) => [h, row.cells[i] ?? ""]),
+    );
     out.push({ cells, group: group?.cells[0], page: row.page });
   }
   return out;
@@ -198,7 +269,8 @@ function value(text: string | undefined) {
 
 function weaponItems(grid: GridItem | undefined, ctx: Ctx): ItemDraft[] {
   return records(grid).map(({ cells, group, page }) => {
-    if (!group) ctx.warnings.push(`Weapon "${cells.Name}": no category row above it.`);
+    if (!group)
+      ctx.warnings.push(`Weapon "${cells.Name}": no category row above it.`);
     const subcategory = group ?? "";
     const damage = cells.Damage ?? "";
     return {
@@ -209,7 +281,11 @@ function weaponItems(grid: GridItem | undefined, ctx: Ctx): ItemDraft[] {
       subcategory,
       cost: value(cells.Cost),
       weight: value(cells.Weight),
-      weapon: { damage, properties: value(cells.Properties) ? splitList(cells.Properties) : [], mastery: cells.Mastery ?? "" },
+      weapon: {
+        damage,
+        properties: value(cells.Properties) ? splitList(cells.Properties) : [],
+        mastery: cells.Mastery ?? "",
+      },
     };
   });
 }
@@ -219,7 +295,10 @@ const DON_DOFF = /^(.+?) \((.+?) to Don (?:or Doff|and (.+?) to Doff)\)$/;
 function armorItems(grid: GridItem | undefined, ctx: Ctx): ItemDraft[] {
   return records(grid).map(({ cells, group, page }) => {
     const m = group?.match(DON_DOFF);
-    if (!m) ctx.warnings.push(`Armor "${cells.Armor}": unrecognized category row "${group}".`);
+    if (!m)
+      ctx.warnings.push(
+        `Armor "${cells.Armor}": unrecognized category row "${group}".`,
+      );
     const subcategory = m?.[1] ?? group ?? "";
     const ac = cells["Armor Class (AC)"] ?? "";
     return {
@@ -230,8 +309,19 @@ function armorItems(grid: GridItem | undefined, ctx: Ctx): ItemDraft[] {
       subcategory,
       cost: value(cells.Cost),
       weight: value(cells.Weight),
-      armor: { ac, strength: cells.Strength ?? "", stealth: cells.Stealth ?? "" },
-      ...(m ? { fields: [{ label: "Don", value: m[2] }, { label: "Doff", value: m[3] ?? m[2] }] } : {}),
+      armor: {
+        ac,
+        strength: cells.Strength ?? "",
+        stealth: cells.Stealth ?? "",
+      },
+      ...(m
+        ? {
+            fields: [
+              { label: "Don", value: m[2] },
+              { label: "Doff", value: m[3] ?? m[2] },
+            ],
+          }
+        : {}),
     };
   });
 }
@@ -243,9 +333,15 @@ function nameAndCost(heading: string) {
 }
 
 /** A tool: heading with cost, then label/value lines (Ability, Weight, Utilize, Craft, Variants). */
-function toolItems(section: Section, subcategory: string, ctx: Ctx): ItemDraft[] {
+function toolItems(
+  section: Section,
+  subcategory: string,
+  ctx: Ctx,
+): ItemDraft[] {
   const { name, cost } = nameAndCost(section.heading.text);
-  const fieldBlock = section.items.find((b): b is TableBlock => b.kind === "table");
+  const fieldBlock = section.items.find(
+    (b): b is TableBlock => b.kind === "table",
+  );
   if (!fieldBlock) {
     ctx.warnings.push(`Tool "${name}": missing Ability/Utilize block.`);
     return [];
@@ -261,7 +357,9 @@ function toolItems(section: Section, subcategory: string, ctx: Ctx): ItemDraft[]
         parsed.push(current);
         continuation = false;
       } else if (!current) {
-        ctx.warnings.push(`Tool "${name}": text before the first label: "${span.text}".`);
+        ctx.warnings.push(
+          `Tool "${name}": text before the first label: "${span.text}".`,
+        );
       } else if (continuation) {
         appendLine(current.spans, [span], ctx.dict);
         continuation = false;
@@ -277,7 +375,10 @@ function toolItems(section: Section, subcategory: string, ctx: Ctx): ItemDraft[]
   const fields: LabelValue[] = parsed
     .filter((p) => p.label !== "Weight")
     .map((p) => ({ label: p.label, value: spansToMarkdown(p.spans) }));
-  const description = render(section.items.filter((b) => b !== fieldBlock), ctx);
+  const description = render(
+    section.items.filter((b) => b !== fieldBlock),
+    ctx,
+  );
   const tool: ItemDraft = {
     name,
     subtitle: [subcategory, cost].filter(Boolean).join(" · "),
@@ -313,7 +414,11 @@ function toolItems(section: Section, subcategory: string, ctx: Ctx): ItemDraft[]
 }
 
 /** An Adventuring Gear entry: heading with price, description, and its Adventuring Gear table row. */
-function gearItems(section: Section, gearTable: GridItem | undefined, ctx: Ctx): ItemDraft[] {
+function gearItems(
+  section: Section,
+  gearTable: GridItem | undefined,
+  ctx: Ctx,
+): ItemDraft[] {
   const rows = new Map(records(gearTable).map((r) => [norm(r.cells.Item), r]));
   const { name, cost } = nameAndCost(section.heading.text);
   const description = render(section.items, ctx);
@@ -327,9 +432,14 @@ function gearItems(section: Section, gearTable: GridItem | undefined, ctx: Ctx):
 
   const items = variants.map((v): ItemDraft => {
     const row = rows.get(norm(v.name));
-    if (!row) ctx.warnings.push(`Adventuring Gear "${v.name}": not in the Adventuring Gear table.`);
+    if (!row)
+      ctx.warnings.push(
+        `Adventuring Gear "${v.name}": not in the Adventuring Gear table.`,
+      );
     else if (row.cells.Cost !== v.cost) {
-      ctx.warnings.push(`Adventuring Gear "${v.name}": table cost "${row.cells.Cost}" ≠ heading "${v.cost}".`);
+      ctx.warnings.push(
+        `Adventuring Gear "${v.name}": table cost "${row.cells.Cost}" ≠ heading "${v.cost}".`,
+      );
     }
     const itemCost = row?.cells.Cost ?? v.cost;
     return {
@@ -354,7 +464,9 @@ function gearItems(section: Section, gearTable: GridItem | undefined, ctx: Ctx):
         .map((h) => ({ label: h, value: cells[h] }));
       if (m) fields.push({ label: "Note", value: m[2] });
       items.push({
-        name: (m?.[1] ?? cells[first]).replace(/^\p{Ll}/u, (c) => c.toUpperCase()),
+        name: (m?.[1] ?? cells[first]).replace(/^\p{Ll}/u, (c) =>
+          c.toUpperCase(),
+        ),
         subtitle: `${name} · ${cells.Cost}`,
         page,
         category: "Adventuring Gear",
@@ -368,7 +480,12 @@ function gearItems(section: Section, gearTable: GridItem | undefined, ctx: Ctx):
   return items;
 }
 
-function mountItems(mounts: GridItem | undefined, tack: GridItem | undefined, saddles: Section | undefined, ctx: Ctx): ItemDraft[] {
+function mountItems(
+  mounts: GridItem | undefined,
+  tack: GridItem | undefined,
+  saddles: Section | undefined,
+  ctx: Ctx,
+): ItemDraft[] {
   const items: ItemDraft[] = records(mounts).map(({ cells, page }) => ({
     name: cells.Item,
     subtitle: `Mount · ${cells.Cost}`,
@@ -387,7 +504,11 @@ function mountItems(mounts: GridItem | undefined, tack: GridItem | undefined, sa
       subtitle: `${vehicle ? "Drawn Vehicle" : "Tack and Harness"} · ${cells.Cost}`,
       page,
       category: vehicle ? "Vehicle" : "Tack and Harness",
-      ...(vehicle ? { subcategory: "Drawn Vehicle" } : group ? { subcategory: group } : {}),
+      ...(vehicle
+        ? { subcategory: "Drawn Vehicle" }
+        : group
+          ? { subcategory: group }
+          : {}),
       cost: value(cells.Cost),
       weight: value(cells.Weight),
       ...(group === "Saddle" && saddleText ? { description: saddleText } : {}),
@@ -406,7 +527,9 @@ function vehicleItems(grid: GridItem | undefined): ItemDraft[] {
     category: "Vehicle",
     subcategory: "Large Vehicle",
     cost: value(cells.Cost),
-    fields: rest.filter((h) => h !== "Cost").map((h) => ({ label: h, value: cells[h] })),
+    fields: rest
+      .filter((h) => h !== "Cost")
+      .map((h) => ({ label: h, value: cells[h] })),
   }));
 }
 
@@ -430,7 +553,11 @@ function splitList(text: string): string[] {
 }
 
 function norm(name: string) {
-  return name.toLowerCase().replace(/[’']/g, "").replace(/[^a-z0-9]+/g, " ").trim();
+  return name
+    .toLowerCase()
+    .replace(/[’']/g, "")
+    .replace(/[^a-z0-9]+/g, " ")
+    .trim();
 }
 
 // --- Sections ---------------------------------------------------------------
@@ -452,7 +579,13 @@ function buildTree(items: Item[]): { preamble: Item[]; sections: Section[] } {
     const level = levelOf(item);
     while (stack.length && stack[stack.length - 1].level >= level) stack.pop();
     const parent = stack[stack.length - 1];
-    const section: Section = { heading: item, level, items: [], children: [], parent };
+    const section: Section = {
+      heading: item,
+      level,
+      items: [],
+      children: [],
+      parent,
+    };
     parent?.children.push(section);
     sections.push(section);
     stack.push(section);
@@ -464,7 +597,10 @@ function buildTree(items: Item[]): { preamble: Item[]; sections: Section[] } {
 function flatten(section: Section, depth = 4): Item[] {
   return [
     ...section.items,
-    ...section.children.flatMap((c) => [{ kind: "sub", text: c.heading.text, depth } as SubHeading, ...flatten(c, depth + 1)]),
+    ...section.children.flatMap((c) => [
+      { kind: "sub", text: c.heading.text, depth } as SubHeading,
+      ...flatten(c, depth + 1),
+    ]),
   ];
 }
 
@@ -488,11 +624,14 @@ function placeTables(sections: Section[], ctx: Ctx) {
       if (item.kind !== "grid" || !item.table.title) continue;
       const title = item.table.title.toLowerCase();
       const refs = [`${title} table`, `${title.replace(/s$/, "")} table`];
-      let owner: Section | undefined = sections[texts.findIndex((t) => refs.some((r) => t.includes(r)))];
+      let owner: Section | undefined =
+        sections[texts.findIndex((t) => refs.some((r) => t.includes(r)))];
       if (!owner) {
         owner = section;
         while (owner.parent && owner.level > 2) owner = owner.parent;
-        ctx.warnings.push(`Equipment: no reference to table "${item.table.title}"; placed in "${owner.heading.text}".`);
+        ctx.warnings.push(
+          `Equipment: no reference to table "${item.table.title}"; placed in "${owner.heading.text}".`,
+        );
       }
       if (owner === section) continue;
       section.items.splice(section.items.indexOf(item), 1);
@@ -541,13 +680,16 @@ function fixText(block: Block): Block {
   }
   const spans = block.spans.map((s) => ({
     ...s,
-    text: s.font.startsWith("body") ? s.text.replace(/\b(\d+)1\/2\b/g, "$1½") : s.text,
+    text: s.font.startsWith("body")
+      ? s.text.replace(/\b(\d+)1\/2\b/g, "$1½")
+      : s.text,
   }));
   spans.forEach((s, i) => {
     for (const [left, right] of joins) {
       s.text = s.text.replace(`${left} ${right}`, `${left}${right}`);
       // The next line usually starts a new span: "… a 15- " + "foot radius …".
-      if (s.text.endsWith(`${left} `) && spans[i + 1]?.text.startsWith(right)) s.text = s.text.slice(0, -1);
+      if (s.text.endsWith(`${left} `) && spans[i + 1]?.text.startsWith(right))
+        s.text = s.text.slice(0, -1);
     }
   });
   return { ...block, spans };
@@ -555,8 +697,10 @@ function fixText(block: Block): Block {
 
 // --- Tables -------------------------------------------------------------------
 
-const isHeaderLine = (line: Line) => line.spans.every((s) => s.font === "gill-sb");
-const isGroupLine = (line: Line) => line.spans.length === 1 && line.spans[0].font === "gill-i";
+const isHeaderLine = (line: Line) =>
+  line.spans.every((s) => s.font === "gill-sb");
+const isGroupLine = (line: Line) =>
+  line.spans.length === 1 && line.spans[0].font === "gill-i";
 
 /** Parses titled table blocks into grid items; other blocks pass through. */
 function parseTables(blocks: Block[], ctx: Ctx): Item[] {
@@ -571,15 +715,24 @@ function parseTables(blocks: Block[], ctx: Ctx): Item[] {
     for (const panel of panelsOf(block)) {
       const parsed = parsePanel(panel, block, ctx);
       if (!main) {
-        main = { kind: "grid", page: block.page, table: { title: block.title, ...parsed } };
+        main = {
+          kind: "grid",
+          page: block.page,
+          table: { title: block.title, ...parsed },
+        };
       } else if (sameHeader(parsed.header, main.table.header)) {
         // Side-by-side halves of one table ("Adventuring Gear").
         main.table.rows.push(...parsed.rows);
       } else {
         // Lines of another table glued on in the content stream ("Food, Drink, and Lodging" on p102).
-        const owner = [...grids].reverse().find((g) => sameHeader(g.table.header, parsed.header));
+        const owner = [...grids]
+          .reverse()
+          .find((g) => sameHeader(g.table.header, parsed.header));
         if (owner) owner.table.rows.push(...parsed.rows);
-        else ctx.warnings.push(`Equipment: table panel [${parsed.header.join(" | ")}] in "${block.title}" has no owner.`);
+        else
+          ctx.warnings.push(
+            `Equipment: table panel [${parsed.header.join(" | ")}] in "${block.title}" has no owner.`,
+          );
       }
     }
     if (main) {
@@ -617,7 +770,8 @@ function lineCells(line: Line): Span[][] {
   const cells: Span[][] = [];
   let prev: Span | undefined;
   for (const span of line.spans) {
-    if (prev && span.x - prev.x2 < span.size * 0.9) cells[cells.length - 1].push(span);
+    if (prev && span.x - prev.x2 < span.size * 0.9)
+      cells[cells.length - 1].push(span);
     else cells.push([span]);
     prev = span;
   }
@@ -630,11 +784,18 @@ function lineCells(line: Line): Span[][] {
  * (headers of centered columns start well left of their values). Otherwise falls
  * back to `parseTable` (rows with wrapped cells, like Weapons).
  */
-function parsePanel(panel: Panel, block: TableBlock, ctx: Ctx): { header: string[]; rows: GridRow[] } {
+function parsePanel(
+  panel: Panel,
+  block: TableBlock,
+  ctx: Ctx,
+): { header: string[]; rows: GridRow[] } {
   const data = panel.lines.filter((l) => !isGroupLine(l)).map(lineCells);
   const n = data[0]?.length ?? 0;
   if (!n || data.some((cells) => cells.length !== n)) {
-    const t = parseTable({ ...block, lines: [...panel.header, ...panel.lines] }, ctx.dict);
+    const t = parseTable(
+      { ...block, lines: [...panel.header, ...panel.lines] },
+      ctx.dict,
+    );
     return { header: t.header, rows: t.rows };
   }
   const cols = Array.from({ length: n }, (_, i) => ({
@@ -649,8 +810,12 @@ function parsePanel(panel: Panel, block: TableBlock, ctx: Ctx): { header: string
       if (word.trim()) {
         const center = span.x + (offset + word.length / 2) * perChar;
         const dist = (c: { x: number; x2: number }) =>
-          Math.max(0, c.x - center, center - c.x2) * 1000 + Math.abs((c.x + c.x2) / 2 - center);
-        const best = cols.reduce((bi, c, i) => (dist(c) < dist(cols[bi]) ? i : bi), 0);
+          Math.max(0, c.x - center, center - c.x2) * 1000 +
+          Math.abs((c.x + c.x2) / 2 - center);
+        const best = cols.reduce(
+          (bi, c, i) => (dist(c) < dist(cols[bi]) ? i : bi),
+          0,
+        );
         headerWords[best].push(word);
       }
       offset += word.length;
@@ -658,8 +823,19 @@ function parsePanel(panel: Panel, block: TableBlock, ctx: Ctx): { header: string
   }
   const rows: GridRow[] = panel.lines.map((line) =>
     isGroupLine(line)
-      ? { cells: [spansText(line.spans)], group: true, x: line.x, y: line.y, page: line.page }
-      : { cells: lineCells(line).map((cells) => spansText(cells)), x: line.x, y: line.y, page: line.page },
+      ? {
+          cells: [spansText(line.spans)],
+          group: true,
+          x: line.x,
+          y: line.y,
+          page: line.page,
+        }
+      : {
+          cells: lineCells(line).map((cells) => spansText(cells)),
+          x: line.x,
+          y: line.y,
+          page: line.page,
+        },
   );
   return { header: headerWords.map((w) => w.join(" ")), rows };
 }

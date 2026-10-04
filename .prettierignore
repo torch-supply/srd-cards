@@ -1,0 +1,10 @@
+# Prettier also skips everything in .gitignore.
+
+# Generated SRD data (written by `pnpm srd:import`; kept byte-for-byte stable)
+src/data/srd/
+scripts/srd/ids.lock.json
+scripts/srd/aliases.json
+tests/unit/__snapshots__/
+
+# Lockfile
+pnpm-lock.yaml

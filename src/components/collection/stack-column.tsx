@@ -1,7 +1,11 @@
 "use client";
 
 import { useDroppable } from "@dnd-kit/core";
-import { SortableContext, useSortable, verticalListSortingStrategy } from "@dnd-kit/sortable";
+import {
+  SortableContext,
+  useSortable,
+  verticalListSortingStrategy,
+} from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import {
   ArrowDownAZIcon,
@@ -56,19 +60,37 @@ export const StackColumn = memo(function StackColumn({
   isMissing: (card: Card) => boolean;
   insertion?: number;
 }) {
-  const { setNodeRef, setActivatorNodeRef, attributes, listeners, transform, transition, isDragging } = useSortable({
+  const {
+    setNodeRef,
+    setActivatorNodeRef,
+    attributes,
+    listeners,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({
     id: `stack:${stack.id}`,
     data: { kind: "column", stackId: stack.id },
     disabled: readOnly,
   });
-  const { setNodeRef: setBodyRef, isOver } = useDroppable({ id: `body:${stack.id}`, data: { kind: "body", stackId: stack.id } });
+  const { setNodeRef: setBodyRef, isOver } = useDroppable({
+    id: `body:${stack.id}`,
+    data: { kind: "body", stackId: stack.id },
+  });
   const width = stack.wide ? WIDE_COLUMN_WIDTH : COLUMN_WIDTH;
 
   return (
     <section
       ref={setNodeRef}
-      style={{ transform: CSS.Translate.toString(transform), transition, width }}
-      className={cn("flex max-h-full shrink-0 flex-col rounded-xl border bg-muted/40", isDragging && "opacity-40")}
+      style={{
+        transform: CSS.Translate.toString(transform),
+        transition,
+        width,
+      }}
+      className={cn(
+        "flex max-h-full shrink-0 flex-col rounded-xl border bg-muted/40",
+        isDragging && "opacity-40",
+      )}
       aria-label={stack.name || "Untitled stack"}
     >
       <ColumnHeader
@@ -83,15 +105,25 @@ export const StackColumn = memo(function StackColumn({
           isOver && cards.length === 0 && "rounded-b-xl bg-primary/5",
         )}
       >
-        <SortableContext items={cards.map((c) => `card:${c.id}`)} strategy={verticalListSortingStrategy}>
+        <SortableContext
+          items={cards.map((c) => `card:${c.id}`)}
+          strategy={verticalListSortingStrategy}
+        >
           {cards.map((card, i) => (
             <div key={card.id}>
               {insertion === i && <InsertionLine />}
-              <SortableCard card={card} stackId={stack.id} missing={isMissing(card)} readOnly={readOnly} />
+              <SortableCard
+                card={card}
+                stackId={stack.id}
+                missing={isMissing(card)}
+                readOnly={readOnly}
+              />
             </div>
           ))}
         </SortableContext>
-        {insertion !== undefined && insertion >= cards.length && <InsertionLine />}
+        {insertion !== undefined && insertion >= cards.length && (
+          <InsertionLine />
+        )}
         {cards.length === 0 && (
           <div className="flex flex-1 flex-col items-center justify-center gap-1 rounded-lg border border-dashed py-6 text-center text-xs text-muted-foreground">
             <LayersIcon className="size-4" />
@@ -124,7 +156,9 @@ function ColumnHeader({
 
   const remove = () => {
     dispatch({ type: "removeStack", stackId: stack.id });
-    toast(`Deleted ${stack.name || "stack"} (${stack.cards.length} cards)`, { action: { label: "Undo", onClick: undo } });
+    toast(`Deleted ${stack.name || "stack"} (${stack.cards.length} cards)`, {
+      action: { label: "Undo", onClick: undo },
+    });
   };
 
   return (
@@ -146,7 +180,13 @@ function ColumnHeader({
           ariaLabel="Stack name"
           maxLength={200}
           disabled={readOnly}
-          onSave={(name) => dispatch({ type: "updateStack", stackId: stack.id, name: name.trim() })}
+          onSave={(name) =>
+            dispatch({
+              type: "updateStack",
+              stackId: stack.id,
+              name: name.trim(),
+            })
+          }
           className="min-w-0 flex-1 font-serif text-[1.05rem] font-semibold"
         />
         <span className="shrink-0 rounded-full bg-background px-1.5 text-xs text-muted-foreground tabular-nums">
@@ -155,33 +195,52 @@ function ColumnHeader({
         {!readOnly && (
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="ghost" size="icon-xs" aria-label={`Actions for ${stack.name || "stack"}`} className="text-muted-foreground">
+              <Button
+                variant="ghost"
+                size="icon-xs"
+                aria-label={`Actions for ${stack.name || "stack"}`}
+                className="text-muted-foreground"
+              >
                 <EllipsisIcon />
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-52">
               <DropdownMenuItem onSelect={() => setEditingDescription(true)}>
-                <PencilIcon /> {stack.description ? "Edit description" : "Add description"}
+                <PencilIcon />{" "}
+                {stack.description ? "Edit description" : "Add description"}
               </DropdownMenuItem>
               <DropdownMenuItem onSelect={() => setExpandedMany(cardIds, true)}>
                 <ChevronsUpDownIcon /> Expand all
               </DropdownMenuItem>
-              <DropdownMenuItem onSelect={() => setExpandedMany(cardIds, false)}>
+              <DropdownMenuItem
+                onSelect={() => setExpandedMany(cardIds, false)}
+              >
                 <ChevronsDownUpIcon /> Collapse all
               </DropdownMenuItem>
-              <DropdownMenuItem onSelect={() => dispatch({ type: "sortStack", stackId: stack.id, by: "name" })}>
+              <DropdownMenuItem
+                onSelect={() =>
+                  dispatch({ type: "sortStack", stackId: stack.id, by: "name" })
+                }
+              >
                 <ArrowDownAZIcon /> Sort by name
               </DropdownMenuItem>
               <DropdownMenuItem
                 onSelect={() =>
-                  dispatch({ type: "sortStack", stackId: stack.id, by: "type", typeOrder: [...REFERENCE_TYPES, "custom"] })
+                  dispatch({
+                    type: "sortStack",
+                    stackId: stack.id,
+                    by: "type",
+                    typeOrder: [...REFERENCE_TYPES, "custom"],
+                  })
                 }
               >
                 <ShapesIcon /> Sort by type
               </DropdownMenuItem>
               <DropdownMenuCheckboxItem
                 checked={!!stack.wide}
-                onCheckedChange={(wide) => dispatch({ type: "updateStack", stackId: stack.id, wide })}
+                onCheckedChange={(wide) =>
+                  dispatch({ type: "updateStack", stackId: stack.id, wide })
+                }
               >
                 <MoveHorizontalIcon /> Wide column
               </DropdownMenuCheckboxItem>
@@ -200,7 +259,13 @@ function ColumnHeader({
           startEditing={editingDescription}
           readOnly={readOnly}
           onDone={() => setEditingDescription(false)}
-          onSave={(description) => dispatch({ type: "updateStack", stackId: stack.id, description: description.trim() })}
+          onSave={(description) =>
+            dispatch({
+              type: "updateStack",
+              stackId: stack.id,
+              description: description.trim(),
+            })
+          }
         />
       )}
     </header>
@@ -235,7 +300,8 @@ function DescriptionEdit({
         }}
         onKeyDown={(e) => {
           if (e.key === "Escape") onDone();
-          if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) e.currentTarget.blur();
+          if (e.key === "Enter" && (e.metaKey || e.ctrlKey))
+            e.currentTarget.blur();
         }}
         className="w-full rounded-md border border-input bg-background px-1.5 py-1 text-xs outline-none focus-visible:ring-2 focus-visible:ring-ring/50"
       />
@@ -254,19 +320,34 @@ function DescriptionEdit({
 }
 
 /** Lightweight column for the drag overlay: header and up to 8 card titles. */
-export function ColumnPreview({ stack, names }: { stack: Stack; names: string[] }) {
+export function ColumnPreview({
+  stack,
+  names,
+}: {
+  stack: Stack;
+  names: string[];
+}) {
   return (
     <div
       className="flex cursor-grabbing flex-col gap-1 rounded-xl border bg-muted p-2 shadow-lg"
       style={{ width: stack.wide ? WIDE_COLUMN_WIDTH : COLUMN_WIDTH }}
     >
-      <div className="px-1 font-serif text-[1.05rem] font-semibold">{stack.name || "Untitled stack"}</div>
+      <div className="px-1 font-serif text-[1.05rem] font-semibold">
+        {stack.name || "Untitled stack"}
+      </div>
       {names.slice(0, 8).map((n, i) => (
-        <div key={i} className="truncate rounded-md border bg-card px-2 py-1.5 text-sm">
+        <div
+          key={i}
+          className="truncate rounded-md border bg-card px-2 py-1.5 text-sm"
+        >
           {n}
         </div>
       ))}
-      {names.length > 8 && <div className="px-1 text-xs text-muted-foreground">+{names.length - 8} more</div>}
+      {names.length > 8 && (
+        <div className="px-1 text-xs text-muted-foreground">
+          +{names.length - 8} more
+        </div>
+      )}
     </div>
   );
 }

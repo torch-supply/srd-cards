@@ -11,7 +11,10 @@ export const SRD_DATA_DIR = path.join(process.cwd(), "src", "data", "srd");
 
 export function srdDataHash(dir = SRD_DATA_DIR): string {
   const hash = createHash("sha256");
-  for (const file of fs.readdirSync(dir).filter((f) => f.endsWith(".json")).sort()) {
+  for (const file of fs
+    .readdirSync(dir)
+    .filter((f) => f.endsWith(".json"))
+    .sort()) {
     hash.update(file);
     hash.update(fs.readFileSync(path.join(dir, file)));
   }

@@ -13,7 +13,13 @@ const card = z
     /** Name and subtitle at the time the card was added, so collapsed cards render without SRD data. */
     snapshot: z.optional(z.object({ name: z.string(), subtitle: z.string() })),
     /** Homebrew content (kind "custom"). Body is markdown. */
-    custom: z.optional(z.object({ title: z.string(), subtitle: z.optional(z.string()), body: z.string() })),
+    custom: z.optional(
+      z.object({
+        title: z.string(),
+        subtitle: z.optional(z.string()),
+        body: z.string(),
+      }),
+    ),
     quantity: z.int().check(z.minimum(1), z.maximum(999)),
     notes: z.optional(z.string().check(z.maxLength(5000))),
   })

@@ -8,7 +8,13 @@ function Attribution() {
     <p>
       {parts.map((part, i) =>
         part.startsWith("https://") ? (
-          <a key={i} href={part} className="underline underline-offset-2 hover:text-foreground" rel="noreferrer" target="_blank">
+          <a
+            key={i}
+            href={part}
+            className="underline underline-offset-2 hover:text-foreground"
+            rel="noreferrer"
+            target="_blank"
+          >
             {part}
           </a>
         ) : (
@@ -27,7 +33,10 @@ export function SiteFooter() {
           <Attribution />
           <p>srd.cards is 5E compatible.</p>
         </div>
-        <Link href="/about" className="shrink-0 underline underline-offset-2 hover:text-foreground">
+        <Link
+          href="/about"
+          className="shrink-0 underline underline-offset-2 hover:text-foreground"
+        >
           About &amp; credits
         </Link>
       </div>

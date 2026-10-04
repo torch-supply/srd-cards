@@ -59,7 +59,11 @@ export const spellSchema = z.object({
   statBlocks: z.array(z.lazy(() => statBlockSchema)).optional(),
 });
 
-const abilityScore = z.object({ score: z.number().int(), mod: z.string(), save: z.string() });
+const abilityScore = z.object({
+  score: z.number().int(),
+  mod: z.string(),
+  save: z.string(),
+});
 
 /** A stat block, as found in Monsters A–Z, Animals, and embedded in spells and magic items. */
 export const statBlockSchema = z.object({
@@ -117,12 +121,26 @@ export const classSchema = z.object({
   featuresTable: tableSchema.extend({
     /** Labels spanning several columns, e.g. "Spell Slots per Spell Level" over the 1–9 columns (`start` is a column index). */
     headerGroups: z
-      .array(z.object({ label: z.string(), start: z.number().int(), span: z.number().int() }))
+      .array(
+        z.object({
+          label: z.string(),
+          start: z.number().int(),
+          span: z.number().int(),
+        }),
+      )
       .optional(),
   }),
-  features: z.array(z.object({ level: z.number().int(), name: z.string(), description: z.string() })),
+  features: z.array(
+    z.object({
+      level: z.number().int(),
+      name: z.string(),
+      description: z.string(),
+    }),
+  ),
   /** Spell list tables by spell level (casters only). */
-  spellList: z.array(z.object({ level: z.number().int(), spells: z.array(z.string()) })).optional(),
+  spellList: z
+    .array(z.object({ level: z.number().int(), spells: z.array(z.string()) }))
+    .optional(),
   subclassIds: z.array(z.string()),
 });
 
@@ -132,7 +150,13 @@ export const subclassSchema = z.object({
   className: z.string(),
   classId: z.string(),
   description: z.string(),
-  features: z.array(z.object({ level: z.number().int(), name: z.string(), description: z.string() })),
+  features: z.array(
+    z.object({
+      level: z.number().int(),
+      name: z.string(),
+      description: z.string(),
+    }),
+  ),
 });
 
 export const equipmentSchema = z.object({
@@ -143,7 +167,11 @@ export const equipmentSchema = z.object({
   cost: z.string().optional(),
   weight: z.string().optional(),
   weapon: z
-    .object({ damage: z.string(), properties: z.array(z.string()), mastery: z.string() })
+    .object({
+      damage: z.string(),
+      properties: z.array(z.string()),
+      mastery: z.string(),
+    })
     .optional(),
   armor: z
     .object({ ac: z.string(), strength: z.string(), stealth: z.string() })
@@ -226,7 +254,10 @@ export const indexEntrySchema = z.object({
   /** Numeric sort key within a type (spell level, CR); name is the tiebreaker. */
   sort: z.number().optional(),
   /** Filter values, e.g. { school: "Evocation", classes: ["Wizard"] }. */
-  facets: z.record(z.string(), z.union([z.string(), z.number(), z.boolean(), z.array(z.string())])),
+  facets: z.record(
+    z.string(),
+    z.union([z.string(), z.number(), z.boolean(), z.array(z.string())]),
+  ),
   /** Extra search terms. */
   keywords: z.string().optional(),
 });

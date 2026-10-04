@@ -1,15 +1,26 @@
 "use client";
 
-import { createContext, type ReactNode, useContext, useEffect, useState } from "react";
+import {
+  createContext,
+  type ReactNode,
+  useContext,
+  useEffect,
+  useState,
+} from "react";
 import { toast } from "sonner";
 import { createStore, type StoreApi, useStore } from "zustand";
 import { apply, type Command } from "@/lib/model/commands";
 import type { Collection } from "@/lib/model/schema";
 import { getRepository, StorageError } from "@/lib/storage";
 import type { StorageErrorKind } from "@/lib/storage/repository";
-import { type CollectionUiState, readCollectionUi, writeCollectionUi } from "@/lib/storage/ui-state";
+import {
+  type CollectionUiState,
+  readCollectionUi,
+  writeCollectionUi,
+} from "@/lib/storage/ui-state";
 
-export type CollectionStatus = "loading" | "ready" | "missing" | "readonly" | "error";
+export type CollectionStatus =
+  "loading" | "ready" | "missing" | "readonly" | "error";
 
 export interface CollectionState {
   id: string;
@@ -41,7 +52,9 @@ const SAVE_DEBOUNCE_MS = 250;
 const SAVE_MAX_WAIT_MS = 1000;
 const COALESCE_MS = 2000;
 
-export function createCollectionStore(id: string): StoreApi<CollectionState> & { connect(): () => void } {
+export function createCollectionStore(
+  id: string,
+): StoreApi<CollectionState> & { connect(): () => void } {
   const repo = getRepository();
   /** The document as last loaded/saved; a save is needed when the current one differs. */
   let saved: Collection | null = null;
@@ -68,9 +81,14 @@ export function createCollectionStore(id: string): StoreApi<CollectionState> & {
           const result = await repo.save({ ...doc, rev: baseRev }, { baseRev });
           baseRev = result.rev;
           saved = doc;
-          set({ saveState: get().collection === doc ? "saved" : "pending", storageProblem: undefined });
+          set({
+            saveState: get().collection === doc ? "saved" : "pending",
+            storageProblem: undefined,
+          });
           if (result.conflict) {
-            toast.warning("This collection was also changed in another tab. Your latest changes were kept.");
+            toast.warning(
+              "This collection was also changed in another tab. Your latest changes were kept.",
+            );
           }
         } catch (error) {
           const kind = error instanceof StorageError ? error.kind : "unknown";
@@ -86,7 +104,10 @@ export function createCollectionStore(id: string): StoreApi<CollectionState> & {
       const now = Date.now();
       firstPendingAt ??= now;
       if (timer) clearTimeout(timer);
-      const wait = Math.max(0, Math.min(SAVE_DEBOUNCE_MS, SAVE_MAX_WAIT_MS - (now - firstPendingAt)));
+      const wait = Math.max(
+        0,
+        Math.min(SAVE_DEBOUNCE_MS, SAVE_MAX_WAIT_MS - (now - firstPendingAt)),
+      );
       timer = setTimeout(() => {
         timer = undefined;
         firstPendingAt = undefined;
@@ -95,7 +116,10 @@ export function createCollectionStore(id: string): StoreApi<CollectionState> & {
       set({ saveState: "pending" });
     };
 
-    const setCollection = (next: Collection, history: { past: Collection[]; future: Collection[] }) => {
+    const setCollection = (
+      next: Collection,
+      history: { past: Collection[]; future: Collection[] },
+    ) => {
       set({ collection: next, ...history });
       schedule();
     };
@@ -114,8 +138,13 @@ export function createCollectionStore(id: string): StoreApi<CollectionState> & {
           const result = await repo.get(id);
           const ui = readCollectionUi(id);
           if (result.status === "ok" || result.status === "newer") {
-            const ids = new Set(result.collection.stacks.flatMap((s) => s.cards.map((c) => c.id)));
-            const pruned = { ...ui, expanded: ui.expanded.filter((x) => ids.has(x)) };
+            const ids = new Set(
+              result.collection.stacks.flatMap((s) => s.cards.map((c) => c.id)),
+            );
+            const pruned = {
+              ...ui,
+              expanded: ui.expanded.filter((x) => ids.has(x)),
+            };
             saved = result.collection;
             baseRev = result.collection.rev;
             set({
@@ -128,10 +157,19 @@ export function createCollectionStore(id: string): StoreApi<CollectionState> & {
           } else if (result.status === "missing") {
             set({ status: "missing", collection: null });
           } else {
-            set({ status: "error", error: result.error, corruptRaw: result.raw, collection: null });
+            set({
+              status: "error",
+              error: result.error,
+              corruptRaw: result.raw,
+              collection: null,
+            });
           }
         } catch (error) {
-          set({ status: "error", error: (error as Error).message, collection: null });
+          set({
+            status: "error",
+            error: (error as Error).message,
+            collection: null,
+          });
         }
       },
 
@@ -142,8 +180,13 @@ export function createCollectionStore(id: string): StoreApi<CollectionState> & {
         if (applied === collection) return;
         const next = { ...applied, updatedAt: new Date().toISOString() };
         const now = Date.now();
-        const coalesce = opts?.coalesce && lastCoalesce?.key === opts.coalesce && now - lastCoalesce.at < COALESCE_MS;
-        lastCoalesce = opts?.coalesce ? { key: opts.coalesce, at: now } : undefined;
+        const coalesce =
+          opts?.coalesce &&
+          lastCoalesce?.key === opts.coalesce &&
+          now - lastCoalesce.at < COALESCE_MS;
+        lastCoalesce = opts?.coalesce
+          ? { key: opts.coalesce, at: now }
+          : undefined;
         if (opts?.history === false) {
           setCollection(next, { past, future: get().future });
           return;
@@ -158,14 +201,20 @@ export function createCollectionStore(id: string): StoreApi<CollectionState> & {
         const { status, collection, past, future } = get();
         if (status !== "ready" || !collection || !past.length) return;
         lastCoalesce = undefined;
-        setCollection(past[past.length - 1], { past: past.slice(0, -1), future: [collection, ...future] });
+        setCollection(past[past.length - 1], {
+          past: past.slice(0, -1),
+          future: [collection, ...future],
+        });
       },
 
       redo() {
         const { status, collection, past, future } = get();
         if (status !== "ready" || !collection || !future.length) return;
         lastCoalesce = undefined;
-        setCollection(future[0], { past: [...past, collection], future: future.slice(1) });
+        setCollection(future[0], {
+          past: [...past, collection],
+          future: future.slice(1),
+        });
       },
 
       async flush() {
@@ -182,7 +231,12 @@ export function createCollectionStore(id: string): StoreApi<CollectionState> & {
         const isOpen = ui.expanded.includes(cardId);
         const open = expanded ?? !isOpen;
         if (open === isOpen) return;
-        const next = { ...ui, expanded: open ? [...ui.expanded, cardId] : ui.expanded.filter((x) => x !== cardId) };
+        const next = {
+          ...ui,
+          expanded: open
+            ? [...ui.expanded, cardId]
+            : ui.expanded.filter((x) => x !== cardId),
+        };
         set({ ui: next });
         persistUi(next);
       },
@@ -215,7 +269,8 @@ export function createCollectionStore(id: string): StoreApi<CollectionState> & {
       const unsubscribe = repo.subscribe((change) => {
         if (change.id && change.id !== id) return;
         const { collection, status } = store.getState();
-        if (status === "ready" && collection === saved && !timer && !saving) void store.getState().load();
+        if (status === "ready" && collection === saved && !timer && !saving)
+          void store.getState().load();
       });
       return () => {
         unsubscribe();
@@ -227,9 +282,17 @@ export function createCollectionStore(id: string): StoreApi<CollectionState> & {
   };
 }
 
-const CollectionStoreContext = createContext<StoreApi<CollectionState> | null>(null);
+const CollectionStoreContext = createContext<StoreApi<CollectionState> | null>(
+  null,
+);
 
-export function CollectionStoreProvider({ id, children }: { id: string; children: ReactNode }) {
+export function CollectionStoreProvider({
+  id,
+  children,
+}: {
+  id: string;
+  children: ReactNode;
+}) {
   const [store] = useState(() => createCollectionStore(id));
 
   useEffect(() => {
@@ -250,17 +313,29 @@ export function CollectionStoreProvider({ id, children }: { id: string; children
     };
   }, [store]);
 
-  return <CollectionStoreContext.Provider value={store}>{children}</CollectionStoreContext.Provider>;
+  return (
+    <CollectionStoreContext.Provider value={store}>
+      {children}
+    </CollectionStoreContext.Provider>
+  );
 }
 
-export function useCollectionStore<T>(selector: (state: CollectionState) => T): T {
+export function useCollectionStore<T>(
+  selector: (state: CollectionState) => T,
+): T {
   const store = useContext(CollectionStoreContext);
-  if (!store) throw new Error("useCollectionStore must be used inside CollectionStoreProvider");
+  if (!store)
+    throw new Error(
+      "useCollectionStore must be used inside CollectionStoreProvider",
+    );
   return useStore(store, selector);
 }
 
 export function useCollectionStoreApi(): StoreApi<CollectionState> {
   const store = useContext(CollectionStoreContext);
-  if (!store) throw new Error("useCollectionStoreApi must be used inside CollectionStoreProvider");
+  if (!store)
+    throw new Error(
+      "useCollectionStoreApi must be used inside CollectionStoreProvider",
+    );
   return store;
 }

@@ -22,19 +22,32 @@ export function emitPublic() {
   const started = Date.now();
   fs.rmSync(PUBLIC_DIR, { recursive: true, force: true });
   fs.mkdirSync(target, { recursive: true });
-  fs.copyFileSync(path.join(SRD_DATA_DIR, "index.json"), path.join(target, "index.json"));
+  fs.copyFileSync(
+    path.join(SRD_DATA_DIR, "index.json"),
+    path.join(target, "index.json"),
+  );
   const aliases = path.join(process.cwd(), "scripts", "srd", "aliases.json");
-  fs.writeFileSync(path.join(target, "aliases.json"), fs.existsSync(aliases) ? fs.readFileSync(aliases) : "{}");
+  fs.writeFileSync(
+    path.join(target, "aliases.json"),
+    fs.existsSync(aliases) ? fs.readFileSync(aliases) : "{}",
+  );
   let count = 0;
   for (const type of SRD_TYPES) {
-    const entries = JSON.parse(fs.readFileSync(path.join(SRD_DATA_DIR, `${type}.json`), "utf8")) as SrdEntry[];
+    const entries = JSON.parse(
+      fs.readFileSync(path.join(SRD_DATA_DIR, `${type}.json`), "utf8"),
+    ) as SrdEntry[];
     fs.mkdirSync(path.join(target, type), { recursive: true });
     for (const entry of entries) {
-      fs.writeFileSync(path.join(target, type, `${entry.slug}.json`), JSON.stringify(renderEntry(entry)));
+      fs.writeFileSync(
+        path.join(target, type, `${entry.slug}.json`),
+        JSON.stringify(renderEntry(entry)),
+      );
       count++;
     }
   }
-  console.log(`Emitted ${count} SRD entries to public/srd/${hash}/ in ${Date.now() - started}ms.`);
+  console.log(
+    `Emitted ${count} SRD entries to public/srd/${hash}/ in ${Date.now() - started}ms.`,
+  );
 }
 
 if (import.meta.url === `file://${process.argv[1]}`) emitPublic();

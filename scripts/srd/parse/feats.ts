@@ -1,8 +1,16 @@
 import type { FeatEntry } from "../../../src/lib/srd/schema";
 import { slugify } from "../pdf/text";
-import { proseBlocksFor, blocksToMarkdown, CHAPTERS, type Ctx, splitAtHeadings, takeMeta } from "./common";
+import {
+  proseBlocksFor,
+  blocksToMarkdown,
+  CHAPTERS,
+  type Ctx,
+  splitAtHeadings,
+  takeMeta,
+} from "./common";
 
-const META = /^(Origin|General|Fighting Style|Epic Boon) Feat(?: \(Prerequisite: (.+)\))?$/;
+const META =
+  /^(Origin|General|Fighting Style|Epic Boon) Feat(?: \(Prerequisite: (.+)\))?$/;
 
 export function parseFeats(ctx: Ctx): FeatEntry[] {
   const blocks = proseBlocksFor(ctx, CHAPTERS.feats);
@@ -17,7 +25,10 @@ export function parseFeats(ctx: Ctx): FeatEntry[] {
     const name = draft.heading.text;
     const meta = takeMeta(draft) ?? "";
     const m = meta.match(META);
-    if (!m) ctx.warnings.push(`Feat "${name}": unrecognized category line "${meta}".`);
+    if (!m)
+      ctx.warnings.push(
+        `Feat "${name}": unrecognized category line "${meta}".`,
+      );
     const category = m?.[1] ?? "";
     const prerequisite = m?.[2];
     const slug = slugify(name);
@@ -26,7 +37,9 @@ export function parseFeats(ctx: Ctx): FeatEntry[] {
       type: "feat",
       slug,
       name,
-      subtitle: prerequisite ? `${category} Feat · ${prerequisite}` : `${category} Feat`,
+      subtitle: prerequisite
+        ? `${category} Feat · ${prerequisite}`
+        : `${category} Feat`,
       page: draft.heading.page,
       meta,
       category,

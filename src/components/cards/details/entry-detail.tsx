@@ -21,7 +21,13 @@ import { StatBlockView } from "./stat-block";
  * `compact` is the in-card variant: long content (class features) collapses
  * into an accordion and the widest tables link to the reference page.
  */
-export function EntryDetail({ entry, compact = false }: { entry: SrdEntry; compact?: boolean }) {
+export function EntryDetail({
+  entry,
+  compact = false,
+}: {
+  entry: SrdEntry;
+  compact?: boolean;
+}) {
   switch (entry.type) {
     case "spell":
       return <SpellDetail entry={entry} />;
@@ -65,14 +71,22 @@ function SpellDetail({ entry }: { entry: SpellEntry }) {
   );
 }
 
-function Features({ features, compact }: { features: FeatureItem[]; compact: boolean }) {
+function Features({
+  features,
+  compact,
+}: {
+  features: FeatureItem[];
+  compact: boolean;
+}) {
   if (compact) return <FeatureAccordion features={features} />;
   return (
     <div className="space-y-4">
       {features.map((f, i) => (
         <section key={`${f.level}-${f.name}-${i}`}>
           <h4 className="font-serif text-base font-semibold">
-            <span className="mr-2 text-sm font-normal text-muted-foreground">Level {f.level}:</span>
+            <span className="mr-2 text-sm font-normal text-muted-foreground">
+              Level {f.level}:
+            </span>
             {f.name}
           </h4>
           <Html html={f.description} className="mt-1" />
@@ -82,13 +96,25 @@ function Features({ features, compact }: { features: FeatureItem[]; compact: boo
   );
 }
 
-function ClassDetail({ entry, compact }: { entry: ClassEntry; compact: boolean }) {
+function ClassDetail({
+  entry,
+  compact,
+}: {
+  entry: ClassEntry;
+  compact: boolean;
+}) {
   return (
     <div className="space-y-3">
-      <Facts rows={entry.coreTraits.map((t) => ({ label: t.label, value: t.value }))} className="text-[0.8125rem]" />
+      <Facts
+        rows={entry.coreTraits.map((t) => ({ label: t.label, value: t.value }))}
+        className="text-[0.8125rem]"
+      />
       {compact ? (
         <p className="text-xs text-muted-foreground">
-          <Link href={referenceHref("class", entry.slug)} className="underline underline-offset-2">
+          <Link
+            href={referenceHref("class", entry.slug)}
+            className="underline underline-offset-2"
+          >
             Full {entry.name} Features table ↗
           </Link>
         </p>
@@ -106,7 +132,10 @@ function ClassDetail({ entry, compact }: { entry: ClassEntry; compact: boolean }
           <div className="space-y-2 text-sm">
             {entry.spellList.map((group) => (
               <p key={group.level}>
-                <b>{group.level === 0 ? "Cantrips" : `Level ${group.level}`}:</b> {group.spells.join(", ")}
+                <b>
+                  {group.level === 0 ? "Cantrips" : `Level ${group.level}`}:
+                </b>{" "}
+                {group.spells.join(", ")}
               </p>
             ))}
           </div>
@@ -116,7 +145,13 @@ function ClassDetail({ entry, compact }: { entry: ClassEntry; compact: boolean }
   );
 }
 
-function SubclassDetail({ entry, compact }: { entry: SubclassEntry; compact: boolean }) {
+function SubclassDetail({
+  entry,
+  compact,
+}: {
+  entry: SubclassEntry;
+  compact: boolean;
+}) {
   return (
     <div className="space-y-3">
       <Html html={entry.description} />
@@ -130,7 +165,10 @@ function EquipmentDetail({ entry }: { entry: EquipmentEntry }) {
   const rows: { label: string; value: React.ReactNode }[] = [];
   if (entry.weapon) {
     rows.push({ label: "Damage", value: entry.weapon.damage });
-    rows.push({ label: "Properties", value: entry.weapon.properties.join(", ") || "—" });
+    rows.push({
+      label: "Properties",
+      value: entry.weapon.properties.join(", ") || "—",
+    });
     rows.push({ label: "Mastery", value: entry.weapon.mastery });
   }
   if (entry.armor) {
@@ -138,7 +176,11 @@ function EquipmentDetail({ entry }: { entry: EquipmentEntry }) {
     rows.push({ label: "Strength", value: entry.armor.strength });
     rows.push({ label: "Stealth", value: entry.armor.stealth });
   }
-  for (const f of entry.fields ?? []) rows.push({ label: f.label, value: <span dangerouslySetInnerHTML={{ __html: f.value }} /> });
+  for (const f of entry.fields ?? [])
+    rows.push({
+      label: f.label,
+      value: <span dangerouslySetInnerHTML={{ __html: f.value }} />,
+    });
   if (entry.weight) rows.push({ label: "Weight", value: entry.weight });
   if (entry.cost) rows.push({ label: "Cost", value: entry.cost });
   return (
@@ -175,4 +217,3 @@ function FeatDetail({ entry }: { entry: FeatEntry }) {
 function TextDetail({ entry }: { entry: ConditionEntry | RuleEntry }) {
   return <Html html={entry.description} />;
 }
-

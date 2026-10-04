@@ -9,7 +9,13 @@
  *   a bold(-italic) run-in heading, or a bullet.
  */
 import type { FontKey, Line, Span } from "./extract";
-import { appendLine, Dictionary, endsSentence, spansText, spansToMarkdown } from "./text";
+import {
+  appendLine,
+  Dictionary,
+  endsSentence,
+  spansText,
+  spansToMarkdown,
+} from "./text";
 
 export interface HeadingBlock {
   kind: "heading";
@@ -49,7 +55,8 @@ export interface TableBlock {
 
 export type Block = HeadingBlock | ParaBlock | SidebarBlock | TableBlock;
 
-type LineKind = "heading" | "tableTitle" | "table" | "sidebarTitle" | "sidebar" | "body";
+type LineKind =
+  "heading" | "tableTitle" | "table" | "sidebarTitle" | "sidebar" | "body";
 
 const GILL = new Set<FontKey>(["gill", "gill-sb", "gill-i", "gill-sc"]);
 
@@ -58,9 +65,16 @@ function classify(line: Line): LineKind {
   const allGill = [...fonts].every((f) => GILL.has(f));
   if (!allGill) return "body";
   const size = Math.max(...line.spans.map((s) => s.size));
-  if (fonts.has("gill-sc")) return size >= 11.5 ? "heading" : size >= 10.5 ? "sidebarTitle" : "table";
+  if (fonts.has("gill-sc"))
+    return size >= 11.5 ? "heading" : size >= 10.5 ? "sidebarTitle" : "table";
   if (size >= 11.5 && !fonts.has("gill-i")) return "heading";
-  if (size >= 10.2 && fonts.size === 1 && fonts.has("gill-sb") && line.spans.length === 1) return "tableTitle";
+  if (
+    size >= 10.2 &&
+    fonts.size === 1 &&
+    fonts.has("gill-sb") &&
+    line.spans.length === 1
+  )
+    return "tableTitle";
   if (size >= 8.5 && size <= 9.2) return "sidebar";
   return "table";
 }
@@ -74,7 +88,11 @@ const BULLET = /^[•●▪]\s*/;
 function smallCapsText(spans: Span[]): string {
   const max = Math.max(...spans.map((s) => s.size));
   if (!spans.some((s) => s.font === "gill-sc")) return spansText(spans);
-  return spansText(spans.map((s) => (s.size < max - 1 ? { ...s, text: s.text.toLowerCase() } : s)));
+  return spansText(
+    spans.map((s) =>
+      s.size < max - 1 ? { ...s, text: s.text.toLowerCase() } : s,
+    ),
+  );
 }
 
 /** Left edges of the two text columns on a page (most common x of body lines). */
@@ -111,7 +129,12 @@ interface SidebarState {
   last: Line;
 }
 
-export function buildBlocks(pages: Line[][], fromPage: number, toPage: number, dict: Dictionary): Block[] {
+export function buildBlocks(
+  pages: Line[][],
+  fromPage: number,
+  toPage: number,
+  dict: Dictionary,
+): Block[] {
   const blocks: Block[] = [];
   let para: ParaState | null = null;
   let sidebar: SidebarState | null = null;
@@ -122,7 +145,6 @@ export function buildBlocks(pages: Line[][], fromPage: number, toPage: number, d
     if (para && !para.pushed) blocks.push(para.block);
     para = null;
   };
-
 
   for (let p = fromPage; p <= toPage; p++) {
     const lines = pages[p - 1];
@@ -153,7 +175,15 @@ export function buildBlocks(pages: Line[][], fromPage: number, toPage: number, d
           prev.text = `${prev.text} ${text}`.replace(/\s+/g, " ");
           prev.y = line.y;
         } else {
-          blocks.push({ kind: "heading", text, size, font: line.spans[0].font, page: p, x: line.x, y: line.y });
+          blocks.push({
+            kind: "heading",
+            text,
+            size,
+            font: line.spans[0].font,
+            page: p,
+            x: line.x,
+            y: line.y,
+          });
         }
         continue;
       }
@@ -162,7 +192,12 @@ export function buildBlocks(pages: Line[][], fromPage: number, toPage: number, d
         closePara();
         // Multi-panel tables (side-by-side halves, continued headers) stay in one
         // block; parsers that need panels split them (see parse/classes.ts, parse/equipment.ts).
-        if (kind === "tableTitle" && prev?.kind === "table" && prev.title && !prev.lines.length) {
+        if (
+          kind === "tableTitle" &&
+          prev?.kind === "table" &&
+          prev.title &&
+          !prev.lines.length
+        ) {
           // Two-line table title ("Multiclass Spellcaster:" / "Spell Slots per Spell Level").
           prev.title = `${prev.title} ${spansText(line.spans)}`;
         } else if (kind === "table" && prev?.kind === "table") {
@@ -180,7 +215,12 @@ export function buildBlocks(pages: Line[][], fromPage: number, toPage: number, d
 
       if (kind === "sidebarTitle") {
         closePara();
-        blocks.push({ kind: "sidebar", title: spansText(line.spans), paras: [], page: p });
+        blocks.push({
+          kind: "sidebar",
+          title: spansText(line.spans),
+          paras: [],
+          page: p,
+        });
         continue;
       }
 
@@ -188,7 +228,9 @@ export function buildBlocks(pages: Line[][], fromPage: number, toPage: number, d
         closePara();
         if (!sidebar) {
           const block: SidebarBlock =
-            prev?.kind === "sidebar" && !prev.paras.length ? prev : { kind: "sidebar", paras: [], page: p };
+            prev?.kind === "sidebar" && !prev.paras.length
+              ? prev
+              : { kind: "sidebar", paras: [], page: p };
           if (block !== prev) blocks.push(block);
           sidebar = { block, left: line.x, last: line };
           block.paras.push(line.spans.map((s) => ({ ...s })));
@@ -217,9 +259,20 @@ export function buildBlocks(pages: Line[][], fromPage: number, toPage: number, d
       // Continue a paragraph that an out-of-order table or sidebar split: new
       // paragraphs start indented (or with a run-in/bullet); a flush line, or text
       // after an unfinished sentence, belongs to the interrupted paragraph.
-      if (!para && interrupted && !interrupted.meta && (prev?.kind === "table" || prev?.kind === "sidebar") && !bullet && !runIn) {
-        const last = interrupted.last.spans[interrupted.last.spans.length - 1].text;
-        if (Math.abs(size - interrupted.block.size) < 0.4 && (!indented || !endsSentence(last))) {
+      if (
+        !para &&
+        interrupted &&
+        !interrupted.meta &&
+        (prev?.kind === "table" || prev?.kind === "sidebar") &&
+        !bullet &&
+        !runIn
+      ) {
+        const last =
+          interrupted.last.spans[interrupted.last.spans.length - 1].text;
+        if (
+          Math.abs(size - interrupted.block.size) < 0.4 &&
+          (!indented || !endsSentence(last))
+        ) {
           para = interrupted;
           para.pushed = true;
           appendLine(para.block.spans, line.spans, dict);
@@ -236,7 +289,8 @@ export function buildBlocks(pages: Line[][], fromPage: number, toPage: number, d
         const state: ParaState = para;
         const lastSpans = state.last.spans;
         const sentenceDone = endsSentence(lastSpans[lastSpans.length - 1].text);
-        const sameColumn = state.last.page === p && state.last.x < 300 === line.x < 300;
+        const sameColumn =
+          state.last.page === p && state.last.x < 300 === line.x < 300;
         const gap = sameColumn ? state.last.y - line.y : 0;
         const secondLine = state.last === state.firstLine;
         const hangingStart =
@@ -274,11 +328,21 @@ export function buildBlocks(pages: Line[][], fromPage: number, toPage: number, d
         const spans = line.spans.map((s) => ({ ...s }));
         if (bullet) spans[0].text = spans[0].text.replace(BULLET, "");
         para = {
-          block: { kind: "para", spans: spans.filter((s) => s.text.length), size, page: p, bullet, runIn, lines: [line] },
+          block: {
+            kind: "para",
+            spans: spans.filter((s) => s.text.length),
+            size,
+            page: p,
+            bullet,
+            runIn,
+            lines: [line],
+          },
           firstLine: line,
           last: line,
           hanging: false,
-          meta: prev?.kind === "heading" && line.spans.every((s) => s.font === "body-i"),
+          meta:
+            prev?.kind === "heading" &&
+            line.spans.every((s) => s.font === "body-i"),
         };
       } else {
         appendLine(para!.block.spans, line.spans, dict);
@@ -321,7 +385,8 @@ interface Cell {
 }
 
 /** Reading position: down a column, then the next column, then the next page. */
-const position = (page: number, half: number, y: number) => page * 2000 + half * 1000 + (1000 - y);
+const position = (page: number, half: number, y: number) =>
+  page * 2000 + half * 1000 + (1000 - y);
 
 /**
  * Joins runs separated by no more than a word space (bold "Red." followed by
@@ -336,7 +401,8 @@ function lineCells(line: Line, shift = 0, half = 0): Cell[] {
       const last = prev.spans[prev.spans.length - 1];
       if (!/\s$/.test(last.text) && s.x - prev.x2 > 1) last.text += " ";
       prev.spans.push({ ...s });
-      prev.text += (/\s$/.test(prev.text) || s.x - prev.x2 <= 1 ? "" : " ") + s.text;
+      prev.text +=
+        (/\s$/.test(prev.text) || s.x - prev.x2 <= 1 ? "" : " ") + s.text;
       prev.x2 = s.x2;
       continue;
     }
@@ -351,7 +417,9 @@ function lineCells(line: Line, shift = 0, half = 0): Cell[] {
       font: s.font,
     });
   }
-  return cells.map((c) => ({ ...c, text: c.text.trim() })).filter((c) => c.text);
+  return cells
+    .map((c) => ({ ...c, text: c.text.trim() }))
+    .filter((c) => c.text);
 }
 
 /**
@@ -377,13 +445,23 @@ export function parseTable(
   const narrow = block.lines.every((l) => (l.x < 300 ? l.x2 < 310 : true));
   const panelKey = (l: Line) => `${l.page}:${narrow && l.x >= 300 ? 1 : 0}`;
   const panelLeft = new Map<string, number>();
-  for (const l of block.lines) panelLeft.set(panelKey(l), Math.min(panelLeft.get(panelKey(l)) ?? Infinity, l.x));
-  const baseLeft = block.lines.length ? (panelLeft.get(panelKey(block.lines[0])) ?? 0) : 0;
+  for (const l of block.lines)
+    panelLeft.set(
+      panelKey(l),
+      Math.min(panelLeft.get(panelKey(l)) ?? Infinity, l.x),
+    );
+  const baseLeft = block.lines.length
+    ? (panelLeft.get(panelKey(block.lines[0])) ?? 0)
+    : 0;
   const headerTexts = new Set<string>();
 
   for (const line of block.lines) {
     const half = narrow && line.x >= 300 ? 1 : 0;
-    const cells = lineCells(line, (panelLeft.get(panelKey(line)) ?? baseLeft) - baseLeft, half);
+    const cells = lineCells(
+      line,
+      (panelLeft.get(panelKey(line)) ?? baseLeft) - baseLeft,
+      half,
+    );
     if (!cells.length) continue;
     const allHeader = line.spans.every((s) => s.font === "gill-sb");
     const text = spansText(line.spans);
@@ -436,7 +514,10 @@ export function parseTable(
 
   // A run that crosses into the next column ("9–10 The target chooses…") is
   // split by estimating each word's position from its character offset.
-  const splitWords = (c: Cell, assign: (wx: number, first: number) => number): Cell[] => {
+  const splitWords = (
+    c: Cell,
+    assign: (wx: number, first: number) => number,
+  ): Cell[] => {
     const first = colOf(c);
     if (first + 1 >= cols.length || c.x2 <= cols[first + 1] + 2) return [c];
     const perChar = (c.x2 - c.x) / Math.max(c.text.length, 1);
@@ -451,7 +532,13 @@ export function parseTable(
     }
     return [...pieces.entries()].map(([col, words]) => {
       const text = words.join(" ");
-      return { ...c, text, spans: [{ ...c.spans[0], text }], x: cols[col], x2: cols[col] + 1 };
+      return {
+        ...c,
+        text,
+        spans: [{ ...c.spans[0], text }],
+        x: cols[col],
+        x2: cols[col] + 1,
+      };
     });
   };
   const byStart = (wx: number, first: number) => {
@@ -469,7 +556,11 @@ export function parseTable(
   for (const c of ordered) {
     if (colOf(c) !== 0) continue;
     const last = anchors[anchors.length - 1];
-    if (last === undefined || c.pos - last >= minRowGap || Math.floor(c.pos / 1000) !== Math.floor(last / 1000)) {
+    if (
+      last === undefined ||
+      c.pos - last >= minRowGap ||
+      Math.floor(c.pos / 1000) !== Math.floor(last / 1000)
+    ) {
       anchors.push(c.pos);
     }
   }
@@ -479,7 +570,8 @@ export function parseTable(
 
   const rowIndex = (pos: number) => {
     let idx = 0;
-    for (let i = 0; i < anchors.length; i++) if (anchors[i] <= pos + 2.5) idx = i;
+    for (let i = 0; i < anchors.length; i++)
+      if (anchors[i] <= pos + 2.5) idx = i;
     return idx;
   };
 
@@ -500,14 +592,20 @@ export function parseTable(
     appendLine(parts[r][colOf(c)], c.spans, dict);
   }
   rows.forEach((row, r) => {
-    if (!row.group) row.cells = parts[r].map((spans) => (opts.markdown ? spansToMarkdown(spans) : spansText(spans)));
+    if (!row.group)
+      row.cells = parts[r].map((spans) =>
+        opts.markdown ? spansToMarkdown(spans) : spansText(spans),
+      );
   });
 
   // Header: nearest data column by horizontal extent; multi-line fragments join top to bottom.
   const extents = cols.map((start, i) => {
     const inCol = data.filter((c) => colOf(c) === i);
     return inCol.length
-      ? [Math.min(...inCol.map((c) => c.x)), Math.max(...inCol.map((c) => c.x2))]
+      ? [
+          Math.min(...inCol.map((c) => c.x)),
+          Math.max(...inCol.map((c) => c.x2)),
+        ]
       : [start, start + 10];
   });
   const nearest = (cx: number) => {
@@ -524,7 +622,8 @@ export function parseTable(
   };
   const headerCols: Cell[][] = cols.map(() => []);
   for (const h of [...header].sort((a, b) => a.pos - b.pos || a.x - b.x)) {
-    const spansMany = extents.filter(([a, b]) => h.x < b && h.x2 > a).length > 1;
+    const spansMany =
+      extents.filter(([a, b]) => h.x < b && h.x2 > a).length > 1;
     if (!spansMany) {
       headerCols[nearest((h.x + h.x2) / 2)].push(h);
       continue;
@@ -539,14 +638,22 @@ export function parseTable(
       offset += word.length;
     }
   }
-  const headerText = headerCols.map((cells) => cells.map((c) => c.text).join(" ").replace(/\s+/g, " ").trim());
+  const headerText = headerCols.map((cells) =>
+    cells
+      .map((c) => c.text)
+      .join(" ")
+      .replace(/\s+/g, " ")
+      .trim(),
+  );
 
   return { title: block.title, header: headerText, rows };
 }
 
 /** Renders a parsed table as a GitHub-flavored markdown table. */
 export function tableToMarkdown(table: Table): string {
-  const header = table.header.some(Boolean) ? table.header : table.rows[0]?.cells ?? [];
+  const header = table.header.some(Boolean)
+    ? table.header
+    : (table.rows[0]?.cells ?? []);
   const body = table.header.some(Boolean) ? table.rows : table.rows.slice(1);
   const esc = (s: string) => s.replace(/\|/g, "\\|");
   const lines = [

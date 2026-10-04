@@ -24,15 +24,19 @@ async function fetchJson<T>(path: string): Promise<T> {
 
 /** The lightweight index (~1,400 entries). */
 export function loadIndex(): Promise<IndexEntry[]> {
-  indexPromise ??= fetchJson<IndexEntry[]>("index.json").catch((error: unknown) => {
-    indexPromise = undefined;
-    throw error;
-  });
+  indexPromise ??= fetchJson<IndexEntry[]>("index.json").catch(
+    (error: unknown) => {
+      indexPromise = undefined;
+      throw error;
+    },
+  );
   return indexPromise;
 }
 
 function loadAliases(): Promise<Record<string, string>> {
-  aliasesPromise ??= fetchJson<Record<string, string>>("aliases.json").catch(() => ({}));
+  aliasesPromise ??= fetchJson<Record<string, string>>("aliases.json").catch(
+    () => ({}),
+  );
   return aliasesPromise;
 }
 
@@ -46,12 +50,14 @@ export function loadEntry(ref: string): Promise<SrdEntry> {
   let promise = entryPromises.get(ref);
   if (!promise) {
     const { type, slug } = parseRef(ref);
-    promise = fetchJson<SrdEntry>(`${type}/${slug}.json`).catch(async (error: unknown) => {
-      const alias = (await loadAliases())[ref];
-      if (alias && alias !== ref) return loadEntry(alias);
-      entryPromises.delete(ref);
-      throw error;
-    });
+    promise = fetchJson<SrdEntry>(`${type}/${slug}.json`).catch(
+      async (error: unknown) => {
+        const alias = (await loadAliases())[ref];
+        if (alias && alias !== ref) return loadEntry(alias);
+        entryPromises.delete(ref);
+        throw error;
+      },
+    );
     entryPromises.set(ref, promise);
   }
   return promise;

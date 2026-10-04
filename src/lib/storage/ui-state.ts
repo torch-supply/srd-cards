@@ -36,7 +36,9 @@ function write(key: string, value: unknown) {
 export function readCollectionUi(id: string): CollectionUiState {
   const s = read<CollectionUiState>(collectionKey(id));
   return {
-    expanded: Array.isArray(s.expanded) ? s.expanded.filter((x) => typeof x === "string") : [],
+    expanded: Array.isArray(s.expanded)
+      ? s.expanded.filter((x) => typeof x === "string")
+      : [],
     browserOpen: s.browserOpen ?? true,
     lastStackId: typeof s.lastStackId === "string" ? s.lastStackId : undefined,
   };
@@ -48,8 +50,17 @@ export function writeCollectionUi(id: string, state: CollectionUiState) {
 
 export function readGlobalUi(): GlobalUiState {
   const s = read<GlobalUiState>(GLOBAL_KEY);
-  const sorts: GlobalUiState["homeSort"][] = ["name-asc", "name-desc", "created-desc", "created-asc"];
-  return { homeSort: sorts.includes(s.homeSort as GlobalUiState["homeSort"]) ? s.homeSort! : "created-desc" };
+  const sorts: GlobalUiState["homeSort"][] = [
+    "name-asc",
+    "name-desc",
+    "created-desc",
+    "created-asc",
+  ];
+  return {
+    homeSort: sorts.includes(s.homeSort as GlobalUiState["homeSort"])
+      ? s.homeSort!
+      : "created-desc",
+  };
 }
 
 export function writeGlobalUi(state: GlobalUiState) {

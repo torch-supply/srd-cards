@@ -1,7 +1,17 @@
 import { expect, test } from "@playwright/test";
-import { cardNames, cardsIn, column, createCollection, drag, search, waitForSave } from "./helpers";
+import {
+  cardNames,
+  cardsIn,
+  column,
+  createCollection,
+  drag,
+  search,
+  waitForSave,
+} from "./helpers";
 
-test("build a collection: add, reorder, move, edit, and persist across reload", async ({ page }) => {
+test("build a collection: add, reorder, move, edit, and persist across reload", async ({
+  page,
+}) => {
   await createCollection(page, "E2E Campaign");
 
   // Add cards with the + button.
@@ -10,25 +20,42 @@ test("build a collection: add, reorder, move, edit, and persist across reload", 
   await search(page, "goblin warrior");
   await page.getByRole("button", { name: /^Add Goblin Warrior/ }).click();
   await page.getByRole("button", { name: /^Add Goblin Warrior/ }).click(); // merges into ×2
-  await expect.poll(() => cardNames(page, "Stack 1")).toEqual(["Fireball", "Goblin Warrior"]);
+  await expect
+    .poll(() => cardNames(page, "Stack 1"))
+    .toEqual(["Fireball", "Goblin Warrior"]);
   await expect(cardsIn(page, "Stack 1").nth(1)).toContainText("×2");
 
   // Drag an entry from the browser into the stack, above Fireball.
   await search(page, "magic missile");
   const result = page.getByRole("button", { name: /^Magic Missile/ }).first();
   await drag(page, result, cardsIn(page, "Stack 1").first(), { offsetY: 5 });
-  await expect.poll(() => cardNames(page, "Stack 1")).toEqual(["Magic Missile", "Fireball", "Goblin Warrior"]);
+  await expect
+    .poll(() => cardNames(page, "Stack 1"))
+    .toEqual(["Magic Missile", "Fireball", "Goblin Warrior"]);
 
   // Reorder within the stack: drag Goblin Warrior to the top.
-  await drag(page, cardsIn(page, "Stack 1").nth(2).locator("button").first(), cardsIn(page, "Stack 1").first(), { offsetY: 5 });
-  await expect.poll(() => cardNames(page, "Stack 1")).toEqual(["Goblin Warrior", "Magic Missile", "Fireball"]);
+  await drag(
+    page,
+    cardsIn(page, "Stack 1").nth(2).locator("button").first(),
+    cardsIn(page, "Stack 1").first(),
+    { offsetY: 5 },
+  );
+  await expect
+    .poll(() => cardNames(page, "Stack 1"))
+    .toEqual(["Goblin Warrior", "Magic Missile", "Fireball"]);
 
   // Add a second stack and move Fireball into it.
   await page.getByRole("button", { name: "Add stack" }).click();
   await expect(column(page, "Stack 2")).toBeVisible();
-  await drag(page, cardsIn(page, "Stack 1").nth(2).locator("button").first(), column(page, "Stack 2"));
+  await drag(
+    page,
+    cardsIn(page, "Stack 1").nth(2).locator("button").first(),
+    column(page, "Stack 2"),
+  );
   await expect.poll(() => cardNames(page, "Stack 2")).toEqual(["Fireball"]);
-  await expect.poll(() => cardNames(page, "Stack 1")).toEqual(["Goblin Warrior", "Magic Missile"]);
+  await expect
+    .poll(() => cardNames(page, "Stack 1"))
+    .toEqual(["Goblin Warrior", "Magic Missile"]);
 
   // Expand a monster card, set a quantity and a note.
   const goblin = cardsIn(page, "Stack 1").first();
@@ -40,16 +67,23 @@ test("build a collection: add, reorder, move, edit, and persist across reload", 
 
   // Reload: everything is still there.
   await page.reload();
-  await expect.poll(() => cardNames(page, "Stack 1")).toEqual(["Goblin Warrior", "Magic Missile"]);
+  await expect
+    .poll(() => cardNames(page, "Stack 1"))
+    .toEqual(["Goblin Warrior", "Magic Missile"]);
   await expect.poll(() => cardNames(page, "Stack 2")).toEqual(["Fireball"]);
   await expect(cardsIn(page, "Stack 1").first()).toContainText("×3");
-  await expect(page.getByLabel("Card notes")).toHaveValue("Hiding behind the cart");
+  await expect(page.getByLabel("Card notes")).toHaveValue(
+    "Hiding behind the cart",
+  );
 });
 
 test("undo and redo a removal", async ({ page }) => {
   await createCollection(page, "Undo test");
   await search(page, "shield");
-  await page.getByRole("button", { name: /^Add Shield/ }).first().click();
+  await page
+    .getByRole("button", { name: /^Add Shield/ })
+    .first()
+    .click();
   await expect(cardsIn(page, "Stack 1")).toHaveCount(1);
   await cardsIn(page, "Stack 1").first().hover();
   await page.getByRole("button", { name: /^Actions for Shield/ }).click();

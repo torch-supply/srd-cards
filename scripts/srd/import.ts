@@ -52,11 +52,19 @@ const CREATURE_TYPES = [
 ];
 
 function baseCreatureType(text: string) {
-  return CREATURE_TYPES.find((t) => new RegExp(`\\b${t}s?\\b`).test(text)) ?? text;
+  return (
+    CREATURE_TYPES.find((t) => new RegExp(`\\b${t}s?\\b`).test(text)) ?? text
+  );
 }
 
 function toIndex(entry: SrdEntry): IndexEntry {
-  const common = { id: entry.id, type: entry.type, slug: entry.slug, name: entry.name, subtitle: entry.subtitle };
+  const common = {
+    id: entry.id,
+    type: entry.type,
+    slug: entry.slug,
+    name: entry.name,
+    subtitle: entry.subtitle,
+  };
   switch (entry.type) {
     case "spell":
       return {
@@ -84,19 +92,36 @@ function toIndex(entry: SrdEntry): IndexEntry {
     case "equipment":
       return {
         ...common,
-        facets: { category: entry.category, ...(entry.subcategory ? { subcategory: entry.subcategory } : {}) },
+        facets: {
+          category: entry.category,
+          ...(entry.subcategory ? { subcategory: entry.subcategory } : {}),
+        },
       };
     case "magic-item":
       return {
         ...common,
-        facets: { category: entry.category, rarity: entry.rarities, attunement: entry.attunement },
+        facets: {
+          category: entry.category,
+          rarity: entry.rarities,
+          attunement: entry.attunement,
+        },
       };
     case "feat":
       return { ...common, facets: { category: entry.category } };
     case "subclass":
-      return { ...common, facets: { class: entry.className }, keywords: entry.className };
+      return {
+        ...common,
+        facets: { class: entry.className },
+        keywords: entry.className,
+      };
     case "rule":
-      return { ...common, facets: { section: entry.section.split(" › ")[0], ...(entry.tag ? { tag: entry.tag } : {}) } };
+      return {
+        ...common,
+        facets: {
+          section: entry.section.split(" › ")[0],
+          ...(entry.tag ? { tag: entry.tag } : {}),
+        },
+      };
     case "class":
     case "condition":
       return { ...common, facets: {} };
@@ -104,7 +129,9 @@ function toIndex(entry: SrdEntry): IndexEntry {
 }
 
 function readJson<T>(file: string, fallback: T): T {
-  return fs.existsSync(file) ? (JSON.parse(fs.readFileSync(file, "utf8")) as T) : fallback;
+  return fs.existsSync(file)
+    ? (JSON.parse(fs.readFileSync(file, "utf8")) as T)
+    : fallback;
 }
 
 async function main() {
@@ -119,7 +146,9 @@ async function main() {
   const { classes, subclasses } = parseClasses(ctx);
   const glossary = parseGlossary(ctx);
   const equipment = parseEquipment(ctx);
-  const taken = new Set([...glossary.rules, ...equipment.rules].map((r) => r.id));
+  const taken = new Set(
+    [...glossary.rules, ...equipment.rules].map((r) => r.id),
+  );
   const chapterRules = parseRuleChapters(ctx, taken);
 
   const all: SrdEntry[] = [
@@ -151,7 +180,8 @@ async function main() {
   for (const entry of all) byType.get(entry.type)!.push(entry);
   for (const [type, expected] of Object.entries(EXPECTED_COUNTS)) {
     const actual = byType.get(type as SrdType)!.length;
-    if (actual !== expected) errors.push(`Expected ${expected} ${type} entries, got ${actual}.`);
+    if (actual !== expected)
+      errors.push(`Expected ${expected} ${type} entries, got ${actual}.`);
   }
 
   // Stable ids: every id ever published must still exist or have an alias.
@@ -159,24 +189,37 @@ async function main() {
   const aliases = readJson<Record<string, string>>(ALIASES_FILE, {});
   for (const id of lock) {
     if (!seen.has(id) && !(aliases[id] && seen.has(aliases[id]))) {
-      errors.push(`Published id ${id} disappeared. Add it to scripts/srd/aliases.json.`);
+      errors.push(
+        `Published id ${id} disappeared. Add it to scripts/srd/aliases.json.`,
+      );
     }
   }
 
   if (errors.length) {
-    console.error(`\n${errors.length} error(s):\n${errors.slice(0, 50).join("\n")}`);
+    console.error(
+      `\n${errors.length} error(s):\n${errors.slice(0, 50).join("\n")}`,
+    );
     process.exit(1);
   }
 
   // Write.
   fs.mkdirSync(OUT_DIR, { recursive: true });
-  const byName = (a: { name: string }, b: { name: string }) => a.name.localeCompare(b.name, "en");
+  const byName = (a: { name: string }, b: { name: string }) =>
+    a.name.localeCompare(b.name, "en");
   for (const [type, entries] of byType) {
-    fs.writeFileSync(path.join(OUT_DIR, `${type}.json`), `${JSON.stringify([...entries].sort(byName), null, 1)}\n`);
+    fs.writeFileSync(
+      path.join(OUT_DIR, `${type}.json`),
+      `${JSON.stringify([...entries].sort(byName), null, 1)}\n`,
+    );
   }
-  const index = all.map(toIndex).sort((a, b) => a.type.localeCompare(b.type) || byName(a, b));
+  const index = all
+    .map(toIndex)
+    .sort((a, b) => a.type.localeCompare(b.type) || byName(a, b));
   for (const entry of index) indexEntrySchema.parse(entry);
-  fs.writeFileSync(path.join(OUT_DIR, "index.json"), `${JSON.stringify(index)}\n`);
+  fs.writeFileSync(
+    path.join(OUT_DIR, "index.json"),
+    `${JSON.stringify(index)}\n`,
+  );
   const counts = Object.fromEntries([...byType].map(([t, e]) => [t, e.length]));
   fs.writeFileSync(
     path.join(OUT_DIR, "meta.json"),
@@ -186,13 +229,21 @@ async function main() {
   fs.writeFileSync(LOCK_FILE, `${JSON.stringify(newLock, null, 1)}\n`);
   if (!fs.existsSync(ALIASES_FILE)) fs.writeFileSync(ALIASES_FILE, "{}\n");
 
-  console.log(`Imported ${all.length} entries in ${((Date.now() - started) / 1000).toFixed(1)}s:`, counts);
+  console.log(
+    `Imported ${all.length} entries in ${((Date.now() - started) / 1000).toFixed(1)}s:`,
+    counts,
+  );
   if (ctx.warnings.length) {
-    console.log(`\n${ctx.warnings.length} warning(s) (see pnpm srd:verify for the full report):`);
+    console.log(
+      `\n${ctx.warnings.length} warning(s) (see pnpm srd:verify for the full report):`,
+    );
     console.log(ctx.warnings.map((w) => `  - ${w}`).join("\n"));
   }
   fs.mkdirSync(path.join(ROOT, ".cache", "srd"), { recursive: true });
-  fs.writeFileSync(path.join(ROOT, ".cache", "srd", "import-warnings.json"), JSON.stringify(ctx.warnings, null, 1));
+  fs.writeFileSync(
+    path.join(ROOT, ".cache", "srd", "import-warnings.json"),
+    JSON.stringify(ctx.warnings, null, 1),
+  );
   emitPublic();
 }
 

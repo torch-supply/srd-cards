@@ -1,7 +1,12 @@
 import { type CollectionSummary, summarize } from "@/lib/model/core";
 import { type Collection, collectionSchema } from "@/lib/model/schema";
 import { migrate } from "./migrations";
-import { type CollectionRepository, type LoadResult, type SaveResult, StorageError } from "./repository";
+import {
+  type CollectionRepository,
+  type LoadResult,
+  type SaveResult,
+  StorageError,
+} from "./repository";
 
 const PREFIX = "srdcards:v1:";
 const COLLECTION_PREFIX = `${PREFIX}collection:`;
@@ -13,17 +18,26 @@ function storage(): Storage {
     if (!s) throw new Error("localStorage unavailable");
     return s;
   } catch (error) {
-    throw new StorageError("blocked", `Browser storage is unavailable: ${(error as Error).message}`);
+    throw new StorageError(
+      "blocked",
+      `Browser storage is unavailable: ${(error as Error).message}`,
+    );
   }
 }
 
 function toStorageError(error: unknown): StorageError {
   if (error instanceof StorageError) return error;
   const e = error as { name?: string; code?: number; message?: string };
-  if (e?.name === "QuotaExceededError" || e?.name === "NS_ERROR_DOM_QUOTA_REACHED" || e?.code === 22 || e?.code === 1014) {
+  if (
+    e?.name === "QuotaExceededError" ||
+    e?.name === "NS_ERROR_DOM_QUOTA_REACHED" ||
+    e?.code === 22 ||
+    e?.code === 1014
+  ) {
     return new StorageError("quota", "Browser storage is full.");
   }
-  if (e?.name === "SecurityError") return new StorageError("blocked", "Browser storage is blocked.");
+  if (e?.name === "SecurityError")
+    return new StorageError("blocked", "Browser storage is blocked.");
   return new StorageError("unknown", e?.message ?? "Storage error");
 }
 
@@ -38,16 +52,21 @@ export class LocalStorageRepository implements CollectionRepository {
     const ids = this.collectionIds(s);
     let index: Record<string, CollectionSummary> = {};
     try {
-      index = JSON.parse(s.getItem(INDEX_KEY) ?? "{}") as Record<string, CollectionSummary>;
+      index = JSON.parse(s.getItem(INDEX_KEY) ?? "{}") as Record<
+        string,
+        CollectionSummary
+      >;
     } catch {
       index = {};
     }
-    const consistent = ids.length === Object.keys(index).length && ids.every((id) => index[id]);
+    const consistent =
+      ids.length === Object.keys(index).length && ids.every((id) => index[id]);
     if (!consistent) {
       index = {};
       for (const id of ids) {
         const result = this.read(s, id);
-        if (result.status === "ok" || result.status === "newer") index[id] = summarize(result.collection);
+        if (result.status === "ok" || result.status === "newer")
+          index[id] = summarize(result.collection);
         else if (result.status === "corrupt") {
           index[id] = {
             id,
@@ -73,7 +92,10 @@ export class LocalStorageRepository implements CollectionRepository {
     return this.read(storage(), id);
   }
 
-  async save(collection: Collection, opts: { baseRev?: number } = {}): Promise<SaveResult> {
+  async save(
+    collection: Collection,
+    opts: { baseRev?: number } = {},
+  ): Promise<SaveResult> {
     const s = storage();
     const key = COLLECTION_PREFIX + collection.id;
     let storedRev: number | undefined;
@@ -83,7 +105,10 @@ export class LocalStorageRepository implements CollectionRepository {
     } catch {
       storedRev = undefined;
     }
-    const conflict = opts.baseRev !== undefined && storedRev !== undefined && storedRev !== opts.baseRev;
+    const conflict =
+      opts.baseRev !== undefined &&
+      storedRev !== undefined &&
+      storedRev !== opts.baseRev;
     const rev = Math.max(storedRev ?? 0, opts.baseRev ?? 0, collection.rev) + 1;
     const doc: Collection = { ...collection, rev };
     try {
@@ -113,7 +138,8 @@ export class LocalStorageRepository implements CollectionRepository {
   subscribe(listener: (change: { id?: string }) => void): () => void {
     const onStorage = (event: StorageEvent) => {
       if (event.key === null) listener({});
-      else if (event.key.startsWith(COLLECTION_PREFIX)) listener({ id: event.key.slice(COLLECTION_PREFIX.length) });
+      else if (event.key.startsWith(COLLECTION_PREFIX))
+        listener({ id: event.key.slice(COLLECTION_PREFIX.length) });
     };
     window.addEventListener("storage", onStorage);
     return () => window.removeEventListener("storage", onStorage);
@@ -123,7 +149,8 @@ export class LocalStorageRepository implements CollectionRepository {
     const ids: string[] = [];
     for (let i = 0; i < s.length; i++) {
       const key = s.key(i);
-      if (key?.startsWith(COLLECTION_PREFIX)) ids.push(key.slice(COLLECTION_PREFIX.length));
+      if (key?.startsWith(COLLECTION_PREFIX))
+        ids.push(key.slice(COLLECTION_PREFIX.length));
     }
     return ids;
   }
@@ -137,20 +164,38 @@ export class LocalStorageRepository implements CollectionRepository {
         // Best effort: show what we can, read-only.
         const parsed = collectionSchema.safeParse(migrated.data);
         if (parsed.success) return { status: "newer", collection: parsed.data };
-        return { status: "corrupt", raw, error: "Saved by a newer version of srd.cards. Reload the page to update." };
+        return {
+          status: "corrupt",
+          raw,
+          error:
+            "Saved by a newer version of srd.cards. Reload the page to update.",
+        };
       }
       const parsed = collectionSchema.safeParse(migrated.data);
-      if (!parsed.success) return { status: "corrupt", raw, error: parsed.error.issues[0]?.message ?? "Invalid data" };
+      if (!parsed.success)
+        return {
+          status: "corrupt",
+          raw,
+          error: parsed.error.issues[0]?.message ?? "Invalid data",
+        };
       return { status: "ok", collection: parsed.data };
     } catch (error) {
       return { status: "corrupt", raw, error: (error as Error).message };
     }
   }
 
-  private updateIndex(s: Storage, fn: (index: Record<string, CollectionSummary>) => Record<string, CollectionSummary>) {
+  private updateIndex(
+    s: Storage,
+    fn: (
+      index: Record<string, CollectionSummary>,
+    ) => Record<string, CollectionSummary>,
+  ) {
     let index: Record<string, CollectionSummary> = {};
     try {
-      index = JSON.parse(s.getItem(INDEX_KEY) ?? "{}") as Record<string, CollectionSummary>;
+      index = JSON.parse(s.getItem(INDEX_KEY) ?? "{}") as Record<
+        string,
+        CollectionSummary
+      >;
     } catch {
       index = {};
     }

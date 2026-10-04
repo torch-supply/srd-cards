@@ -58,7 +58,11 @@ const DEFAULT_PDF = path.join(ROOT, "docs", "SRD_CC_v5.2.1.pdf");
 
 /** Locates the PDF (SRD_PDF_PATH, docs/, or a verified download into .cache/). */
 export async function resolvePdf(): Promise<string> {
-  const candidates = [process.env.SRD_PDF_PATH, DEFAULT_PDF, path.join(CACHE_DIR, "SRD_CC_v5.2.1.pdf")];
+  const candidates = [
+    process.env.SRD_PDF_PATH,
+    DEFAULT_PDF,
+    path.join(CACHE_DIR, "SRD_CC_v5.2.1.pdf"),
+  ];
   for (const candidate of candidates) {
     if (candidate && fs.existsSync(candidate)) {
       assertChecksum(candidate);
@@ -101,7 +105,13 @@ function fontKey(realName: string): FontKey {
   return "body";
 }
 
-const LIGATURES: Record<string, string> = { "ﬀ": "ff", "ﬁ": "fi", "ﬂ": "fl", "ﬃ": "ffi", "ﬄ": "ffl" };
+const LIGATURES: Record<string, string> = {
+  ﬀ: "ff",
+  ﬁ: "fi",
+  ﬂ: "fl",
+  ﬃ: "ffi",
+  ﬄ: "ffl",
+};
 
 function clean(text: string) {
   return (
@@ -135,8 +145,11 @@ function itemsToLines(page: number, items: RawItem[]): Line[] {
 
   const push = () => {
     if (current) {
-      for (const s of current.spans) s.text = s.text.replace(/\s+/g, " ").replace(/(\d)1\/2\b/g, "$1½");
-      current.spans = current.spans.filter((s) => s.text.trim().length > 0 || s.text === " ");
+      for (const s of current.spans)
+        s.text = s.text.replace(/\s+/g, " ").replace(/(\d)1\/2\b/g, "$1½");
+      current.spans = current.spans.filter(
+        (s) => s.text.trim().length > 0 || s.text === " ",
+      );
       if (current.spans.length) {
         current.spans[0].text = current.spans[0].text.replace(/^\s+/, "");
         const last = current.spans[current.spans.length - 1];
@@ -159,10 +172,20 @@ function itemsToLines(page: number, items: RawItem[]): Line[] {
       if (it.eol) push();
       continue;
     }
-    const sameLine = current !== null && Math.abs(current.y - it.y) <= 2.5 && it.x >= lastRight - 2;
+    const sameLine =
+      current !== null &&
+      Math.abs(current.y - it.y) <= 2.5 &&
+      it.x >= lastRight - 2;
     if (!sameLine) {
       push();
-      current = { page, x: it.x, y: it.y, x2: it.x + it.w, size: it.size, spans: [] };
+      current = {
+        page,
+        x: it.x,
+        y: it.y,
+        x2: it.x + it.w,
+        size: it.size,
+        spans: [],
+      };
     }
     const line = current!;
     const prev = line.spans[line.spans.length - 1];
@@ -174,12 +197,23 @@ function itemsToLines(page: number, items: RawItem[]): Line[] {
       (pendingSpace || gap > it.size * 0.15) &&
       !/\s$/.test(prev.text) &&
       !/^\s/.test(text);
-    if (prev && !cellBreak && prev.font === it.font && Math.abs(prev.size - it.size) < 0.5) {
+    if (
+      prev &&
+      !cellBreak &&
+      prev.font === it.font &&
+      Math.abs(prev.size - it.size) < 0.5
+    ) {
       prev.text += (needsSpace ? " " : "") + text;
       prev.x2 = it.x + it.w;
     } else {
       if (prev && needsSpace) prev.text += " ";
-      line.spans.push({ text, font: it.font, size: it.size, x: it.x, x2: it.x + it.w });
+      line.spans.push({
+        text,
+        font: it.font,
+        size: it.size,
+        x: it.x,
+        x2: it.x + it.w,
+      });
     }
     pendingSpace = false;
     lastRight = it.x + it.w;
@@ -208,7 +242,9 @@ export async function extractPdfLines(pdfPath: string): Promise<PdfLines> {
       if (!font) {
         let real = raw.fontName;
         try {
-          real = (page.commonObjs.get(raw.fontName) as { name?: string })?.name ?? raw.fontName;
+          real =
+            (page.commonObjs.get(raw.fontName) as { name?: string })?.name ??
+            raw.fontName;
         } catch {
           /* font not resolved; fall back to the internal name */
         }

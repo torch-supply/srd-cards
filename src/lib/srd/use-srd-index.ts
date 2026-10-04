@@ -36,7 +36,10 @@ export function ensureSrdIndex(): Promise<void> {
     set({ ...state, status: "loading" });
     try {
       // MiniSearch loads with the index, not with the page.
-      const [entries, { createSearch }] = await Promise.all([loadIndex(), import("./search")]);
+      const [entries, { createSearch }] = await Promise.all([
+        loadIndex(),
+        import("./search"),
+      ]);
       set({
         status: "ready",
         entries,
@@ -53,7 +56,11 @@ export function ensureSrdIndex(): Promise<void> {
 
 /** The SRD index and its search. Loading starts when `enabled` is true. */
 export function useSrdIndex(enabled = true): SrdIndexState {
-  const snapshot = useSyncExternalStore(subscribe, () => state, () => EMPTY);
+  const snapshot = useSyncExternalStore(
+    subscribe,
+    () => state,
+    () => EMPTY,
+  );
   useEffect(() => {
     if (enabled) void ensureSrdIndex();
   }, [enabled]);
@@ -64,6 +71,7 @@ export function useSrdIndex(enabled = true): SrdIndexState {
 export function preloadSrdIndex() {
   if (state.status !== "idle") return;
   const start = () => void ensureSrdIndex();
-  if (typeof window !== "undefined" && "requestIdleCallback" in window) window.requestIdleCallback(start, { timeout: 3000 });
+  if (typeof window !== "undefined" && "requestIdleCallback" in window)
+    window.requestIdleCallback(start, { timeout: 3000 });
   else setTimeout(start, 1500);
 }
