@@ -37,10 +37,10 @@ The app is hosted on Vercel with the default Next.js project settings: Vercel ru
 `/collections/[id]` is prerendered. `next.config.ts` `headers()` sets immutable caching on
 the content-hashed files in `public/srd/` and `public/og/`.
 
-**To do once srd.cards is connected:** canonical URLs, link previews, and the sitemap
-already point at `https://srd.cards`. After adding the domain in Vercel, redirect the
-project's `*.vercel.app` domain to it so that copy doesn't serve duplicate pages. Then
-submit `https://srd.cards/sitemap.xml` in Google Search Console and Bing Webmaster Tools.
+The production domain is `https://srd.cards` (`SITE_URL` in `src/lib/seo.ts`), which
+canonical URLs, link previews, `robots.txt`, `sitemap.xml`, and `llms.txt` all use.
+`www.srd.cards` redirects to it. Vercel Web Analytics is on (`<Analytics />` in the root
+layout). `https://srd.cards/sitemap.xml` is submitted in Google Search Console.
 
 ## SRD data pipeline
 
