@@ -72,7 +72,10 @@ export function StatBlockView({
         {block.fields.map((f) => (
           <p key={f.label}>
             <b>{f.label}</b>{" "}
-            <span dangerouslySetInnerHTML={{ __html: f.value }} />
+            <span
+              className="srd-inline"
+              dangerouslySetInnerHTML={{ __html: f.value }}
+            />
           </p>
         ))}
         <p>

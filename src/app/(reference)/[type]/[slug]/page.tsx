@@ -18,7 +18,7 @@ import {
   referenceHref,
   typeForRoute,
 } from "@/lib/srd/card-types";
-import { getEntries, getRenderedEntry } from "@/lib/srd/server";
+import { getEntries, getRenderedEntry, getSrdLinks } from "@/lib/srd/server";
 
 export const dynamicParams = false;
 
@@ -99,7 +99,7 @@ export default async function ReferenceEntryPage({
           entry={{ id: entry.id, name: entry.name, subtitle: entry.subtitle }}
         />
       </header>
-      <EntryDetail entry={entry} />
+      <EntryDetail entry={entry} links={getSrdLinks()} />
     </article>
   );
 }

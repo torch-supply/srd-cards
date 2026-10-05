@@ -1,10 +1,9 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { TypeIcon } from "@/components/cards/type-icon";
 import { CollectionsHome } from "@/components/collections/collections-home";
+import { ReferenceSections } from "@/components/reference/reference-sections";
 import { JsonLd } from "@/components/seo/json-ld";
 import { pageMetadata, SITE_DESCRIPTION, SITE_NAME, SITE_URL } from "@/lib/seo";
-import { CARD_TYPES, REFERENCE_TYPES } from "@/lib/srd/card-types";
 
 export const metadata: Metadata = pageMetadata({
   title: { absolute: `${SITE_NAME} — The SRD 5.2.1, as cards` },
@@ -41,17 +40,8 @@ export default function HomePage() {
           Writing 5E compatible material? Check the exact SRD wording and page
           for any entry.
         </p>
-        <div className="flex flex-wrap gap-1.5 pt-1">
-          {REFERENCE_TYPES.map((t) => (
-            <Link
-              key={t}
-              href={`/${CARD_TYPES[t].route}`}
-              className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-sm hover:bg-muted ${CARD_TYPES[t].className.fg}`}
-            >
-              <TypeIcon kind={t} />
-              {CARD_TYPES[t].plural}
-            </Link>
-          ))}
+        <div className="pt-1">
+          <ReferenceSections />
         </div>
       </section>
       <CollectionsHome />

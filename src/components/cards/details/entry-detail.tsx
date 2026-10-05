@@ -1,5 +1,7 @@
 import Link from "next/link";
+import { Fragment } from "react";
 import { referenceHref } from "@/lib/srd/card-types";
+import { hrefFor, type SrdLinks } from "@/lib/srd/links";
 import type {
   ClassEntry,
   ConditionEntry,
@@ -12,7 +14,7 @@ import type {
   SubclassEntry,
 } from "@/lib/srd/schema";
 import { FeatureAccordion, type FeatureItem } from "./feature-list";
-import { Facts, Html, SectionTitle } from "./html";
+import { entryLinkClass, Facts, Html, SectionTitle } from "./html";
 import { SrdTableView } from "./srd-table";
 import { StatBlockView } from "./stat-block";
 
@@ -20,25 +22,29 @@ import { StatBlockView } from "./stat-block";
  * Full details of a rendered SRD entry (prose fields are HTML).
  * `compact` is the in-card variant: long content (class features) collapses
  * into an accordion and the widest tables link to the reference page.
+ * `links` (reference pages only) links names in structured fields to their
+ * entries: a spell's classes, a class's spell list, a weapon's properties.
  */
 export function EntryDetail({
   entry,
   compact = false,
+  links,
 }: {
   entry: SrdEntry;
   compact?: boolean;
+  links?: SrdLinks;
 }) {
   switch (entry.type) {
     case "spell":
-      return <SpellDetail entry={entry} />;
+      return <SpellDetail entry={entry} links={links} />;
     case "monster":
       return <StatBlockView block={entry} />;
     case "class":
-      return <ClassDetail entry={entry} compact={compact} />;
+      return <ClassDetail entry={entry} compact={compact} links={links} />;
     case "subclass":
-      return <SubclassDetail entry={entry} compact={compact} />;
+      return <SubclassDetail entry={entry} compact={compact} links={links} />;
     case "equipment":
-      return <EquipmentDetail entry={entry} />;
+      return <EquipmentDetail entry={entry} links={links} />;
     case "magic-item":
       return <MagicItemDetail entry={entry} />;
     case "feat":
@@ -49,7 +55,38 @@ export function EntryDetail({
   }
 }
 
-function SpellDetail({ entry }: { entry: SpellEntry }) {
+/** Names joined by commas, each linked when `href` finds its entry. */
+function LinkedNames({
+  names,
+  href,
+}: {
+  names: string[];
+  href: (name: string) => string | undefined;
+}) {
+  return names.map((name, i) => {
+    const to = href(name);
+    return (
+      <Fragment key={`${name}-${i}`}>
+        {i > 0 && ", "}
+        {to ? (
+          <Link href={to} className={entryLinkClass}>
+            {name}
+          </Link>
+        ) : (
+          name
+        )}
+      </Fragment>
+    );
+  });
+}
+
+function SpellDetail({
+  entry,
+  links,
+}: {
+  entry: SpellEntry;
+  links?: SrdLinks;
+}) {
   return (
     <div className="space-y-3">
       <Facts
@@ -58,7 +95,15 @@ function SpellDetail({ entry }: { entry: SpellEntry }) {
           { label: "Range", value: entry.range },
           { label: "Components", value: entry.componentsText },
           { label: "Duration", value: entry.duration },
-          { label: "Classes", value: entry.classes.join(", ") },
+          {
+            label: "Classes",
+            value: (
+              <LinkedNames
+                names={entry.classes}
+                href={(name) => hrefFor(links, "class", name)}
+              />
+            ),
+          },
         ]}
       />
       <Html html={entry.description} />
@@ -99,10 +144,15 @@ function Features({
 function ClassDetail({
   entry,
   compact,
+  links,
 }: {
   entry: ClassEntry;
   compact: boolean;
+  links?: SrdLinks;
 }) {
+  const subclasses = links
+    ? entry.subclassIds.flatMap((id) => links.byId.get(id) ?? [])
+    : [];
   return (
     <div className="space-y-3">
       <Facts
@@ -126,6 +176,17 @@ function ClassDetail({
       )}
       <SectionTitle>Class Features</SectionTitle>
       <Features features={entry.features} compact={compact} />
+      {subclasses.length > 0 && (
+        <>
+          <SectionTitle>{entry.name} Subclasses</SectionTitle>
+          <p className="text-sm">
+            <LinkedNames
+              names={subclasses.map((s) => s.name)}
+              href={(name) => subclasses.find((s) => s.name === name)?.href}
+            />
+          </p>
+        </>
+      )}
       {!compact && entry.spellList && (
         <>
           <SectionTitle>{entry.name} Spell List</SectionTitle>
@@ -135,7 +196,10 @@ function ClassDetail({
                 <b>
                   {group.level === 0 ? "Cantrips" : `Level ${group.level}`}:
                 </b>{" "}
-                {group.spells.join(", ")}
+                <LinkedNames
+                  names={group.spells}
+                  href={(name) => hrefFor(links, "spell", name)}
+                />
               </p>
             ))}
           </div>
@@ -148,12 +212,29 @@ function ClassDetail({
 function SubclassDetail({
   entry,
   compact,
+  links,
 }: {
   entry: SubclassEntry;
   compact: boolean;
+  links?: SrdLinks;
 }) {
+  const parent = links?.byId.get(entry.classId);
   return (
     <div className="space-y-3">
+      {parent && (
+        <Facts
+          rows={[
+            {
+              label: "Class",
+              value: (
+                <Link href={parent.href} className={entryLinkClass}>
+                  {parent.name}
+                </Link>
+              ),
+            },
+          ]}
+        />
+      )}
       <Html html={entry.description} />
       <SectionTitle>Subclass Features</SectionTitle>
       <Features features={entry.features} compact={compact} />
@@ -161,15 +242,39 @@ function SubclassDetail({
   );
 }
 
-function EquipmentDetail({ entry }: { entry: EquipmentEntry }) {
+function EquipmentDetail({
+  entry,
+  links,
+}: {
+  entry: EquipmentEntry;
+  links?: SrdLinks;
+}) {
   const rows: { label: string; value: React.ReactNode }[] = [];
   if (entry.weapon) {
     rows.push({ label: "Damage", value: entry.weapon.damage });
     rows.push({
       label: "Properties",
-      value: entry.weapon.properties.join(", ") || "—",
+      value: entry.weapon.properties.length ? (
+        <LinkedNames
+          names={entry.weapon.properties}
+          // “Versatile (1d10)” is the Versatile property.
+          href={(name) =>
+            hrefFor(links, "Weapon Property", name.replace(/ \(.*$/, ""))
+          }
+        />
+      ) : (
+        "—"
+      ),
     });
-    rows.push({ label: "Mastery", value: entry.weapon.mastery });
+    rows.push({
+      label: "Mastery",
+      value: (
+        <LinkedNames
+          names={[entry.weapon.mastery]}
+          href={(name) => hrefFor(links, "Mastery Property", name)}
+        />
+      ),
+    });
   }
   if (entry.armor) {
     rows.push({ label: "Armor Class", value: entry.armor.ac });
@@ -179,7 +284,12 @@ function EquipmentDetail({ entry }: { entry: EquipmentEntry }) {
   for (const f of entry.fields ?? [])
     rows.push({
       label: f.label,
-      value: <span dangerouslySetInnerHTML={{ __html: f.value }} />,
+      value: (
+        <span
+          className="srd-inline"
+          dangerouslySetInnerHTML={{ __html: f.value }}
+        />
+      ),
     });
   if (entry.weight) rows.push({ label: "Weight", value: entry.weight });
   if (entry.cost) rows.push({ label: "Cost", value: entry.cost });

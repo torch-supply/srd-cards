@@ -93,6 +93,9 @@ src/stores/                   zustand stores (open collection with autosave/undo
 
 - **Reference pages** are statically generated (~1,500 pages). Prose is rendered from
   markdown to sanitized HTML on the server, so no markdown parser ships for SRD content.
+  Entry pages link to related entries (spells, conditions, glossary terms; see
+  `src/lib/srd/links.ts`), and list pages render every row in the HTML before switching
+  to a virtualized list. The board's card data has no links.
 - **The board** loads nothing from the SRD until needed: collapsed cards render from a
   snapshot stored on the card; the search index (~34KB gzipped) loads when idle or when the
   browser panel opens; an expanded card fetches one small JSON file. SRD files live under a

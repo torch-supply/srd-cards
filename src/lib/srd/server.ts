@@ -6,6 +6,7 @@ import "server-only";
 import fs from "node:fs";
 import path from "node:path";
 import { cache } from "react";
+import { buildSrdLinks } from "./links";
 import { renderEntry } from "./render";
 import {
   type EntryOfType,
@@ -27,11 +28,16 @@ export const getEntries = cache(
   },
 );
 
-/** One entry with its markdown rendered to HTML, or undefined. */
+/** Links between entries for the reference pages (see links.ts). */
+export const getSrdLinks = cache(() =>
+  buildSrdLinks(SRD_TYPES.flatMap((t) => getEntries(t))),
+);
+
+/** One entry with its markdown rendered to HTML (linking to other entries), or undefined. */
 export const getRenderedEntry = cache(
   <T extends SrdType>(type: T, slug: string): EntryOfType<T> | undefined => {
     const entry = getEntries(type).find((e) => e.slug === slug);
-    return entry ? renderEntry(entry) : undefined;
+    return entry ? renderEntry(entry, getSrdLinks()) : undefined;
   },
 );
 

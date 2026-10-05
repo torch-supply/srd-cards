@@ -16,11 +16,17 @@ import { queryTerms } from "@/lib/srd/match";
 import type { IndexEntry, SrdType } from "@/lib/srd/schema";
 import { createSearch } from "@/lib/srd/search";
 import { setUrlSearch, useUrlSearch } from "@/lib/url-search";
+import { useHydrated } from "@/lib/use-hydrated";
+import { cn } from "@/lib/utils";
 import { FilterBar } from "./filter-bar";
 
 const ROW_HEIGHT = 52;
 
-/** Searchable, filterable, virtualized list of one SRD type. */
+/**
+ * Searchable, filterable, virtualized list of one SRD type. The server renders
+ * every row as a plain list (the virtualizer needs the window to measure), so
+ * the HTML links to each entry; it switches to the virtual list once hydrated.
+ */
 export function ReferenceList({
   type,
   entries,
@@ -76,6 +82,7 @@ export function ReferenceList({
     return () => window.removeEventListener("keydown", onKey);
   }, []);
 
+  const hydrated = useHydrated();
   const virtualizer = useWindowVirtualizer({
     count: results.length,
     estimateSize: () => ROW_HEIGHT,
@@ -112,41 +119,67 @@ export function ReferenceList({
         <p className="py-12 text-center text-sm text-muted-foreground">
           Nothing matches. Try a different search or clear the filters.
         </p>
+      ) : !hydrated ? (
+        <div className="w-full">
+          {results.map((entry) => (
+            <Row key={entry.id} entry={entry} terms={terms} />
+          ))}
+        </div>
       ) : (
         <div
           className="relative w-full"
           style={{ height: virtualizer.getTotalSize() }}
         >
-          {virtualizer.getVirtualItems().map((item) => {
-            const entry = results[item.index];
-            return (
-              <Link
-                key={entry.id}
-                href={referenceHref(entry.type, entry.slug)}
-                className="absolute inset-x-0 flex items-center gap-3 rounded-md border-b border-border/50 px-2 hover:bg-muted/60"
-                style={{
-                  height: ROW_HEIGHT,
-                  transform: `translateY(${item.start - virtualizer.options.scrollMargin}px)`,
-                }}
-              >
-                <TypeChip kind={entry.type} />
-                <span className="min-w-0 flex-1">
-                  <span className="block truncate font-serif text-[1.05rem] font-semibold leading-tight">
-                    <Highlight text={entry.name} terms={terms} />
-                  </span>
-                  <span className="block truncate text-xs text-muted-foreground">
-                    <Highlight
-                      text={entry.subtitle}
-                      terms={termsNotIn(entry.name, terms)}
-                      wordStart
-                    />
-                  </span>
-                </span>
-              </Link>
-            );
-          })}
+          {virtualizer.getVirtualItems().map((item) => (
+            <Row
+              key={results[item.index].id}
+              entry={results[item.index]}
+              terms={terms}
+              className="absolute inset-x-0"
+              style={{
+                transform: `translateY(${item.start - virtualizer.options.scrollMargin}px)`,
+              }}
+            />
+          ))}
         </div>
       )}
     </div>
+  );
+}
+
+function Row({
+  entry,
+  terms,
+  className,
+  style,
+}: {
+  entry: IndexEntry;
+  terms: string[];
+  className?: string;
+  style?: React.CSSProperties;
+}) {
+  return (
+    <Link
+      href={referenceHref(entry.type, entry.slug)}
+      className={cn(
+        "flex items-center gap-3 rounded-md border-b border-border/50 px-2 hover:bg-muted/60",
+        className,
+      )}
+      style={{ height: ROW_HEIGHT, ...style }}
+    >
+      <TypeChip kind={entry.type} />
+      <span className="min-w-0 flex-1">
+        <span className="block truncate font-serif text-[1.05rem] font-semibold leading-tight">
+          <Highlight text={entry.name} terms={terms} />
+        </span>
+        <span className="block truncate text-xs text-muted-foreground">
+          <Highlight
+            text={entry.subtitle}
+            terms={termsNotIn(entry.name, terms)}
+            wordStart
+          />
+        </span>
+      </span>
+    </Link>
   );
 }

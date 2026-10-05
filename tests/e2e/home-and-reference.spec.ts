@@ -169,3 +169,39 @@ test("pages have SEO metadata, and robots, sitemap, and llms.txt are served", as
   await page.goto("/collections/missing");
   expect(await meta('meta[name="robots"]')).toContain("noindex");
 });
+
+test("reference pages link to every entry and to related entries", async ({
+  page,
+  request,
+}) => {
+  // Before any JavaScript runs, the list links to every entry (for crawlers).
+  const html = await (await request.get("/spells")).text();
+  const slugs = new Set(html.match(/href="\/spells\/[a-z0-9-]+"/g));
+  expect(slugs.size).toBe(339);
+
+  await page.goto("/subclasses/champion");
+  await page.getByRole("link", { name: "Fighter", exact: true }).click();
+  await expect(page).toHaveURL("/classes/fighter");
+  await expect(
+    page.getByRole("heading", { level: 1, name: "Fighter" }),
+  ).toBeVisible();
+  await page.goto("/subclasses/champion");
+  await page.getByRole("link", { name: "Advantage", exact: true }).click();
+  await expect(page).toHaveURL("/rules/advantage");
+  await expect(
+    page.getByRole("heading", { level: 1, name: "Advantage" }),
+  ).toBeVisible();
+});
+
+test("unknown pages show the not-found page", async ({ page }) => {
+  const response = await page.goto("/spells/not-a-spell");
+  expect(response?.status()).toBe(404);
+  await expect(
+    page.getByRole("heading", { name: "Page not found" }),
+  ).toBeVisible();
+  await page
+    .getByRole("link", { name: "Monsters", exact: true })
+    .last()
+    .click();
+  await expect(page).toHaveURL("/monsters");
+});

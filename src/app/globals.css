@@ -299,8 +299,10 @@
   .srd-prose tr:nth-child(even) td {
     @apply bg-muted/40;
   }
-  .srd-prose a {
-    @apply underline underline-offset-2;
+  /* Links to other entries in SRD HTML (prose, and inline fields: .srd-inline). */
+  .srd-prose a,
+  .srd-inline a {
+    @apply underline decoration-foreground/30 underline-offset-2 hover:decoration-foreground;
   }
 }
 

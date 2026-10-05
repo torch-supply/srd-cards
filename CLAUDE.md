@@ -73,6 +73,12 @@ non-obvious.
   gzipped, and the free plan's limit is 3MB). Never import `src/lib/og/card.tsx` from app
   code. Like `srd:emit`, it only runs when `dev` starts, so after editing an image input,
   restart dev or run `pnpm og:emit`.
+- Reference list pages render every row on the server and switch to the virtualized list
+  after hydration (`useHydrated`), so the HTML links to each entry. Keep it that way: the
+  sitemap shouldn't be the only path crawlers have to entry pages.
+- Links between entries (`src/lib/srd/links.ts`) are added only on reference pages
+  (`getRenderedEntry` passes the link index). Never put them in the board's card JSON
+  (`public/srd/`): a click inside a draggable card shouldn't navigate away.
 - Route handlers are bundled apart from pages, so shared imports get a second copy in the
   Worker. Keep them light (e.g. `server-index.ts`, not `server.ts`, which pulls in the
   markdown renderer). Check the size with `pnpm exec wrangler deploy --dry-run --outdir <dir>`.
@@ -85,6 +91,9 @@ non-obvious.
 - `playwright.config.ts` reuses a dev server on port 3000 if one is running.
 - `pnpm typecheck` runs `next typegen` first: `PageProps` / `LayoutProps` are global types
   Next generates into `.next/types`, so plain `tsc` fails on a fresh clone.
+- A dev server on port 3000 is often the user's own: never kill it. `pnpm test:e2e` reuses
+  it, and it only ran `srd:emit`/`og:emit` when it started, so ask the user to restart it if
+  results look stale.
 - Shell is zsh: don't name a loop variable `path` (it clobbers `PATH`).
 
 ## Learnings

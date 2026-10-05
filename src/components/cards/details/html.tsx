@@ -1,5 +1,9 @@
 import { cn } from "@/lib/utils";
 
+/** Links to other entries outside prose (prose links are styled in globals.css). */
+export const entryLinkClass =
+  "underline decoration-foreground/30 underline-offset-2 hover:decoration-foreground";
+
 /** SRD prose: HTML rendered from markdown and sanitized at build time. */
 export function Html({
   html,
