@@ -6,8 +6,9 @@
 import { readFile } from "node:fs/promises";
 import path from "node:path";
 import { ImageResponse } from "next/og";
-import type { ReactElement, ReactNode, SVGProps } from "react";
+import type { ReactNode } from "react";
 import type { IconType } from "react-icons";
+import { iconParts } from "../icon-parts";
 import { OG_IMAGE_SIZE } from "../seo";
 import type { CardKind } from "../srd/card-types";
 
@@ -46,17 +47,9 @@ function loadAssets() {
   return assets;
 }
 
-/**
- * A react-icons icon as a plain <svg>. Icon components render `IconBase`,
- * which reads React context (satori can't), so rebuild the svg from its props.
- */
+/** A react-icons icon as a plain <svg> (satori can't render `IconBase`). */
 export function ogIcon(Icon: IconType, color: string, size: number) {
-  const { attr, children } = (
-    Icon({}) as ReactElement<{
-      attr: SVGProps<SVGSVGElement>;
-      children: ReactNode;
-    }>
-  ).props;
+  const { attr, children } = iconParts(Icon);
   return (
     <svg {...attr} width={size} height={size} fill={color}>
       {children}

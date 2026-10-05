@@ -1,3 +1,4 @@
+import { iconParts } from "@/lib/icon-parts";
 import { cn } from "@/lib/utils";
 import { CARD_TYPES, type CardKind } from "@/lib/srd/card-types";
 
@@ -18,13 +19,39 @@ export function TypeIcon({
   );
 }
 
-/** Icon on a tinted rounded square, used in card headers and list rows. */
+const symbolId = (kind: CardKind) => `type-icon-${kind}`;
+
+/**
+ * Defines type icons once as SVG symbols, for `TypeChip shared`: a long list
+ * then references the icon instead of repeating its paths (~2.5KB a row).
+ */
+export function TypeIconSymbols({ kinds }: { kinds: CardKind[] }) {
+  return (
+    <svg aria-hidden className="absolute size-0 overflow-hidden">
+      {kinds.map((kind) => {
+        const { attr, children } = iconParts(CARD_TYPES[kind].icon);
+        return (
+          <symbol key={kind} id={symbolId(kind)} viewBox={attr.viewBox}>
+            {children}
+          </symbol>
+        );
+      })}
+    </svg>
+  );
+}
+
+/**
+ * Icon on a tinted rounded square, used in card headers and list rows.
+ * `shared` uses the symbol from a `TypeIconSymbols` on the page.
+ */
 export function TypeChip({
   kind,
   className,
+  shared = false,
 }: {
   kind: CardKind;
   className?: string;
+  shared?: boolean;
 }) {
   const { icon: Icon, className: cls, label } = CARD_TYPES[kind];
   return (
@@ -37,7 +64,13 @@ export function TypeChip({
         className,
       )}
     >
-      <Icon aria-hidden className="size-4" />
+      {shared ? (
+        <svg aria-hidden className="size-4" fill="currentColor">
+          <use href={`#${symbolId(kind)}`} />
+        </svg>
+      ) : (
+        <Icon aria-hidden className="size-4" />
+      )}
     </span>
   );
 }

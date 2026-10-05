@@ -4,7 +4,7 @@ import { useWindowVirtualizer } from "@tanstack/react-virtual";
 import Link from "next/link";
 import { useDeferredValue, useEffect, useMemo, useRef } from "react";
 import { Highlight, termsNotIn } from "@/components/cards/highlight";
-import { TypeChip } from "@/components/cards/type-icon";
+import { TypeChip, TypeIconSymbols } from "@/components/cards/type-icon";
 import { SearchInput } from "@/components/ui/search-input";
 import { referenceHref } from "@/lib/srd/card-types";
 import {
@@ -91,6 +91,7 @@ export function ReferenceList({
 
   return (
     <div className="space-y-3">
+      <TypeIconSymbols kinds={[type]} />
       <div className="sticky top-14 z-10 -mx-1 space-y-2 bg-background/95 px-1 py-2 backdrop-blur">
         <div className="flex flex-wrap items-center gap-2">
           <SearchInput
@@ -167,7 +168,7 @@ function Row({
       )}
       style={{ height: ROW_HEIGHT, ...style }}
     >
-      <TypeChip kind={entry.type} />
+      <TypeChip kind={entry.type} shared />
       <span className="min-w-0 flex-1">
         <span className="block truncate font-serif text-[1.05rem] font-semibold leading-tight">
           <Highlight text={entry.name} terms={terms} />
