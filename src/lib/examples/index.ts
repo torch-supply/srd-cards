@@ -35,19 +35,27 @@ export const EXAMPLES: Example[] = [
     slug: "adventuring-party",
     name: "Adventuring Party (example)",
     summary:
-      "Three level 1 characters, one stack each: class, gear, spells and feats.",
+      "Three level 1 characters, one stack each: species, background, class, feats, spells, and gear.",
     description:
-      "One stack per character, so each player has their class, gear, spells, and feats in one place. Expand a card to read it; drag cards between stacks.",
+      "One stack per character, so each player has their species, background, class, feats, spells, and gear in one place. Notes say where each feat comes from. Expand a card to read it; drag cards between stacks.",
     stacks: [
       {
-        name: "Brakka — Fighter",
+        name: "Brakka — Orc Fighter",
         description:
           "Tip: click a card to expand it. The Fighter card has the full class table and features.",
         cards: [
           "class:fighter",
           { ref: "subclass:champion", notes: "Unlocks at level 3." },
-          "feat:defense",
-          "feat:alert",
+          "species:orc",
+          "background:soldier",
+          {
+            ref: "feat:defense",
+            notes: "From the Fighter’s Fighting Style feature.",
+          },
+          {
+            ref: "feat:savage-attacker",
+            notes: "From the Soldier background.",
+          },
           "equipment:longsword",
           "equipment:chain-mail",
           "equipment:shield",
@@ -55,13 +63,26 @@ export const EXAMPLES: Example[] = [
         ],
       },
       {
-        name: "Ilsa — Wizard",
+        name: "Ilsa — Elf Wizard",
         description:
           "Tip: spells show their casting time, range, and components when expanded.",
         cards: [
           "class:wizard",
           { ref: "subclass:evoker", notes: "Unlocks at level 3." },
-          "feat:magic-initiate",
+          {
+            ref: "species:elf",
+            notes:
+              "High Elf lineage: Detect Magic at level 3, Misty Step at level 5.",
+          },
+          "background:sage",
+          {
+            ref: "feat:magic-initiate",
+            notes: "Magic Initiate (Wizard), from the Sage background.",
+          },
+          {
+            ref: "spell:prestidigitation",
+            notes: "From the High Elf lineage.",
+          },
           "spell:fire-bolt",
           "spell:magic-missile",
           "spell:shield",
@@ -73,13 +94,19 @@ export const EXAMPLES: Example[] = [
         ],
       },
       {
-        name: "Wren — Rogue",
+        name: "Wren — Human Rogue",
         description:
           "Tip: a card can have a quantity. Expand the Dagger card to change it.",
         cards: [
           "class:rogue",
           { ref: "subclass:thief", notes: "Unlocks at level 3." },
-          "feat:skilled",
+          "species:human",
+          "background:criminal",
+          { ref: "feat:alert", notes: "From the Criminal background." },
+          {
+            ref: "feat:skilled",
+            notes: "From the Human’s Versatile trait (any Origin feat).",
+          },
           { ref: "equipment:dagger", quantity: 2 },
           "equipment:shortbow",
           "equipment:leather-armor",
@@ -231,29 +258,55 @@ export const EXAMPLES: Example[] = [
         cards: ["class:fighter", "class:rogue", "class:cleric", "class:wizard"],
       },
       {
-        name: "3. Origin",
+        name: "3. Background",
         description:
-          "Your background gives you an Origin feat; these are the four in the SRD.",
+          "Pick one. A background gives you an Origin feat, two skills, a tool, and starting equipment. Its feat is here too.",
         cards: [
-          "rule:creating-a-background",
-          "rule:languages",
-          "feat:alert",
-          "feat:magic-initiate",
-          "feat:savage-attacker",
-          "feat:skilled",
+          "rule:character-backgrounds",
+          "background:acolyte",
+          "background:criminal",
+          "background:sage",
+          "background:soldier",
+          { ref: "feat:magic-initiate", notes: "From Acolyte or Sage." },
+          { ref: "feat:alert", notes: "From Criminal." },
+          { ref: "feat:savage-attacker", notes: "From Soldier." },
+          {
+            ref: "rule:creating-a-background",
+            notes: "None of these fit? Ask your GM about building your own.",
+          },
         ],
       },
       {
-        name: "4. Starting gear",
-        description: "Pick a pack from your class or background.",
+        name: "4. Species",
+        description:
+          "Pick one. Your species sets your size and Speed and gives you special traits. Then choose two languages.",
         cards: [
-          "equipment:burglars-pack",
-          "equipment:diplomats-pack",
-          "equipment:dungeoneers-pack",
-          "equipment:entertainers-pack",
-          "equipment:explorers-pack",
-          "equipment:priests-pack",
-          "equipment:scholars-pack",
+          "rule:character-species",
+          "species:dragonborn",
+          "species:dwarf",
+          "species:elf",
+          "species:gnome",
+          "species:goliath",
+          "species:halfling",
+          {
+            ref: "species:human",
+            notes: "Versatile gives an Origin feat; Skilled is recommended.",
+          },
+          "species:orc",
+          "species:tiefling",
+          { ref: "feat:skilled", notes: "For a Human’s Versatile trait." },
+          "rule:languages",
+        ],
+      },
+      {
+        name: "5. Starting gear",
+        description:
+          "Your class and background each give starting equipment, or gold instead. Each class above starts with one of these packs.",
+        cards: [
+          { ref: "equipment:dungeoneers-pack", notes: "Fighter." },
+          { ref: "equipment:burglars-pack", notes: "Rogue." },
+          { ref: "equipment:priests-pack", notes: "Cleric." },
+          { ref: "equipment:scholars-pack", notes: "Wizard." },
         ],
       },
       {
@@ -466,44 +519,67 @@ export const EXAMPLES: Example[] = [
     ],
   },
   {
-    slug: "necromancers-workshop",
-    name: "Necromancer’s Workshop (example)",
-    summary: "Each necromancy spell next to the undead it creates.",
+    slug: "innate-magic",
+    name: "Innate Magic (example)",
+    summary:
+      "Spells that elves, gnomes, and tieflings get from their species, lineage by lineage.",
     description:
-      "Each stack pairs a necromancy spell with the creatures it raises. Expand the spell, then the creature, to see exactly what you get.",
+      "Some species grant spells: elves and tieflings choose a lineage or legacy that teaches a cantrip at level 1 and new spells at character levels 3 and 5; gnomes choose a lineage that teaches cantrips (and Speak with Animals, for forest gnomes). One stack per species; each spell’s note says which lineage grants it and when.",
     stacks: [
       {
-        name: "Animate Dead",
-        cards: ["spell:animate-dead", "monster:skeleton", "monster:zombie"],
-      },
-      {
-        name: "Create Undead",
+        name: "Elf",
+        description: "Elven Lineage: Drow, High Elf, or Wood Elf.",
         cards: [
-          {
-            ref: "spell:create-undead",
-            notes: "Higher-level slots raise Ghasts, Wights, and Mummies.",
-          },
-          "monster:ghoul",
-          "monster:ghast",
-          "monster:wight",
-          "monster:mummy",
+          "species:elf",
+          { ref: "spell:dancing-lights", notes: "Drow · level 1." },
+          { ref: "spell:faerie-fire", notes: "Drow · level 3." },
+          { ref: "spell:darkness", notes: "Drow · level 5." },
+          { ref: "spell:prestidigitation", notes: "High Elf · level 1." },
+          { ref: "spell:detect-magic", notes: "High Elf · level 3." },
+          { ref: "spell:misty-step", notes: "High Elf · level 5." },
+          { ref: "spell:druidcraft", notes: "Wood Elf · level 1." },
+          { ref: "spell:longstrider", notes: "Wood Elf · level 3." },
+          { ref: "spell:pass-without-trace", notes: "Wood Elf · level 5." },
         ],
       },
       {
-        name: "Finger of Death",
-        cards: ["spell:finger-of-death", "monster:zombie"],
+        name: "Gnome",
+        description: "Gnomish Lineage: Forest Gnome or Rock Gnome.",
+        cards: [
+          "species:gnome",
+          { ref: "spell:minor-illusion", notes: "Forest Gnome." },
+          {
+            ref: "spell:speak-with-animals",
+            notes:
+              "Forest Gnome · always prepared, castable without a slot (Proficiency Bonus times per Long Rest).",
+          },
+          { ref: "spell:mending", notes: "Rock Gnome." },
+          {
+            ref: "spell:prestidigitation",
+            notes:
+              "Rock Gnome · also builds Tiny clockwork devices (see the Gnome card).",
+          },
+        ],
       },
       {
-        name: "More necromancy",
+        name: "Tiefling",
+        description:
+          "Fiendish Legacy: Abyssal, Chthonic, or Infernal. Every tiefling also knows Thaumaturgy.",
         cards: [
-          "spell:chill-touch",
-          "spell:false-life",
-          "spell:ray-of-sickness",
-          "spell:speak-with-dead",
-          "spell:vampiric-touch",
-          "spell:blight",
-          "spell:circle-of-death",
-          "spell:magic-jar",
+          "species:tiefling",
+          {
+            ref: "spell:thaumaturgy",
+            notes: "Every tiefling (Otherworldly Presence).",
+          },
+          { ref: "spell:poison-spray", notes: "Abyssal · level 1." },
+          { ref: "spell:ray-of-sickness", notes: "Abyssal · level 3." },
+          { ref: "spell:hold-person", notes: "Abyssal · level 5." },
+          { ref: "spell:chill-touch", notes: "Chthonic · level 1." },
+          { ref: "spell:false-life", notes: "Chthonic · level 3." },
+          { ref: "spell:ray-of-enfeeblement", notes: "Chthonic · level 5." },
+          { ref: "spell:fire-bolt", notes: "Infernal · level 1." },
+          { ref: "spell:hellish-rebuke", notes: "Infernal · level 3." },
+          { ref: "spell:darkness", notes: "Infernal · level 5." },
         ],
       },
     ],
@@ -553,6 +629,18 @@ export const EXAMPLES: Example[] = [
           "monster:ancient-green-dragon",
           "monster:ancient-red-dragon",
           "monster:ancient-white-dragon",
+        ],
+      },
+      {
+        name: "Dragonborn",
+        description:
+          "Playing a dragonborn? Your Draconic Ancestry sets your Breath Weapon’s damage type, the same as your ancestor’s breath.",
+        cards: [
+          {
+            ref: "species:dragonborn",
+            notes:
+              "Chromatic ancestors: Black (Acid), Blue (Lightning), Green (Poison), Red (Fire), White (Cold).",
+          },
         ],
       },
     ],

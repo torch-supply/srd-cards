@@ -13,6 +13,16 @@ export default function nextConfig(phase: string): NextConfig {
       phase === PHASE_PRODUCTION_BUILD
         ? { SRD_DATA_HASH: srdDataHash(), OG_HASH: ogHash() }
         : {},
+    async redirects() {
+      return [
+        // Replaced by the Innate Magic example (2026-10).
+        {
+          source: "/examples/necromancers-workshop",
+          destination: "/examples/the-lichs-spirit-jar",
+          permanent: true,
+        },
+      ];
+    },
     async headers() {
       return [
         ...["/srd/:path*", "/og/:path*"].map((source) => ({
