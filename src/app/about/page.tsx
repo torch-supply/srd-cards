@@ -55,6 +55,14 @@ export default function AboutPage() {
       </section>
 
       <section className="space-y-2">
+        <h2 className="font-serif text-xl font-semibold">For creators</h2>
+        <p>
+          Writing 5E compatible material? Use srd.cards to check the exact SRD
+          wording and page for any entry.
+        </p>
+      </section>
+
+      <section className="space-y-2">
         <h2 className="font-serif text-xl font-semibold">Data credits</h2>
         <p>
           While building the data, structured values were cross-checked against

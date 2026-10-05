@@ -51,14 +51,15 @@ export const StackColumn = memo(function StackColumn({
   cards,
   readOnly,
   isMissing,
-  insertion,
+  ghostId,
 }: {
   stack: Stack;
   /** Cards in display order (may differ from the stack during a drag). */
   cards: Card[];
   readOnly: boolean;
   isMissing: (card: Card) => boolean;
-  insertion?: number;
+  /** Id of the placeholder card for a browser entry being dragged into this stack. */
+  ghostId?: string;
 }) {
   const {
     setNodeRef,
@@ -109,21 +110,17 @@ export const StackColumn = memo(function StackColumn({
           items={cards.map((c) => `card:${c.id}`)}
           strategy={verticalListSortingStrategy}
         >
-          {cards.map((card, i) => (
-            <div key={card.id}>
-              {insertion === i && <InsertionLine />}
-              <SortableCard
-                card={card}
-                stackId={stack.id}
-                missing={isMissing(card)}
-                readOnly={readOnly}
-              />
-            </div>
+          {cards.map((card) => (
+            <SortableCard
+              key={card.id}
+              card={card}
+              stackId={stack.id}
+              missing={isMissing(card)}
+              readOnly={readOnly}
+              ghost={card.id === ghostId}
+            />
           ))}
         </SortableContext>
-        {insertion !== undefined && insertion >= cards.length && (
-          <InsertionLine />
-        )}
         {cards.length === 0 && (
           <div className="flex flex-1 flex-col items-center justify-center gap-1 rounded-lg border border-dashed py-6 text-center text-xs text-muted-foreground">
             <LayersIcon className="size-4" />
@@ -134,10 +131,6 @@ export const StackColumn = memo(function StackColumn({
     </section>
   );
 });
-
-function InsertionLine() {
-  return <div className="my-0.5 h-0.5 rounded-full bg-primary" aria-hidden />;
-}
 
 function ColumnHeader({
   stack,
@@ -204,7 +197,7 @@ function ColumnHeader({
                 <EllipsisIcon />
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-52">
+            <DropdownMenuContent align="end" className="min-w-52">
               <DropdownMenuItem onSelect={() => setEditingDescription(true)}>
                 <PencilIcon />{" "}
                 {stack.description ? "Edit description" : "Add description"}

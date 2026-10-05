@@ -38,21 +38,22 @@ export async function cardNames(page: Page, stackName: string) {
 export async function drag(
   page: Page,
   from: Locator,
-  to: Locator,
+  /** A drop target, or a page point (e.g. empty board space). */
+  to: Locator | { x: number; y: number },
   opts: { offsetY?: number } = {},
 ) {
   const a = (await from.boundingBox())!;
-  const b = (await to.boundingBox())!;
+  let target = to as { x: number; y: number };
+  if ("boundingBox" in to) {
+    const b = (await to.boundingBox())!;
+    target = { x: b.x + b.width / 2, y: b.y + (opts.offsetY ?? b.height / 2) };
+  }
   await page.mouse.move(a.x + a.width / 2, a.y + a.height / 2);
   await page.mouse.down();
   await page.mouse.move(a.x + a.width / 2 + 10, a.y + a.height / 2 + 10, {
     steps: 5,
   });
-  await page.mouse.move(
-    b.x + b.width / 2,
-    b.y + (opts.offsetY ?? b.height / 2),
-    { steps: 15 },
-  );
+  await page.mouse.move(target.x, target.y, { steps: 15 });
   await page.waitForTimeout(150);
   await page.mouse.up();
   await page.waitForTimeout(150);

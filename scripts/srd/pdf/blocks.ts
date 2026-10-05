@@ -258,11 +258,13 @@ export function buildBlocks(
 
       // Continue a paragraph that an out-of-order table or sidebar split: new
       // paragraphs start indented (or with a run-in/bullet); a flush line, or text
-      // after an unfinished sentence, belongs to the interrupted paragraph.
+      // after an unfinished sentence, belongs to the interrupted paragraph. A
+      // paragraph ending in a colon introduced the table, so it isn't continued.
       if (
         !para &&
         interrupted &&
         !interrupted.meta &&
+        !/:\s*$/.test(spansText(interrupted.block.spans)) &&
         (prev?.kind === "table" || prev?.kind === "sidebar") &&
         !bullet &&
         !runIn

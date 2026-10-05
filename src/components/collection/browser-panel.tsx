@@ -2,9 +2,17 @@
 
 import { useDraggable } from "@dnd-kit/core";
 import { useVirtualizer } from "@tanstack/react-virtual";
-import { ChevronDownIcon, PlusIcon, SearchIcon, XIcon } from "lucide-react";
+import {
+  ChevronDownIcon,
+  PanelLeftCloseIcon,
+  PanelLeftOpenIcon,
+  PlusIcon,
+  SearchIcon,
+} from "lucide-react";
 import dynamic from "next/dynamic";
 import {
+  type CSSProperties,
+  type ReactNode,
   type RefObject,
   Suspense,
   use,
@@ -23,7 +31,7 @@ import {
   DropdownMenuLabel,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Input } from "@/components/ui/input";
+import { SearchInput } from "@/components/ui/search-input";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import {
@@ -56,16 +64,63 @@ const EntryDetail = dynamic(
 
 export const BROWSER_WIDTH = 360;
 
+function PanelButton({
+  label,
+  onClick,
+  children,
+}: {
+  label: string;
+  onClick: () => void;
+  children: ReactNode;
+}) {
+  return (
+    <Tooltip>
+      <TooltipTrigger asChild>
+        <Button
+          variant="ghost"
+          size="icon-sm"
+          aria-label={label}
+          onClick={onClick}
+          className="shrink-0 text-muted-foreground"
+        >
+          {children}
+        </Button>
+      </TooltipTrigger>
+      <TooltipContent side="right">{label}</TooltipContent>
+    </Tooltip>
+  );
+}
+
+/** Stands in for the collapsed browser at the board's left edge. */
+export function BrowserRail({
+  onOpen,
+}: {
+  onOpen: (focusSearch: boolean) => void;
+}) {
+  return (
+    <div className="flex shrink-0 flex-col items-center gap-1 border-r bg-background p-1.5 pt-3">
+      <PanelButton label="Show browser" onClick={() => onOpen(false)}>
+        <PanelLeftOpenIcon />
+      </PanelButton>
+      <PanelButton label="Search the SRD ( / )" onClick={() => onOpen(true)}>
+        <SearchIcon />
+      </PanelButton>
+    </div>
+  );
+}
+
 export function BrowserPanel({
   stacks,
   defaultStackId,
   onAdd,
+  onClose,
   scrollRef,
   searchRef,
 }: {
   stacks: { id: string; name: string }[];
   defaultStackId?: string;
   onAdd: (entry: IndexEntry, stackId?: string) => void;
+  onClose: () => void;
   /** The results scroller (excluded from drag auto-scroll). */
   scrollRef: RefObject<HTMLDivElement | null>;
   searchRef: RefObject<HTMLInputElement | null>;
@@ -106,26 +161,18 @@ export function BrowserPanel({
       aria-label="SRD browser"
     >
       <div className="space-y-2 border-b p-3">
-        <div className="relative">
-          <SearchIcon className="pointer-events-none absolute top-1/2 left-2.5 size-4 -translate-y-1/2 text-muted-foreground" />
-          <Input
+        <div className="flex items-center gap-1">
+          <SearchInput
             ref={searchRef}
             value={query}
-            onChange={(e) => setQuery(e.target.value)}
+            onValueChange={setQuery}
             placeholder="Search the SRD…  ( / )"
             aria-label="Search the SRD"
-            className="pr-8 pl-8"
+            className="flex-1"
           />
-          {query && (
-            <button
-              type="button"
-              aria-label="Clear search"
-              onClick={() => setQuery("")}
-              className="absolute top-1/2 right-2 -translate-y-1/2 rounded p-0.5 text-muted-foreground hover:text-foreground"
-            >
-              <XIcon className="size-3.5" />
-            </button>
-          )}
+          <PanelButton label="Hide browser" onClick={onClose}>
+            <PanelLeftCloseIcon />
+          </PanelButton>
         </div>
         <ToggleGroup
           type="multiple"
@@ -145,7 +192,11 @@ export function BrowserPanel({
                   size="sm"
                   variant="outline"
                   aria-label={CARD_TYPES[t].plural}
-                  className="size-7 px-0"
+                  // Selected: type-colored ring + tint. While any type is
+                  // selected, the others fade so the active set stands out.
+                  // Style on aria-pressed: TooltipTrigger overwrites data-state.
+                  style={{ "--tc": `var(--type-${t})` } as CSSProperties}
+                  className="size-7 px-0 aria-pressed:border-(--tc) aria-pressed:bg-(--tc)/20 aria-pressed:ring-1 aria-pressed:ring-(--tc) aria-pressed:hover:bg-(--tc)/30 group-has-aria-pressed/toggle-group:aria-[pressed=false]:opacity-40 group-has-aria-pressed/toggle-group:aria-[pressed=false]:grayscale group-has-aria-pressed/toggle-group:aria-[pressed=false]:hover:opacity-100 group-has-aria-pressed/toggle-group:aria-[pressed=false]:hover:grayscale-0"
                 >
                   <TypeIcon kind={t} />
                 </ToggleGroupItem>
@@ -156,6 +207,7 @@ export function BrowserPanel({
         </ToggleGroup>
         {singleType && FILTERS[singleType].length > 0 && (
           <FilterBar
+            type={singleType}
             defs={FILTERS[singleType]}
             entries={index.entries.filter((e) => e.type === singleType)}
             state={filters}

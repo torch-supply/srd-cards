@@ -16,6 +16,10 @@ export default function HomePage() {
           character, an encounter, or a whole campaign. Everything is saved in
           your browser.
         </p>
+        <p className="max-w-2xl text-muted-foreground">
+          Writing 5E compatible material? Check the exact SRD wording and page
+          for any entry.
+        </p>
         <div className="flex flex-wrap gap-1.5 pt-1">
           {REFERENCE_TYPES.map((t) => (
             <Link

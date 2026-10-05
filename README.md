@@ -35,7 +35,8 @@ The SRD 5.2.1 PDF is the source of truth. `pnpm srd:import` parses it directly:
    (font, size, position). The PDF is read from `docs/SRD_CC_v5.2.1.pdf` (gitignored),
    `SRD_PDF_PATH`, or downloaded from the official URL; its SHA-256 is checked.
 2. **Blocks** (`scripts/srd/pdf/blocks.ts`): headings, paragraphs (with bold/italic run-ins
-   and de-hyphenation), bullets, sidebars, and tables rebuilt from cell positions.
+   and de-hyphenation), bullets, sidebars, and tables rebuilt from cell positions. Short
+   header-less lists set like tables ("Attack Dodge Influence…") become markdown lists.
 3. **Parsers** (`scripts/srd/parse/*.ts`): one per chapter (spells, monsters, classes,
    equipment, magic items, feats, rules glossary + conditions, rules chapters). Embedded stat
    blocks (Find Steed, Figurine of Wondrous Power, …) are attached to their spell or item.
@@ -75,8 +76,9 @@ src/stores/                   zustand stores (open collection with autosave/undo
 - **The board** loads nothing from the SRD until needed: collapsed cards render from a
   snapshot stored on the card; the search index (~34KB gzipped) loads when idle or when the
   browser panel opens; an expanded card fetches one small JSON file. SRD files live under a
-  content hash (`public/srd/<hash>/`) and are served with immutable caching. The current hash
-  is rendered into `<html data-srd-hash>` by the root layout.
+  content hash of the data and the markdown renderer (`public/srd/<hash>/`) and are served
+  with immutable caching. The current hash is rendered into `<html data-srd-hash>` by the
+  root layout.
 - **Changes** are serializable commands (`src/lib/model/commands.ts`) applied by a pure
   reducer: that gives undo/redo now and a path to syncing operations with a backend later.
   Autosave is debounced and flushed on navigation, tab hide, and page hide.

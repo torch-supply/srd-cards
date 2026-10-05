@@ -56,6 +56,9 @@ const SAMPLES: Record<string, string> = {
   "rule:long-rest": "bullet list followed by a paragraph",
   "rule:actions": "table continued on the next page under another table",
   "rule:level-advancement": "centered multi-line table headers",
+  "rule:action": "term list set in columns (a list, not a table)",
+  "rule:creature-type": "term list followed by a flush paragraph",
+  "rule:difficult-terrain": "bullet list set in GillSans",
 };
 
 describe("SRD parser output snapshots", () => {

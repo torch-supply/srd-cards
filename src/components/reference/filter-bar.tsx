@@ -1,6 +1,7 @@
 "use client";
 
 import { XIcon } from "lucide-react";
+import type { CSSProperties } from "react";
 import { Button } from "@/components/ui/button";
 import {
   Select,
@@ -15,18 +16,27 @@ import {
   facetOptions,
   type FilterState,
 } from "@/lib/srd/filters";
-import type { IndexEntry } from "@/lib/srd/schema";
+import type { IndexEntry, SrdType } from "@/lib/srd/schema";
 import { cn } from "@/lib/utils";
 
 const ANY = "__any";
 
+/**
+ * Active filter: ring + tint in the type's color (`--tc`, set on the bar). The
+ * variant-prefixed backgrounds replace Toggle's and SelectTrigger's own.
+ */
+const ACTIVE =
+  "border-(--tc) bg-(--tc)/20 text-foreground ring-1 ring-(--tc) hover:bg-(--tc)/30 aria-pressed:bg-(--tc)/20 data-[state=on]:bg-(--tc)/20 dark:bg-(--tc)/20 dark:hover:bg-(--tc)/30";
+
 export function FilterBar({
+  type,
   defs,
   entries,
   state,
   onChange,
   className,
 }: {
+  type: SrdType;
   defs: FacetFilterDef[];
   entries: IndexEntry[];
   state: FilterState;
@@ -38,7 +48,10 @@ export function FilterBar({
   const set = (key: string, value: string) =>
     onChange({ ...state, [key]: value });
   return (
-    <div className={cn("flex flex-wrap items-center gap-1.5", className)}>
+    <div
+      className={cn("flex flex-wrap items-center gap-1.5", className)}
+      style={{ "--tc": `var(--type-${type})` } as CSSProperties}
+    >
       {defs.map((def) => {
         if (def.kind === "toggle") {
           return (
@@ -47,6 +60,7 @@ export function FilterBar({
               size="sm"
               variant="outline"
               pressed={state[def.key] === "true"}
+              className={cn(state[def.key] === "true" && ACTIVE)}
               onPressedChange={(p) => set(def.key, p ? "true" : "")}
             >
               {def.label}
@@ -65,7 +79,7 @@ export function FilterBar({
           >
             <SelectTrigger
               size="sm"
-              className={cn("min-w-28", state[def.key] && "border-primary/50")}
+              className={cn("min-w-28", state[def.key] && ACTIVE)}
               aria-label={def.label}
             >
               <SelectValue placeholder={def.label} />

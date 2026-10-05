@@ -7,8 +7,6 @@ import {
   DownloadIcon,
   EllipsisVerticalIcon,
   LoaderIcon,
-  PanelLeftCloseIcon,
-  PanelLeftOpenIcon,
   Redo2Icon,
   SquarePenIcon,
   Trash2Icon,
@@ -271,24 +269,13 @@ function ReadyView() {
             <ChevronsDownUpIcon />
           </ToolbarButton>
           {!readOnly && (
-            <>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setAddingCustom(true)}
-              >
-                <SquarePenIcon /> Custom card
-              </Button>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setUi({ browserOpen: !browserOpen })}
-                aria-pressed={browserOpen}
-              >
-                {browserOpen ? <PanelLeftCloseIcon /> : <PanelLeftOpenIcon />}{" "}
-                Browser
-              </Button>
-            </>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setAddingCustom(true)}
+            >
+              <SquarePenIcon /> Custom card
+            </Button>
           )}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>

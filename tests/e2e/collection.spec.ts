@@ -77,6 +77,44 @@ test("build a collection: add, reorder, move, edit, and persist across reload", 
   );
 });
 
+test("dropping outside a stack returns the item", async ({ page }) => {
+  await createCollection(page, "E2E Cancel");
+  await search(page, "fireball");
+  await page.getByRole("button", { name: /^Add Fireball/ }).click();
+  await page.getByRole("button", { name: "Add stack" }).click();
+  await expect(column(page, "Stack 2")).toBeVisible();
+  const board = (await page.getByTestId("board").boundingBox())!;
+  const empty = {
+    x: board.x + board.width - 40,
+    y: board.y + board.height - 40,
+  };
+
+  // A browser entry dropped on empty board space isn't added.
+  await search(page, "magic missile");
+  await drag(
+    page,
+    page.getByRole("button", { name: /^Magic Missile/ }).first(),
+    empty,
+  );
+  await expect.poll(() => cardNames(page, "Stack 1")).toEqual(["Fireball"]);
+  await expect.poll(() => cardNames(page, "Stack 2")).toEqual([]);
+
+  // A card dragged over another stack, then dropped outside, goes back to its stack.
+  const handle = cardsIn(page, "Stack 1").first().locator("button").first();
+  const a = (await handle.boundingBox())!;
+  const s2 = (await column(page, "Stack 2").boundingBox())!;
+  await page.mouse.move(a.x + a.width / 2, a.y + a.height / 2);
+  await page.mouse.down();
+  await page.mouse.move(s2.x + s2.width / 2, s2.y + s2.height / 2, {
+    steps: 15,
+  });
+  await expect.poll(() => cardNames(page, "Stack 2")).toEqual(["Fireball"]);
+  await page.mouse.move(empty.x, empty.y, { steps: 15 });
+  await page.mouse.up();
+  await expect.poll(() => cardNames(page, "Stack 1")).toEqual(["Fireball"]);
+  await expect.poll(() => cardNames(page, "Stack 2")).toEqual([]);
+});
+
 test("undo and redo a removal", async ({ page }) => {
   await createCollection(page, "Undo test");
   await search(page, "shield");

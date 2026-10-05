@@ -12,11 +12,38 @@ import remarkRehype from "remark-rehype";
 import { unified } from "unified";
 import type { SrdEntry, StatBlock } from "./schema";
 
+interface HastNode {
+  type: string;
+  tagName?: string;
+  value?: string;
+  properties?: Record<string, unknown>;
+  children?: HastNode[];
+}
+
+/**
+ * Marks lists of short terms (“Attack”, “Dash”, …) with `srd-terms` so they can
+ * be laid out in columns, as in the PDF.
+ */
+function rehypeTermLists() {
+  const isTerm = (li: HastNode) =>
+    li.children?.length === 1 &&
+    li.children[0].type === "text" &&
+    /^\S+(?: \S+)?$/.test(li.children[0].value?.trim() ?? "");
+  const visit = (node: HastNode) => {
+    const items = node.children?.filter((c) => c.type === "element") ?? [];
+    if (node.tagName === "ul" && items.length >= 3 && items.every(isTerm))
+      node.properties = { ...node.properties, className: ["srd-terms"] };
+    node.children?.forEach(visit);
+  };
+  return (tree: HastNode) => visit(tree);
+}
+
 const processor = unified()
   .use(remarkParse)
   .use(remarkGfm)
   .use(remarkRehype)
   .use(rehypeSanitize)
+  .use(rehypeTermLists)
   .use(rehypeStringify);
 
 export function renderSrdMarkdown(markdown: string): string {

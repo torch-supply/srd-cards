@@ -7,8 +7,13 @@ import {
   type TableBlock,
   tableToMarkdown,
 } from "../pdf/blocks";
-import type { Line } from "../pdf/extract";
-import { Dictionary, spansText, spansToMarkdown } from "../pdf/text";
+import type { Line, Span } from "../pdf/extract";
+import {
+  appendLine,
+  Dictionary,
+  spansText,
+  spansToMarkdown,
+} from "../pdf/text";
 
 export interface Ctx {
   pages: Line[][];
@@ -175,6 +180,46 @@ export function table(block: TableBlock, ctx: Ctx): Table {
   return parseTable(block, ctx.dict, { markdown: true });
 }
 
+const BULLET = /^•\s*/;
+const TERM = /^[\p{L}’'-]+(?: [\p{L}’'-]+)?$/u;
+
+/**
+ * Untitled, header-less blocks set in GillSans that are lists, not tables:
+ * terms laid out in columns ("Attack  Dodge  Influence…" — read down each
+ * column, then across) or a bulleted list. Returns markdown list items.
+ */
+export function listItems(block: TableBlock, ctx: Ctx): string[] | undefined {
+  const lines = block.lines;
+  if (block.title || !lines.length) return undefined;
+  if (!lines.every((l) => l.spans.every((s) => s.font === "gill")))
+    return undefined;
+  const text = (l: Line) => spansText(l.spans).trim();
+
+  if (BULLET.test(text(lines[0]))) {
+    const items: Span[][] = [];
+    for (const line of lines) {
+      const spans = line.spans.map((s) => ({ ...s }));
+      if (BULLET.test(text(line))) {
+        spans[0].text = spans[0].text.replace(BULLET, "");
+        items.push(spans);
+      } else appendLine(items[items.length - 1], spans, ctx.dict);
+    }
+    return items.map((spans) => spansToMarkdown(spans));
+  }
+
+  if (lines.length < 3 || !lines.every((l) => TERM.test(text(l))))
+    return undefined;
+  const column = (l: Line) => l.page * 2 + (l.x < 300 ? 0 : 1);
+  return [...lines]
+    .sort(
+      (a, b) =>
+        column(a) - column(b) ||
+        (Math.abs(a.x - b.x) > 8 ? a.x - b.x : 0) ||
+        b.y - a.y,
+    )
+    .map(text);
+}
+
 /** Renders blocks as markdown: paragraphs, bullet lists, tables, sidebars, sub-headings. */
 export function blocksToMarkdown(
   blocks: Block[],
@@ -189,9 +234,13 @@ export function blocksToMarkdown(
     if (b.kind === "para")
       text = (b.bullet ? "- " : "") + spansToMarkdown(b.spans);
     else if (b.kind === "table")
-      text = splitTables(b)
-        .map((t) => tableToMarkdown(table(t, ctx)))
-        .join("\n\n");
+      text =
+        listItems(b, ctx)
+          ?.map((item) => `- ${item}`)
+          .join("\n") ??
+        splitTables(b)
+          .map((t) => tableToMarkdown(table(t, ctx)))
+          .join("\n\n");
     else if (b.kind === "heading")
       text = `${"#".repeat(opts.headingDepth ?? 4)} ${b.text}`;
     else if (b.kind === "sidebar")

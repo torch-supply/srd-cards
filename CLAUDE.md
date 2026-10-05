@@ -19,10 +19,8 @@ non-obvious.
 - Formatting is Prettier with its **default config** (`.prettierrc.json` is `{}`); ESLint
   handles code quality only (`eslint-config-prettier` turns off style rules). Don't
   hand-format or add style rules to ESLint. Generated SRD data is in `.prettierignore`.
-- **Git hooks (Husky, installed by `pnpm install` via `prepare`):** pre-commit runs
-  lint-staged (`.lintstagedrc.json`: Prettier, then ESLint `--fix`, on staged files; lint errors
-  block the commit), pre-push runs `pnpm typecheck && pnpm test` (failures block the push). Don't bypass with
-  `--no-verify`.
+- Husky git hooks (`.husky/`, `.lintstagedrc.json`) run lint-staged on commit and
+  typecheck + tests on push. Don't bypass with `--no-verify`.
 
 ## Commands
 
@@ -31,36 +29,12 @@ non-obvious.
 | Rebuild SRD data from the PDF (also re-emits public files) | `pnpm srd:import`                                                  |
 | Check data against the PDF → `scripts/srd/report.md`       | `pnpm srd:verify`                                                  |
 | Debug PDF lines / blocks for a page range                  | `pnpm exec tsx scripts/srd/pdf/dump.ts 258 259` · `dump-blocks.ts` |
-| Unit / e2e tests                                           | `pnpm test` · `pnpm test:e2e`                                      |
-| Format / check formatting                                  | `pnpm format` · `pnpm format:check`                                |
-| Lint / auto-fix                                            | `pnpm lint` · `pnpm lint:fix`                                      |
 
-## SRD data pipeline gotchas
+## SRD data
 
-- Expected counts live in `scripts/srd/expected.ts` (339 spells, 330 monsters, 12 classes,
-  12 subclasses, 258 magic items, 17 feats, 15 conditions). The import fails if they drift.
 - **Card ids are permanent.** `scripts/srd/ids.lock.json` lists every published id. If a
   rename is unavoidable, add `old → new` to `scripts/srd/aliases.json`.
-- Before changing shared parsing code (`scripts/srd/pdf/*`, `parse/common.ts`), snapshot
-  all parser output, change, and diff — fixes for one chapter often shift others.
-- pdf.js emits **whitespace-only items** spanning gaps between table cells; treat them as
-  space hints, never as width (otherwise cells merge).
-- pdf.js turns "½" into "1/2", so "1½" arrives as "11/2"; `extract.ts` fixes this at item
-  and line level.
-- Some headings are set in **small caps** (`gill-sc`, e.g. "Acid Splash"); smaller glyph
-  runs are the lowercase letters.
-- **Tables and stat blocks can sit out of reading order** in the content stream. Tables are
-  re-homed by title (`relocateTables`), embedded stat blocks by "<Name> stat block"
-  references (`parse/embedded.ts`), and paragraphs split by a table are rejoined in
-  `buildBlocks`.
-- `buildBlocks` keeps **multi-panel tables in one block** on purpose: the class and
-  equipment parsers split panels themselves. Prose parsers use `proseBlocksFor`, which
-  splits differing tables and reattaches continuation panels.
-- Bullet text hangs ~12pt right of the bullet; any other x starts a new paragraph.
-- `srd:verify` coverage misses are mostly artifacts (sentences across column/page breaks,
-  stat-block fields). Investigate a chapter only if its coverage drops.
-- Open datasets (Open5e, 5e-bits) are SRD **5.2**, not 5.2.1, and contain errors; they're
-  cross-checks only. When they disagree with the PDF, the PDF wins.
+- Parser gotchas live in `scripts/srd/CLAUDE.md` (loaded when working under `scripts/srd/`).
 
 ## App gotchas
 
@@ -69,7 +43,9 @@ non-obvious.
   `src/lib/model/core.ts`. Client validation uses `zod/mini` imported as
   `import * as z from "zod/mini"` (named `{ z }` import defeats tree-shaking: +65KB).
 - The SRD data version is rendered into `<html data-srd-hash>` by the root layout, not baked
-  into env — a running dev server picks up new data after `pnpm srd:import`.
+  into env — a running dev server picks up new data after `pnpm srd:import`. The hash also
+  covers `src/lib/srd/render.ts`, since `public/srd/<hash>/` holds rendered HTML that is
+  cached forever; after editing the renderer, run `pnpm srd:emit` (dev/build do it too).
 - **React Compiler is on.** Components using TanStack Virtual need `"use no memo"` (the
   compiler memoizes the virtualizer and the list renders empty). `useVirtualizer` also
   triggers the `react-hooks/incompatible-library` warning even with the opt-out; silence it
@@ -84,10 +60,7 @@ non-obvious.
 
 ## Testing gotchas
 
-- `tests/unit/srd-snapshots.test.ts` pins the parser output for ~30 tricky entries (each
-  sample says which layout it covers). After a parser change + `pnpm srd:import`, review the
-  snapshot diff; if every change is intended, run `pnpm test -u`. Add a sample whenever you
-  fix a parsing bug.
+- `tests/unit/srd-snapshots.test.ts` pins parser output; see `scripts/srd/CLAUDE.md`.
 - Playwright's `dragTo` is unreliable with dnd-kit; use `drag()` in `tests/e2e/helpers.ts`
   (real mouse moves). Drop targets must be visible — columns scroll internally.
 - `playwright.config.ts` reuses a dev server on port 3000 if one is running.
@@ -104,3 +77,13 @@ non-obvious.
   next step if needed.
 - Known gaps: class spell lists store names only (no School/Special columns); the Rules
   Glossary "conventions" intro isn't imported.
+
+<!-- BEGIN:nextjs-agent-rules -->
+
+# This is NOT the Next.js you know
+
+This version has breaking changes — APIs, conventions, and file structure may all differ from your training data. Read the relevant guide in `node_modules/next/dist/docs/` (resolved from this file's directory; in monorepos the `next` package may not be visible from the repo root) before writing any code. Heed deprecation notices.
+
+This block is written and re-added by `next dev` — verify at `node_modules/next/dist/server/lib/generate-agent-files.js`. Removing it from a diff only re-creates the uncommitted change; committing it with your work keeps the tree clean.
+
+<!-- END:nextjs-agent-rules -->

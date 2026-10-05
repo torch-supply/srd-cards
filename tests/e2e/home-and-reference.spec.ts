@@ -32,7 +32,7 @@ test("export, delete, and re-import a collection", async ({ page }) => {
 test("reference pages render and add to a collection", async ({ page }) => {
   await createCollection(page, "From the reference");
   await page.goto("/spells");
-  await page.getByLabel("Search").fill("wish");
+  await page.getByLabel("Search", { exact: true }).fill("wish");
   await page.getByRole("link", { name: /^Wish/ }).click();
   await expect(page.getByRole("heading", { name: "Wish" })).toBeVisible();
   await expect(
@@ -45,6 +45,52 @@ test("reference pages render and add to a collection", async ({ page }) => {
   await expect(
     page.getByText(/Added Wish to From the reference/),
   ).toBeVisible();
+});
+
+test("reference list search and filters persist in the URL", async ({
+  page,
+}) => {
+  await page.goto("/spells");
+  await page.getByRole("combobox", { name: "Level" }).click();
+  await page.getByRole("option", { name: "Level 1" }).click();
+  await page.getByLabel("Search", { exact: true }).fill("bolt");
+  // Clicking a result flushes the debounced query before navigating.
+  await page.getByRole("link", { name: /^Guiding Bolt/ }).click();
+  await expect(
+    page.getByRole("heading", { name: "Guiding Bolt" }),
+  ).toBeVisible();
+
+  await page.goBack();
+  await expect(page).toHaveURL(/\/spells\?q=bolt&level=1$/);
+  await expect(page.getByLabel("Search", { exact: true })).toHaveValue("bolt");
+  await expect(page.getByRole("combobox", { name: "Level" })).toHaveText(
+    "Level 1",
+  );
+
+  // A shared link restores the same view.
+  await page.goto("/spells?q=bolt&level=1");
+  await expect(page.getByLabel("Search", { exact: true })).toHaveValue("bolt");
+  await expect(page.getByRole("link", { name: /^Guiding Bolt/ })).toBeVisible();
+  await expect(page.getByRole("link", { name: /^Fire Bolt/ })).toHaveCount(0);
+
+  // "/" focuses the search; the clear button empties it (filters stay).
+  const searchBox = page.getByLabel("Search", { exact: true });
+  await searchBox.blur();
+  await page.keyboard.press("/");
+  await expect(searchBox).toBeFocused();
+  await expect(searchBox).toHaveValue("bolt");
+  await page.getByRole("button", { name: "Clear search" }).click();
+  await expect(searchBox).toHaveValue("");
+  await expect(searchBox).toBeFocused();
+  await expect(page).toHaveURL(/\/spells\?level=1$/);
+
+  // Escape clears the text, then leaves the field.
+  await searchBox.fill("magic");
+  await searchBox.press("Escape");
+  await expect(searchBox).toHaveValue("");
+  await expect(searchBox).toBeFocused();
+  await searchBox.press("Escape");
+  await expect(searchBox).not.toBeFocused();
 });
 
 test("monster stat blocks show SRD 5.2.1 values", async ({ page }) => {

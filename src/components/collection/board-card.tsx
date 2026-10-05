@@ -77,11 +77,14 @@ export const SortableCard = memo(function SortableCard({
   stackId,
   missing,
   readOnly,
+  ghost = false,
 }: {
   card: Card;
   stackId: string;
   missing: boolean;
   readOnly: boolean;
+  /** Placeholder for a browser entry being dragged in; becomes the real card on drop. */
+  ghost?: boolean;
 }) {
   const {
     setNodeRef,
@@ -93,21 +96,23 @@ export const SortableCard = memo(function SortableCard({
     isDragging,
   } = useSortable({
     id: `card:${card.id}`,
-    data: { kind: "card", cardId: card.id, stackId },
-    disabled: readOnly,
+    data: { kind: "card", cardId: card.id, stackId, ghost },
+    disabled: readOnly || ghost,
   });
+  const placeholder = isDragging || ghost;
   return (
     <div
       ref={setNodeRef}
       style={{ transform: CSS.Translate.toString(transform), transition }}
-      className={cn(isDragging && "opacity-40")}
+      className={cn(placeholder && "opacity-40")}
+      inert={ghost}
     >
       <BoardCard
         card={card}
         stackId={stackId}
         missing={missing}
         readOnly={readOnly}
-        collapsed={isDragging}
+        collapsed={placeholder}
         handle={{ ref: setActivatorNodeRef, ...attributes, ...listeners }}
       />
     </div>
@@ -229,7 +234,7 @@ function CardMenu({
             <EllipsisVerticalIcon />
           </Button>
         </DropdownMenuTrigger>
-        <DropdownMenuContent align="end" className="w-48">
+        <DropdownMenuContent align="end" className="min-w-48">
           {card.kind === "custom" && (
             <DropdownMenuItem onSelect={() => setEditing(true)}>
               <PencilIcon /> Edit…

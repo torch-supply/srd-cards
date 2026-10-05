@@ -34,7 +34,7 @@ export function ReferenceNav({
           <ChevronDownIcon />
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="start" className="w-52">
+      <DropdownMenuContent align="start" className="min-w-52">
         {links.map((l) => (
           <DropdownMenuItem key={l.href} asChild>
             <Link href={l.href}>

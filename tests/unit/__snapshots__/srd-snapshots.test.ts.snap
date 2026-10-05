@@ -2898,6 +2898,32 @@ exports[`SRD parser output snapshots > monster:werewolf (single 5.2.1 stat block
 }
 `;
 
+exports[`SRD parser output snapshots > rule:action (term list set in columns (a list, not a table)) 1`] = `
+{
+  "description": "On your turn, you can take one action. Choose which action to take from those below or from the special actions provided by your features. *See also* “Playing the Game” (“Actions”). These actions are defined elsewhere in this glossary:
+
+- Attack
+- Dash
+- Disengage
+- Dodge
+- Help
+- Hide
+- Influence
+- Magic
+- Ready
+- Search
+- Study
+- Utilize",
+  "id": "rule:action",
+  "name": "Action",
+  "page": 176,
+  "section": "Rules Glossary",
+  "slug": "action",
+  "subtitle": "Rules Glossary",
+  "type": "rule",
+}
+`;
+
 exports[`SRD parser output snapshots > rule:actions (table continued on the next page under another table) 1`] = `
 {
   "description": "When you do something other than moving or communicating, you typically take an action. The Action table lists the game’s main actions, which are defined in more detail in “Rules Glossary.” Player characters and monsters can also do things not covered by these actions. Many class features and other abilities provide additional action options, and you can improvise other actions. When you describe an action not detailed elsewhere in the rules, the Game Master tells you whether that action is possible and what kind of D20 Test you need to make, if any.
@@ -2946,6 +2972,58 @@ In terms of timing, a Reaction takes place immediately after its trigger unless 
   "section": "Playing the Game",
   "slug": "actions",
   "subtitle": "Playing the Game",
+  "type": "rule",
+}
+`;
+
+exports[`SRD parser output snapshots > rule:creature-type (term list followed by a flush paragraph) 1`] = `
+{
+  "description": "Every creature, including every player character, has a tag in the rules that identifies the type of creature it is. Most player characters are of the Humanoid type. These are the game’s creature types:
+
+- Aberration
+- Beast
+- Celestial
+- Construct
+- Dragon
+- Elemental
+- Fey
+- Fiend
+- Giant
+- Humanoid
+- Monstrosity
+- Ooze
+- Plant
+- Undead
+
+The types don’t have rules themselves, but some rules in the game affect creatures of certain types in different ways.",
+  "id": "rule:creature-type",
+  "name": "Creature Type",
+  "page": 179,
+  "section": "Rules Glossary",
+  "slug": "creature-type",
+  "subtitle": "Rules Glossary",
+  "type": "rule",
+}
+`;
+
+exports[`SRD parser output snapshots > rule:difficult-terrain (bullet list set in GillSans) 1`] = `
+{
+  "description": "If a space is Difficult Terrain, every foot of movement in that space costs 1 extra foot. For example, moving 5 feet through Difficult Terrain costs 10 feet of movement. Difficult Terrain isn’t cumulative; either a space is Difficult Terrain or it isn’t.
+
+A space is Difficult Terrain if the space contains any of the following or something similar:
+
+- A creature that isn’t Tiny or your ally
+- Furniture that is sized for creatures of your size or larger
+- Heavy snow, ice, rubble, or undergrowth
+- Liquid that’s between shin- and waist-deep
+- A narrow opening sized for a creature one size smaller than you
+- A slope of 20 degrees or more",
+  "id": "rule:difficult-terrain",
+  "name": "Difficult Terrain",
+  "page": 181,
+  "section": "Rules Glossary",
+  "slug": "difficult-terrain",
+  "subtitle": "Rules Glossary",
   "type": "rule",
 }
 `;

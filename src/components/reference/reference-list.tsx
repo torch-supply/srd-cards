@@ -1,12 +1,11 @@
 "use client";
 
 import { useWindowVirtualizer } from "@tanstack/react-virtual";
-import { SearchIcon } from "lucide-react";
 import Link from "next/link";
-import { useDeferredValue, useMemo, useState } from "react";
+import { useDeferredValue, useEffect, useMemo, useRef } from "react";
 import { Highlight, termsNotIn } from "@/components/cards/highlight";
 import { TypeChip } from "@/components/cards/type-icon";
-import { Input } from "@/components/ui/input";
+import { SearchInput } from "@/components/ui/search-input";
 import { referenceHref } from "@/lib/srd/card-types";
 import {
   FILTERS,
@@ -16,6 +15,7 @@ import {
 import { queryTerms } from "@/lib/srd/match";
 import type { IndexEntry, SrdType } from "@/lib/srd/schema";
 import { createSearch } from "@/lib/srd/search";
+import { setUrlSearch, useUrlSearch } from "@/lib/url-search";
 import { FilterBar } from "./filter-bar";
 
 const ROW_HEIGHT = 52;
@@ -30,12 +30,28 @@ export function ReferenceList({
 }) {
   // TanStack Virtual returns functions the React Compiler can't memoize safely.
   "use no memo";
-  const [query, setQuery] = useState("");
-  const [filters, setFilters] = useState<FilterState>({});
+  const defs = FILTERS[type];
+  // Search and filters live in the URL (?q=…&level=…) so they survive going
+  // back from a detail page and can be shared.
+  const urlSearch = useUrlSearch();
+  const { query, filters } = useMemo(() => {
+    const params = new URLSearchParams(urlSearch);
+    const filters: FilterState = {};
+    for (const def of defs) {
+      const value = params.get(def.key);
+      if (value) filters[def.key] = value;
+    }
+    return { query: params.get("q") ?? "", filters };
+  }, [urlSearch, defs]);
+  const update = (q: string, f: FilterState, defer = false) => {
+    const params = new URLSearchParams();
+    if (q) params.set("q", q);
+    for (const def of defs) if (f[def.key]) params.set(def.key, f[def.key]);
+    setUrlSearch(params, { defer });
+  };
   const deferredQuery = useDeferredValue(query);
   const terms = useMemo(() => queryTerms(deferredQuery), [deferredQuery]);
   const search = useMemo(() => createSearch(entries), [entries]);
-  const defs = FILTERS[type];
   const results = useMemo(
     () =>
       search
@@ -43,6 +59,22 @@ export function ReferenceList({
         .filter((e) => matchesFilterState(e, defs, filters)),
     [search, deferredQuery, defs, filters],
   );
+
+  // "/" focuses the search box.
+  const searchRef = useRef<HTMLInputElement>(null);
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      const target = e.target as HTMLElement;
+      const typing =
+        target.isContentEditable ||
+        ["INPUT", "TEXTAREA", "SELECT"].includes(target.tagName);
+      if (e.key !== "/" || typing || e.metaKey || e.ctrlKey || e.altKey) return;
+      e.preventDefault();
+      searchRef.current?.focus();
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, []);
 
   const virtualizer = useWindowVirtualizer({
     count: results.length,
@@ -54,21 +86,21 @@ export function ReferenceList({
     <div className="space-y-3">
       <div className="sticky top-14 z-10 -mx-1 space-y-2 bg-background/95 px-1 py-2 backdrop-blur">
         <div className="flex flex-wrap items-center gap-2">
-          <div className="relative w-full max-w-sm">
-            <SearchIcon className="pointer-events-none absolute top-1/2 left-2.5 size-4 -translate-y-1/2 text-muted-foreground" />
-            <Input
-              value={query}
-              onChange={(e) => setQuery(e.target.value)}
-              placeholder="Search by name…"
-              className="pl-8"
-              aria-label="Search"
-            />
-          </div>
+          <SearchInput
+            ref={searchRef}
+            value={query}
+            onValueChange={(q) => update(q, filters, true)}
+            onClear={() => update("", filters)}
+            placeholder="Search by name…  ( / )"
+            aria-label="Search"
+            className="w-full max-w-sm"
+          />
           <FilterBar
+            type={type}
             defs={defs}
             entries={entries}
             state={filters}
-            onChange={setFilters}
+            onChange={(f) => update(query, f)}
           />
           <span className="ml-auto text-sm text-muted-foreground tabular-nums">
             {results.length} of {entries.length}
