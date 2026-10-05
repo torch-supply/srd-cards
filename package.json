@@ -4,8 +4,8 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "pnpm srd:emit && next dev",
-    "build": "pnpm srd:emit && next build",
+    "dev": "pnpm srd:emit && pnpm og:emit && next dev",
+    "build": "pnpm srd:emit && pnpm og:emit && next build",
     "start": "next start",
     "preview": "opennextjs-cloudflare build && opennextjs-cloudflare preview",
     "deploy": "opennextjs-cloudflare build && opennextjs-cloudflare deploy",
@@ -20,6 +20,7 @@
     "srd:import": "tsx scripts/srd/import.ts",
     "srd:verify": "tsx scripts/srd/verify.ts",
     "srd:emit": "tsx scripts/srd/emit.ts",
+    "og:emit": "tsx scripts/og.tsx",
     "prepare": "husky"
   },
   "dependencies": {

@@ -2,9 +2,12 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { TypeChip } from "@/components/cards/type-icon";
 import { ReferenceList } from "@/components/reference/reference-list";
+import { JsonLd } from "@/components/seo/json-ld";
+import { breadcrumbJsonLd, HOME_CRUMB, ogImage, pageMetadata } from "@/lib/seo";
 import {
   CARD_TYPES,
   REFERENCE_TYPES,
+  referenceHref,
   typeForRoute,
 } from "@/lib/srd/card-types";
 import { getIndexForType } from "@/lib/srd/server";
@@ -20,10 +23,16 @@ export async function generateMetadata({
 }: PageProps<"/[type]">): Promise<Metadata> {
   const type = typeForRoute((await params).type);
   if (!type) return {};
-  return {
-    title: `${CARD_TYPES[type].plural} — SRD 5.2.1`,
-    description: `Browse ${CARD_TYPES[type].plural.toLowerCase()} from the System Reference Document 5.2.1.`,
-  };
+  const { plural, route } = CARD_TYPES[type];
+  return pageMetadata({
+    title: `${plural} — SRD 5.2.1`,
+    description: `All ${getIndexForType(type).length} ${plural.toLowerCase()} in the System Reference Document 5.2.1, with search and filters. Each entry has its full SRD text and page number.`,
+    path: referenceHref(type),
+    image: ogImage(
+      route!,
+      `${plural} from the System Reference Document 5.2.1`,
+    ),
+  });
 }
 
 export default async function ReferenceListPage({
@@ -34,6 +43,12 @@ export default async function ReferenceListPage({
   const entries = getIndexForType(type);
   return (
     <div className="mx-auto w-full max-w-4xl px-6 py-8">
+      <JsonLd
+        data={breadcrumbJsonLd([
+          HOME_CRUMB,
+          { name: CARD_TYPES[type].plural, path: referenceHref(type) },
+        ])}
+      />
       <header className="mb-2 flex items-center gap-3">
         <TypeChip kind={type} className="size-10 [&_svg]:size-6" />
         <div>

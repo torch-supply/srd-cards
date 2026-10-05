@@ -66,6 +66,16 @@ non-obvious.
   checks); on narrow screens the logo is icon-only and spacing is tighter.
 - Tailwind can't see dynamically built class names: card-type colors come from the fixed
   map in `src/lib/srd/card-types.ts`.
+- SEO: build page metadata with `pageMetadata()` (`src/lib/seo.ts`). A page's `openGraph`
+  replaces the layout's (shallow merge), and it also sets the canonical URL.
+- OG images are PNGs written by `pnpm og:emit` (`scripts/og.tsx`) into `public/og/<hash>/`,
+  not Next `opengraph-image` routes: those bundle next/og's wasm into the Worker (+~1MB
+  gzipped, and the free plan's limit is 3MB). Never import `src/lib/og/card.tsx` from app
+  code. Like `srd:emit`, it only runs when `dev` starts, so after editing an image input,
+  restart dev or run `pnpm og:emit`.
+- Route handlers are bundled apart from pages, so shared imports get a second copy in the
+  Worker. Keep them light (e.g. `server-index.ts`, not `server.ts`, which pulls in the
+  markdown renderer). Check the size with `pnpm exec wrangler deploy --dry-run --outdir <dir>`.
 
 ## Testing gotchas
 

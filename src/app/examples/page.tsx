@@ -1,11 +1,13 @@
 import type { Metadata } from "next";
 import { ExampleList } from "@/components/examples/example-list";
+import { pageMetadata } from "@/lib/seo";
 
-export const metadata: Metadata = {
+export const metadata: Metadata = pageMetadata({
   title: "Example collections",
   description:
     "Example collections to explore: an adventuring party, a short adventure, rules references, monsters compared, a magic deck, and more.",
-};
+  path: "/examples",
+});
 
 export default function ExamplesPage() {
   return (

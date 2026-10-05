@@ -1,8 +1,14 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { CC_BY_URL, SRD_ATTRIBUTION, SRD_URL } from "@/lib/attribution";
+import { pageMetadata } from "@/lib/seo";
 
-export const metadata: Metadata = { title: "About & credits" };
+export const metadata: Metadata = pageMetadata({
+  title: "About & credits",
+  description:
+    "How srd.cards works, where your collections are saved, and credits for the System Reference Document 5.2.1 and the open datasets used to check it.",
+  path: "/about",
+});
 
 export default function AboutPage() {
   return (

@@ -5,6 +5,13 @@ import { SiteHeader } from "@/components/layout/site-header";
 import { ThemeProvider } from "@/components/layout/theme-provider";
 import { Toaster } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
+import {
+  SITE_DESCRIPTION,
+  SITE_NAME,
+  SITE_OPEN_GRAPH,
+  SITE_URL,
+  siteOgImage,
+} from "@/lib/seo";
 import { srdDataHash } from "@/lib/srd/data-hash";
 import "./globals.css";
 
@@ -19,12 +26,13 @@ const crimson = Crimson_Pro({
   weight: ["500", "600", "700"],
 });
 
+// Pages set their own canonical URL and Open Graph fields with `pageMetadata`.
 export const metadata: Metadata = {
-  metadataBase: new URL("https://srd.cards"),
-  title: { default: "srd.cards", template: "%s · srd.cards" },
-  description:
-    "Browse the System Reference Document 5.2.1 and organize spells, monsters, classes, and equipment into stacks of cards. 5E compatible.",
-  openGraph: { siteName: "srd.cards", type: "website" },
+  metadataBase: new URL(SITE_URL),
+  title: { default: SITE_NAME, template: `%s · ${SITE_NAME}` },
+  description: SITE_DESCRIPTION,
+  openGraph: { ...SITE_OPEN_GRAPH, images: siteOgImage() },
+  twitter: { card: "summary_large_image" },
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {

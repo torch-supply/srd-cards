@@ -9,7 +9,6 @@ import { cache } from "react";
 import { renderEntry } from "./render";
 import {
   type EntryOfType,
-  type IndexEntry,
   type SrdEntry,
   SRD_TYPES,
   type SrdType,
@@ -36,13 +35,7 @@ export const getRenderedEntry = cache(
   },
 );
 
-export const getIndex = cache((): IndexEntry[] =>
-  readJson<IndexEntry[]>("index.json"),
-);
-
-export function getIndexForType(type: SrdType): IndexEntry[] {
-  return getIndex().filter((e) => e.type === type);
-}
+export { getIndex, getIndexForType } from "./server-index";
 
 export function isSrdType(value: string): value is SrdType {
   return (SRD_TYPES as readonly string[]).includes(value);

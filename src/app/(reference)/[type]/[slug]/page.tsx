@@ -4,6 +4,14 @@ import { notFound } from "next/navigation";
 import { EntryDetail } from "@/components/cards/details/entry-detail";
 import { TypeChip } from "@/components/cards/type-icon";
 import { AddToCollectionButton } from "@/components/reference/add-to-collection";
+import { JsonLd } from "@/components/seo/json-ld";
+import {
+  breadcrumbJsonLd,
+  entryDescription,
+  HOME_CRUMB,
+  ogImage,
+  pageMetadata,
+} from "@/lib/seo";
 import {
   CARD_TYPES,
   REFERENCE_TYPES,
@@ -29,12 +37,21 @@ async function load(params: PageProps<"/[type]/[slug]">["params"]) {
 export async function generateMetadata({
   params,
 }: PageProps<"/[type]/[slug]">): Promise<Metadata> {
-  const entry = await load(params);
+  const { type: route, slug } = await params;
+  const type = typeForRoute(route);
+  // The raw entry: descriptions are built from its markdown, not rendered HTML.
+  const entry = type && getEntries(type).find((e) => e.slug === slug);
   if (!entry) return {};
-  return {
-    title: entry.name,
-    description: `${entry.subtitle} — System Reference Document 5.2.1.`,
-  };
+  const { label } = CARD_TYPES[entry.type];
+  return pageMetadata({
+    title: `${entry.name} (${label}) — SRD 5.2.1`,
+    description: entryDescription(entry),
+    path: referenceHref(entry.type, entry.slug),
+    image: ogImage(
+      `${route}/${entry.slug}`,
+      `${entry.name}: ${label}, ${entry.subtitle}`,
+    ),
+  });
 }
 
 export default async function ReferenceEntryPage({
@@ -45,7 +62,17 @@ export default async function ReferenceEntryPage({
   const config = CARD_TYPES[entry.type];
   return (
     <article className="mx-auto w-full max-w-3xl px-6 py-8">
-      <nav className="mb-4 text-sm text-muted-foreground">
+      <JsonLd
+        data={breadcrumbJsonLd([
+          HOME_CRUMB,
+          { name: config.plural, path: referenceHref(entry.type) },
+          { name: entry.name, path: referenceHref(entry.type, entry.slug) },
+        ])}
+      />
+      <nav
+        aria-label="Breadcrumb"
+        className="mb-4 text-sm text-muted-foreground"
+      >
         <Link
           href={referenceHref(entry.type)}
           className="hover:text-foreground hover:underline"

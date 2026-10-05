@@ -20,6 +20,7 @@ const eslintConfig = defineConfig([
     ".open-next/**",
     ".wrangler/**",
     "public/srd/**",
+    "public/og/**",
     "coverage/**",
     "test-results/**",
     "playwright-report/**",

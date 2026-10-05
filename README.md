@@ -18,10 +18,11 @@ Requires Node 20.9+ (developed on Node 24) and pnpm 11.
 
 | Script                                   | What it does                                                                                   |
 | ---------------------------------------- | ---------------------------------------------------------------------------------------------- |
-| `pnpm dev` / `pnpm build` / `pnpm start` | Next.js. `dev` and `build` run `srd:emit` first.                                               |
+| `pnpm dev` / `pnpm build` / `pnpm start` | Next.js. `dev` and `build` run `srd:emit` and `og:emit` first.                                 |
 | `pnpm srd:import`                        | Rebuilds `src/data/srd/*.json` from the SRD 5.2.1 PDF, then runs `srd:emit`.                   |
 | `pnpm srd:verify`                        | Checks the data against the PDF and writes `scripts/srd/report.md`.                            |
 | `pnpm srd:emit`                          | Writes browser data to `public/srd/<hash>/` (generated, gitignored).                           |
+| `pnpm og:emit`                           | Writes link preview images to `public/og/<hash>/` (generated, gitignored).                     |
 | `pnpm typecheck` / `pnpm lint`           | TypeScript and ESLint (`pnpm lint:fix` applies auto-fixes).                                    |
 | `pnpm format` / `pnpm format:check`      | Prettier (default config): write or check formatting.                                          |
 | `pnpm test`                              | Vitest unit tests (`tests/unit`).                                                              |

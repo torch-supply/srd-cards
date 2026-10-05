@@ -117,3 +117,55 @@ test("footer shows the SRD 5.2.1 attribution", async ({ page }) => {
     "This work includes material from the System Reference Document 5.2.1 (“SRD 5.2.1”) by Wizards of the Coast LLC",
   );
 });
+
+test("pages have SEO metadata, and robots, sitemap, and llms.txt are served", async ({
+  page,
+  request,
+}) => {
+  await page.goto("/spells/fireball");
+  await expect(page).toHaveTitle("Fireball (Spell) — SRD 5.2.1 · srd.cards");
+  const meta = (selector: string) =>
+    page.locator(selector).first().getAttribute("content");
+  expect(await meta('meta[name="description"]')).toMatch(
+    /^Level 3 Evocation spell/,
+  );
+  await expect(page.locator('link[rel="canonical"]')).toHaveAttribute(
+    "href",
+    "https://srd.cards/spells/fireball",
+  );
+  expect(await meta('meta[property="og:url"]')).toBe(
+    "https://srd.cards/spells/fireball",
+  );
+  expect(await meta('meta[property="og:site_name"]')).toBe("srd.cards");
+  const image = await meta('meta[property="og:image"]');
+  expect(image).toMatch(
+    /^https:\/\/srd\.cards\/og\/[0-9a-f]{12}\/spells\/fireball\.png$/,
+  );
+  const imageResponse = await request.get(new URL(image!).pathname);
+  expect(imageResponse.headers()["content-type"]).toBe("image/png");
+  const jsonLd = JSON.parse(
+    (await page
+      .locator('script[type="application/ld+json"]')
+      .textContent()) as string,
+  );
+  expect(jsonLd["@type"]).toBe("BreadcrumbList");
+  expect(jsonLd.itemListElement.map((i: { name: string }) => i.name)).toEqual([
+    "srd.cards",
+    "Spells",
+    "Fireball",
+  ]);
+
+  expect(await (await request.get("/robots.txt")).text()).toContain(
+    "Sitemap: https://srd.cards/sitemap.xml",
+  );
+  const sitemap = await (await request.get("/sitemap.xml")).text();
+  expect(sitemap).toContain("<loc>https://srd.cards/spells/fireball</loc>");
+  expect(sitemap).not.toContain("/collections/");
+  expect(await (await request.get("/llms.txt")).text()).toContain(
+    "[Spells](https://srd.cards/spells)",
+  );
+
+  // Collections are private to the browser: keep them out of search results.
+  await page.goto("/collections/missing");
+  expect(await meta('meta[name="robots"]')).toContain("noindex");
+});
