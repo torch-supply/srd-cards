@@ -90,7 +90,8 @@ non-obvious.
   Next generates into `.next/types`, so plain `tsc` fails on a fresh clone.
 - A dev server on port 3000 is often the user's own: never kill it. `pnpm test:e2e` reuses
   it, and it only ran `srd:emit`/`og:emit` when it started, so ask the user to restart it if
-  results look stale.
+  results look stale. Port 3000 may also be serving a different project (check with
+  `lsof -iTCP:3000 -sTCP:LISTEN`); then run `E2E_PORT=3100 pnpm test:e2e` for a fresh server.
 - Shell is zsh: don't name a loop variable `path` (it clobbers `PATH`).
 
 ## Learnings
