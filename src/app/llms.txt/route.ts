@@ -16,7 +16,7 @@ export function GET() {
   const lines = [
     "# srd.cards",
     "",
-    "> Browse the System Reference Document 5.2.1 (SRD 5.2.1) and organize its content as cards. 5E compatible.",
+    "> Browse the System Reference Document 5.2.1 (SRD 5.2.1) and organize its content as cards. 5.5e compatible.",
     "",
     `Every SRD entry has its own page with the full text, extracted from the official SRD 5.2.1 PDF, and the PDF page it comes from. Entry URLs are ${url("/<section>/<slug>")}, e.g. ${url(referenceHref("spell", "fireball"))}. The sitemap lists every page: ${url("/sitemap.xml")}`,
     "",

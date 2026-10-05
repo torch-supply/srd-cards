@@ -11,7 +11,7 @@ export const SITE_URL = "https://srd.cards";
 export const SITE_NAME = "srd.cards";
 export const SOURCE_URL = "https://github.com/torch-supply/srd-cards";
 export const SITE_DESCRIPTION =
-  "Browse the System Reference Document 5.2.1 and organize spells, monsters, classes, and equipment into stacks of cards. 5E compatible.";
+  "Browse the System Reference Document 5.2.1 and organize spells, monsters, classes, and equipment into stacks of cards. 5.5e compatible.";
 
 /** Open Graph fields every page shares. */
 export const SITE_OPEN_GRAPH = {

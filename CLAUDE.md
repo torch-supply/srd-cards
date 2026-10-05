@@ -13,7 +13,7 @@ non-obvious.
   paraphrase SRD text; keep the PDF's curly quotes and dashes.
 - **Attribution:** show the SRD 5.2.1 statement verbatim (`src/lib/attribution.ts`) and
   add **no other attribution to Wizards** — no "not affiliated" line, no D&D trademarks in
-  branding. "5E compatible" is allowed.
+  branding. "5.5e compatible" is allowed (SRD 5.2.1 is the 5.5e ruleset; don't write "5E").
 - Package manager is **pnpm**. Run `pnpm format && pnpm typecheck && pnpm lint && pnpm test`
   before calling work done; run `pnpm test:e2e` for UI changes.
 - Formatting is Prettier with its **default config** (`.prettierrc.json` is `{}`); ESLint

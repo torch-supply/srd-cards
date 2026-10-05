@@ -1,10 +1,10 @@
 # srd.cards
 
-Browse the **System Reference Document 5.2.1** and organize its content as cards.
-**Collections** (a campaign, an encounter) hold ordered **stacks** (a character, an
-encounter setup), which hold **cards**: classes, subclasses, backgrounds, species,
-spells, monsters, equipment, magic items, feats, conditions, rules, and custom homebrew
-cards.
+Browse the **System Reference Document 5.2.1** (the 5.5e rules) and organize its
+content as cards. **Collections** (a campaign, an encounter) hold ordered **stacks** (a
+character, an encounter setup), which hold **cards**: classes, subclasses, backgrounds,
+species, spells, monsters, equipment, magic items, feats, conditions, rules, and custom
+homebrew cards.
 Everything is saved in the browser (localStorage) behind a storage interface that a
 backend can replace later.
 

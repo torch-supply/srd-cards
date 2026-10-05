@@ -18,7 +18,7 @@ export default function AboutPage() {
           About srd.cards
         </h1>
         <p className="text-base text-muted-foreground">
-          srd.cards is a 5E compatible tool for browsing the System Reference
+          srd.cards is a 5.5e compatible tool for browsing the System Reference
           Document 5.2.1 and organizing its content as cards: collections hold
           stacks, and stacks hold cards for spells, monsters, classes,
           equipment, and more.
@@ -77,7 +77,7 @@ export default function AboutPage() {
       <section className="space-y-2">
         <h2 className="font-serif text-xl font-semibold">For creators</h2>
         <p>
-          Writing 5E compatible material? Use srd.cards to check the exact SRD
+          Writing 5.5e compatible material? Use srd.cards to check the exact SRD
           wording and page for any entry.
         </p>
       </section>

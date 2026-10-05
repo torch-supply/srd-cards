@@ -52,7 +52,7 @@ function images(): Image[] {
           title: "The SRD 5.2.1, as cards",
           subtitle:
             "Browse spells, monsters, and more, and organize them into stacks for a character, an encounter, or a campaign.",
-          footnote: "5E compatible",
+          footnote: "5.5e compatible",
         }),
     },
   ];

@@ -37,7 +37,7 @@ export default function HomePage() {
           </Link>
         </p>
         <p className="max-w-2xl text-muted-foreground">
-          Writing 5E compatible material? Check the exact SRD wording and page
+          Writing 5.5e compatible material? Check the exact SRD wording and page
           for any entry.
         </p>
         <div className="pt-1">
