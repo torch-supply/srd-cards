@@ -1,14 +1,13 @@
 {
-  "name": "srd-cards-v2",
+  "name": "srd-cards",
   "version": "0.1.0",
   "private": true,
+  "license": "Unlicense",
   "type": "module",
   "scripts": {
     "dev": "pnpm srd:emit && pnpm og:emit && next dev",
     "build": "pnpm srd:emit && pnpm og:emit && next build",
     "start": "next start",
-    "preview": "opennextjs-cloudflare build && opennextjs-cloudflare preview",
-    "deploy": "opennextjs-cloudflare build && opennextjs-cloudflare deploy",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
     "format": "prettier --write .",
@@ -53,7 +52,6 @@
     "zustand": "^5.0.15"
   },
   "devDependencies": {
-    "@opennextjs/cloudflare": "^1.20.8",
     "@playwright/test": "^1.63.0",
     "@tailwindcss/postcss": "^4",
     "@testing-library/dom": "^10.4.2",
@@ -73,11 +71,14 @@
     "lint-staged": "^17.6.0",
     "pdfjs-dist": "^6.3.289",
     "prettier": "^3.9.9",
+    "sharp": "^0.35.5",
     "tailwindcss": "^4",
     "tsx": "^4.23.15",
     "typescript": "^5",
-    "vitest": "^5.0.3",
-    "wrangler": "^4.147.0"
+    "vitest": "^5.0.3"
   },
-  "packageManager": "pnpm@11.1.3"
+  "packageManager": "pnpm@11.1.3",
+  "engines": {
+    "node": "24.x"
+  }
 }

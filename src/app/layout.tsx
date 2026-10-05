@@ -12,13 +12,15 @@ import {
   SITE_URL,
   siteOgImage,
 } from "@/lib/seo";
-import { srdDataHash } from "@/lib/srd/data-hash";
+import { srdHash } from "@/lib/content-hashes";
 import "./globals.css";
 
 const geistSans = Geist({ variable: "--font-geist-sans", subsets: ["latin"] });
+// Only the custom card editor uses it: don't preload it on every page.
 const geistMono = Geist_Mono({
   variable: "--font-geist-mono",
   subsets: ["latin"],
+  preload: false,
 });
 const crimson = Crimson_Pro({
   variable: "--font-crimson",
@@ -40,7 +42,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
     <html
       lang="en"
       suppressHydrationWarning
-      data-srd-hash={process.env.SRD_DATA_HASH ?? srdDataHash()}
+      data-srd-hash={srdHash()}
       className={`${geistSans.variable} ${geistMono.variable} ${crimson.variable} h-full antialiased`}
     >
       <body className="flex min-h-full flex-col">

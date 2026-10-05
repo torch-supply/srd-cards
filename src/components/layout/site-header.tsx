@@ -1,6 +1,6 @@
 import Link from "next/link";
-import { GiCardRandom } from "react-icons/gi";
 import { CARD_TYPES, REFERENCE_TYPES } from "@/lib/srd/card-types";
+import { Logo } from "./logo";
 import { ReferenceNav } from "./reference-nav";
 import { ThemeToggle } from "./theme-toggle";
 
@@ -18,7 +18,7 @@ export function SiteHeader() {
           href="/"
           className="flex items-center gap-2 font-serif text-xl font-semibold tracking-tight"
         >
-          <GiCardRandom className="size-6 text-primary" aria-hidden />
+          <Logo className="size-7" />
           <span className="sr-only sm:not-sr-only">srd.cards</span>
         </Link>
         <nav className="flex items-center text-sm sm:gap-1">

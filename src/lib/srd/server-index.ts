@@ -2,7 +2,7 @@
  * Server-only access to the SRD search index, without the markdown renderer
  * and zod that `server.ts` pulls in. Route handlers (sitemap, llms.txt) are
  * bundled apart from pages, so importing `server.ts` there would add a second
- * copy of the renderer to the Worker.
+ * copy of the renderer to the server bundle.
  */
 import "server-only";
 import fs from "node:fs";

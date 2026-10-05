@@ -1,7 +1,7 @@
 /**
  * Open Graph images (link previews), drawn with next/og by `pnpm og:emit`
  * (scripts/og.tsx). Build-time only: never import this from app code, or
- * next/og's wasm ends up in the Worker bundle.
+ * next/og’s wasm ends up in the server bundle.
  */
 import { readFile } from "node:fs/promises";
 import path from "node:path";

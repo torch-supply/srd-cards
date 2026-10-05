@@ -7,6 +7,8 @@ equipment, magic items, feats, conditions, rules, and custom homebrew cards.
 Everything is saved in the browser (localStorage) behind a storage interface that a
 backend can replace later.
 
+Built with [Claude Code](https://claude.com/claude-code), using Claude Opus.
+
 ## Getting started
 
 ```bash
@@ -14,7 +16,7 @@ pnpm install
 pnpm dev          # http://localhost:3000 (runs `srd:emit` first)
 ```
 
-Requires Node 20.9+ (developed on Node 24) and pnpm 11.
+Requires Node 24 (pinned in `engines`, which Vercel builds with) and pnpm 11.
 
 | Script                                   | What it does                                                                                   |
 | ---------------------------------------- | ---------------------------------------------------------------------------------------------- |
@@ -27,23 +29,18 @@ Requires Node 20.9+ (developed on Node 24) and pnpm 11.
 | `pnpm format` / `pnpm format:check`      | Prettier (default config): write or check formatting.                                          |
 | `pnpm test`                              | Vitest unit tests (`tests/unit`).                                                              |
 | `pnpm test:e2e`                          | Playwright end-to-end tests (`tests/e2e`). Reuses a dev server on port 3000 if one is running. |
-| `pnpm preview` / `pnpm deploy`           | Build for Cloudflare Workers with OpenNext, then run it locally (port 8787) or deploy it.      |
 
-## Deployment (Cloudflare Workers)
+## Deployment (Vercel)
 
-The app runs on Cloudflare Workers via [OpenNext](https://opennext.js.org/cloudflare)
-(`wrangler.jsonc`, `open-next.config.ts`). Every page except `/collections/[id]` is
-prerendered and served from Workers static assets through OpenNext's read-only
-static-assets cache, so no R2/KV bindings are needed. `public/_headers` sets cache headers
-for static assets (they bypass `next.config.ts` `headers()`).
+The app is hosted on Vercel with the default Next.js project settings: Vercel runs
+`pnpm build`, which runs `srd:emit` and `og:emit` before `next build`. Every page except
+`/collections/[id]` is prerendered. `next.config.ts` `headers()` sets immutable caching on
+the content-hashed files in `public/srd/` and `public/og/`.
 
-In the Cloudflare dashboard (Workers → Settings → Build), set:
-
-- **Build command:** `pnpm exec opennextjs-cloudflare build`
-- **Deploy command:** `pnpm exec opennextjs-cloudflare deploy`
-
-Don't use a plain `wrangler deploy`: OpenNext's deploy also copies the prerendered pages
-into the static assets; without that step, SSG pages return 404.
+**To do once srd.cards is connected:** canonical URLs, link previews, and the sitemap
+already point at `https://srd.cards`. After adding the domain in Vercel, redirect the
+project's `*.vercel.app` domain to it so that copy doesn't serve duplicate pages. Then
+submit `https://srd.cards/sitemap.xml` in Google Search Console and Bing Webmaster Tools.
 
 ## SRD data pipeline
 
@@ -120,7 +117,14 @@ src/stores/                   zustand stores (open collection with autosave/undo
 
 ## Licensing
 
+The code is in the public domain under the Unlicense (`LICENSE`): copy it and use it
+however you like. This repo doesn't take issues or pull requests; fork it instead.
+
+The SRD content is not covered by the Unlicense. It's under CC BY 4.0, and anything
+that uses it must keep this attribution:
+
 This work includes material from the System Reference Document 5.2.1 (“SRD 5.2.1”) by Wizards of the Coast LLC, available at https://www.dndbeyond.com/srd. The SRD 5.2.1 is licensed under the Creative Commons Attribution 4.0 International License, available at https://creativecommons.org/licenses/by/4.0/legalcode.
 
 The attribution appears in the site footer, on `/about`, and in exported JSON. See
-`src/data/srd/LICENSES.md` for data credits.
+`src/data/srd/LICENSES.md` for data credits. The fonts in `src/lib/og/fonts/` are under
+the SIL Open Font License (license files alongside).

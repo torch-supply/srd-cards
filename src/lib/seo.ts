@@ -3,12 +3,13 @@
  * for SRD entries, and JSON-LD structured data.
  */
 import type { Metadata } from "next";
-import { ogHash } from "./og/hash";
+import { ogHash } from "./content-hashes";
 import { CARD_TYPES } from "./srd/card-types";
 import type { SrdEntry } from "./srd/schema";
 
 export const SITE_URL = "https://srd.cards";
 export const SITE_NAME = "srd.cards";
+export const SOURCE_URL = "https://github.com/torch-supply/srd-cards";
 export const SITE_DESCRIPTION =
   "Browse the System Reference Document 5.2.1 and organize spells, monsters, classes, and equipment into stacks of cards. 5E compatible.";
 
@@ -24,12 +25,10 @@ export const OG_IMAGE_SIZE = { width: 1200, height: 630 };
 /**
  * A link preview image written by `pnpm og:emit` (scripts/og.tsx). `key` is
  * the page's path without its leading slash, or "site" for the site-wide one.
- * Production builds bake in the hash: Workers can't hash project files.
  */
 export function ogImage(key: string, alt: string) {
-  const hash = process.env.OG_HASH ?? ogHash();
   return {
-    url: `/og/${hash}/${key}.png`,
+    url: `/og/${ogHash()}/${key}.png`,
     ...OG_IMAGE_SIZE,
     type: "image/png",
     alt,

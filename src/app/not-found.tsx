@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { GiCardRandom } from "react-icons/gi";
+import { Logo } from "@/components/layout/logo";
 import { ReferenceSections } from "@/components/reference/reference-sections";
 import { Button } from "@/components/ui/button";
 
@@ -10,7 +10,7 @@ export default function NotFound() {
   return (
     <div className="mx-auto w-full max-w-3xl space-y-8 px-6 py-16">
       <section className="space-y-3">
-        <GiCardRandom className="size-10 text-muted-foreground" aria-hidden />
+        <Logo className="size-10" />
         <h1 className="font-serif text-4xl font-semibold tracking-tight">
           Page not found
         </h1>

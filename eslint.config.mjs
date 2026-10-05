@@ -17,8 +17,6 @@ const eslintConfig = defineConfig([
     "next-env.d.ts",
     // Generated or downloaded files.
     ".cache/**",
-    ".open-next/**",
-    ".wrangler/**",
     "public/srd/**",
     "public/og/**",
     "coverage/**",

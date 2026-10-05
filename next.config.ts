@@ -6,8 +6,9 @@ import { srdDataHash } from "./src/lib/srd/data-hash";
 export default function nextConfig(phase: string): NextConfig {
   return {
     reactCompiler: true,
-    // Production servers (Cloudflare Workers) have no src/ to hash at request
-    // time, so bake the hashes in; dev hashes live to pick up `pnpm srd:import`.
+    poweredByHeader: false,
+    // Production code reads the hashes from here; dev hashes live (see
+    // src/lib/content-hashes.ts).
     env:
       phase === PHASE_PRODUCTION_BUILD
         ? { SRD_DATA_HASH: srdDataHash(), OG_HASH: ogHash() }

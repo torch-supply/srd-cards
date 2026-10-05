@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { ExampleCollectionPage } from "@/components/collection/collection-view";
+import { ExampleOutline } from "@/components/examples/example-outline";
 import { JsonLd } from "@/components/seo/json-ld";
 import { EXAMPLES, findExample } from "@/lib/examples";
 import { buildExample } from "@/lib/examples/build";
@@ -32,6 +33,7 @@ export default async function ExamplePage({
 }: PageProps<"/examples/[slug]">) {
   const example = findExample((await params).slug);
   if (!example) notFound();
+  const collection = buildExample(example, getIndex());
   return (
     <>
       <JsonLd
@@ -41,7 +43,10 @@ export default async function ExamplePage({
           { name: example.name, path: `/examples/${example.slug}` },
         ])}
       />
-      <ExampleCollectionPage collection={buildExample(example, getIndex())} />
+      <ExampleCollectionPage
+        collection={collection}
+        placeholder={<ExampleOutline collection={collection} />}
+      />
     </>
   );
 }

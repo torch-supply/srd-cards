@@ -65,12 +65,15 @@ export function CollectionPage({ id }: { id: string }) {
 
 /**
  * An example collection: fully editable, but kept in memory only. "Save a
- * copy" stores it as a regular collection.
+ * copy" stores it as a regular collection. `placeholder` shows (and is
+ * server-rendered) until the board loads.
  */
 export function ExampleCollectionPage({
   collection,
+  placeholder,
 }: {
   collection: Collection;
+  placeholder: React.ReactNode;
 }) {
   return (
     <CollectionStoreProvider
@@ -80,18 +83,25 @@ export function ExampleCollectionPage({
         persistUi: false,
       }}
     >
-      <CollectionView example />
+      <CollectionView example placeholder={placeholder} />
     </CollectionStoreProvider>
   );
 }
 
-function CollectionView({ example = false }: { example?: boolean }) {
+function CollectionView({
+  example = false,
+  placeholder,
+}: {
+  example?: boolean;
+  placeholder?: React.ReactNode;
+}) {
   const status = useCollectionStore((s) => s.status);
   const error = useCollectionStore((s) => s.error);
   const corruptRaw = useCollectionStore((s) => s.corruptRaw);
   const id = useCollectionStore((s) => s.id);
 
   if (status === "loading") {
+    if (placeholder) return placeholder;
     return (
       <div className="flex flex-1 flex-col gap-4 p-6">
         <Skeleton className="h-9 w-72" />

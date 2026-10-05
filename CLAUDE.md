@@ -7,7 +7,7 @@ non-obvious.
 ## Ground rules
 
 - **Never `git commit` or `git push`.** The user reviews every change and commits
-  themselves. Leave work uncommitted. (Remote: `origin` → github.com/torch-supply/srd-cards-v2, branch `main`.)
+  themselves. Leave work uncommitted. (Remote: `origin` → github.com/torch-supply/srd-cards, branch `main`.)
 - **SRD 5.2.1 is the source of truth.** All reference content comes from the official
   PDF at `docs/SRD_CC_v5.2.1.pdf` (gitignored, along with all of `docs/`). Never
   paraphrase SRD text; keep the PDF's curly quotes and dashes.
@@ -69,19 +69,16 @@ non-obvious.
 - SEO: build page metadata with `pageMetadata()` (`src/lib/seo.ts`). A page's `openGraph`
   replaces the layout's (shallow merge), and it also sets the canonical URL.
 - OG images are PNGs written by `pnpm og:emit` (`scripts/og.tsx`) into `public/og/<hash>/`,
-  not Next `opengraph-image` routes: those bundle next/og's wasm into the Worker (+~1MB
-  gzipped, and the free plan's limit is 3MB). Never import `src/lib/og/card.tsx` from app
-  code. Like `srd:emit`, it only runs when `dev` starts, so after editing an image input,
+  not Next `opengraph-image` routes: those bundle next/og's wasm (~1MB gzipped) into the
+  server bundle. Never import `src/lib/og/card.tsx` from app code. Like `srd:emit`, it only runs when `dev` starts, so after editing an image input,
   restart dev or run `pnpm og:emit`.
 - Reference list pages render every row on the server and switch to the virtualized list
   after hydration (`useHydrated`), so the HTML links to each entry. Keep it that way: the
-  sitemap shouldn't be the only path crawlers have to entry pages.
+  sitemap shouldn't be the only path crawlers have to entry pages. Example pages do the
+  same: the server sends `ExampleOutline` (stacks and card links) until the board loads.
 - Links between entries (`src/lib/srd/links.ts`) are added only on reference pages
   (`getRenderedEntry` passes the link index). Never put them in the board's card JSON
   (`public/srd/`): a click inside a draggable card shouldn't navigate away.
-- Route handlers are bundled apart from pages, so shared imports get a second copy in the
-  Worker. Keep them light (e.g. `server-index.ts`, not `server.ts`, which pulls in the
-  markdown renderer). Check the size with `pnpm exec wrangler deploy --dry-run --outdir <dir>`.
 
 ## Testing gotchas
 
@@ -103,11 +100,15 @@ non-obvious.
   with 50 cards expanded at 4× CPU throttle, expanding a card takes ~150ms; drag jank there
   comes from browser layout/paint of the large DOM, not JS — column virtualization is the
   next step if needed.
-- Hosting is Cloudflare Workers (OpenNext; see README). Server code that runs at request
-  time (only `/collections/[id]` today, plus the root layout it renders in) can't read
-  project files with `fs`. That's why `next.config.ts` bakes `SRD_DATA_HASH` into production
-  builds. Keep new `fs` reads in build-time-only code (SSG pages with `dynamicParams = false`).
-  Test with `pnpm preview`, not `next start`.
+- Hosting is Vercel (see README). Server code that runs at request time (only
+  `/collections/[id]` today, plus the root layout it renders in) runs in a Vercel Function,
+  which only has the files Next's output tracing found, so don't read project files there
+  with `fs`. That's why `next.config.ts` bakes the content hashes into production builds
+  (`src/lib/content-hashes.ts`). Keep new `fs` reads in build-time-only code (SSG pages with
+  `dynamicParams = false`). `next start` won't catch a missing file; check a Vercel preview
+  deployment. A build warning "Dynamic filesystem access causes tracing of the whole
+  project" means the server function would ship all of `public/`: check
+  `.next/server/app/collections/[id]/page.js.nft.json` (~160 files today).
 - Known gaps: class spell lists store names only (no School/Special columns); the Rules
   Glossary "conventions" intro isn't imported.
 

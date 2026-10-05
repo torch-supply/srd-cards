@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { CC_BY_URL, SRD_ATTRIBUTION, SRD_URL } from "@/lib/attribution";
-import { pageMetadata } from "@/lib/seo";
+import { pageMetadata, SOURCE_URL } from "@/lib/seo";
 
 export const metadata: Metadata = pageMetadata({
   title: "About & credits",
@@ -79,6 +79,29 @@ export default function AboutPage() {
         <p>
           Writing 5E compatible material? Use srd.cards to check the exact SRD
           wording and page for any entry.
+        </p>
+      </section>
+
+      <section className="space-y-2">
+        <h2 className="font-serif text-xl font-semibold">Source code</h2>
+        <p>
+          The code for srd.cards is on GitHub at{" "}
+          <a className="underline underline-offset-2" href={SOURCE_URL}>
+            torch-supply/srd-cards
+          </a>{" "}
+          and in the public domain (the Unlicense): copy it and use it however
+          you like. The SRD content keeps its own license and attribution
+          (above).
+        </p>
+        <p>
+          srd.cards was built with{" "}
+          <a
+            className="underline underline-offset-2"
+            href="https://claude.com/claude-code"
+          >
+            Claude Code
+          </a>
+          , using Claude Opus.
         </p>
       </section>
 

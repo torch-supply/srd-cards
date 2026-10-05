@@ -6,11 +6,14 @@
  *   public/og/<hash>/examples/<slug>.png  example collections
  * Pages link them with `ogImage()` (src/lib/seo.ts). Rendering them here rather
  * than with Next's opengraph-image routes keeps next/og (resvg and yoga wasm,
- * ~1MB gzipped) out of the Worker bundle. Older hash folders are removed.
+ * ~1MB gzipped) out of the server bundle. Older hash folders are removed.
+ * A copy is kept in .next/cache/og/ (which Vercel restores between builds), so
+ * a build only redraws them when an input changes.
  */
 import fs from "node:fs";
 import path from "node:path";
 import { GiCardRandom } from "react-icons/gi";
+import sharp from "sharp";
 import { EXAMPLES } from "../src/lib/examples";
 import {
   OG_TYPE_COLORS,
@@ -24,6 +27,7 @@ import { SRD_DATA_DIR } from "../src/lib/srd/data-hash";
 import type { IndexEntry, SrdEntry } from "../src/lib/srd/schema";
 
 const PUBLIC_DIR = path.join(process.cwd(), "public", "og");
+const CACHE_DIR = path.join(process.cwd(), ".next", "cache", "og");
 
 type Image = { key: string; render: () => Promise<Response> };
 
@@ -123,14 +127,31 @@ export async function emitOgImages() {
   }
   const started = Date.now();
   fs.rmSync(PUBLIC_DIR, { recursive: true, force: true });
+  const cached = path.join(CACHE_DIR, hash);
+  if (fs.existsSync(cached)) {
+    fs.cpSync(cached, target, { recursive: true });
+    console.log(
+      `Copied OG images ${hash} from .next/cache/og/ in ${Date.now() - started}ms.`,
+    );
+    return;
+  }
   const list = images();
+  const writes: Promise<unknown>[] = [];
   for (const { key, render } of list) {
     const file = path.join(target, `${key}.png`);
     fs.mkdirSync(path.dirname(file), { recursive: true });
-    fs.writeFileSync(file, Buffer.from(await (await render()).arrayBuffer()));
+    const png = Buffer.from(await (await render()).arrayBuffer());
+    // Flat colors and text: a 256-color palette looks the same at ~1/3 the
+    // size. sharp works on its own threads, so compress while the next renders.
+    writes.push(sharp(png).png({ palette: true, quality: 90 }).toFile(file));
   }
+  await Promise.all(writes);
   // Written last, so an interrupted run starts over.
   fs.writeFileSync(done, "");
+  // Copied under a temporary name and renamed, so the cache is never partial.
+  fs.rmSync(CACHE_DIR, { recursive: true, force: true });
+  fs.cpSync(target, `${cached}.tmp`, { recursive: true });
+  fs.renameSync(`${cached}.tmp`, cached);
   console.log(
     `Emitted ${list.length} OG images to public/og/${hash}/ in ${Date.now() - started}ms.`,
   );

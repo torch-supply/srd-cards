@@ -5,9 +5,8 @@ import { REFERENCE_TYPES, referenceHref } from "@/lib/srd/card-types";
 import { getIndex } from "@/lib/srd/server-index";
 
 /**
- * Every public page. Reference list pages render their entries client-side
- * (virtualized), so this is how crawlers find the entry pages. Collections
- * live in the browser and are left out (and marked noindex).
+ * Every public page. Collections live in the browser and are left out (and
+ * marked noindex).
  */
 export default function sitemap(): MetadataRoute.Sitemap {
   const paths = [

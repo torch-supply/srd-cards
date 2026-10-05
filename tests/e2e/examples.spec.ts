@@ -64,6 +64,16 @@ test("examples index lists every example", async ({ page }) => {
     .toEqual(["Short Rest", "Long Rest"]);
 });
 
+test("example pages render their stacks and cards on the server", async ({
+  request,
+}) => {
+  // The board only renders in the browser; crawlers get this outline.
+  const html = await (await request.get("/examples/the-old-mine")).text();
+  expect(html).toContain("<h1");
+  expect(html).toContain("1. Mine entrance");
+  expect(html).toContain('href="/monsters/goblin-warrior"');
+});
+
 test("the home intro and the header link to the examples", async ({ page }) => {
   await page.goto("/");
   await page.getByRole("link", { name: "See examples" }).click();
