@@ -4,6 +4,7 @@ import {
   ChevronsDownUpIcon,
   CircleAlertIcon,
   CloudCheckIcon,
+  CopyPlusIcon,
   DownloadIcon,
   EllipsisVerticalIcon,
   LoaderIcon,
@@ -32,8 +33,10 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { downloadJson, exportCollections, exportFileName } from "@/lib/export";
-import { newId } from "@/lib/model/core";
+import { copyCollection, newId } from "@/lib/model/core";
+import type { Collection } from "@/lib/model/schema";
 import { getRepository } from "@/lib/storage";
+import { MemoryRepository } from "@/lib/storage/memory-repository";
 import {
   CollectionStoreProvider,
   useCollectionStore,
@@ -60,7 +63,29 @@ export function CollectionPage({ id }: { id: string }) {
   );
 }
 
-function CollectionView() {
+/**
+ * An example collection: fully editable, but kept in memory only. "Save a
+ * copy" stores it as a regular collection.
+ */
+export function ExampleCollectionPage({
+  collection,
+}: {
+  collection: Collection;
+}) {
+  return (
+    <CollectionStoreProvider
+      id={collection.id}
+      options={{
+        repository: new MemoryRepository([collection]),
+        persistUi: false,
+      }}
+    >
+      <CollectionView example />
+    </CollectionStoreProvider>
+  );
+}
+
+function CollectionView({ example = false }: { example?: boolean }) {
   const status = useCollectionStore((s) => s.status);
   const error = useCollectionStore((s) => s.error);
   const corruptRaw = useCollectionStore((s) => s.corruptRaw);
@@ -125,10 +150,10 @@ function CollectionView() {
       </div>
     );
   }
-  return <ReadyView />;
+  return <ReadyView example={example} />;
 }
 
-function ReadyView() {
+function ReadyView({ example }: { example: boolean }) {
   const router = useRouter();
   const store = useCollectionStoreApi();
   const collection = useCollectionStore((s) => s.collection)!;
@@ -183,6 +208,19 @@ function ReadyView() {
     downloadJson(exportFileName([collection]), exportCollections([collection]));
   };
 
+  const saveCopy = async () => {
+    await store.getState().flush();
+    const copy = copyCollection(collection);
+    try {
+      await getRepository().save(copy);
+    } catch (error) {
+      toast.error(`Couldn't save a copy: ${(error as Error).message}`);
+      return;
+    }
+    toast.success(`Saved ${copy.name} to your collections`);
+    router.push(`/collections/${copy.id}`);
+  };
+
   const remove = async () => {
     await getRepository().delete(collection.id);
     toast.success(`Deleted ${collection.name}`);
@@ -196,6 +234,20 @@ function ReadyView() {
 
   return (
     <div className="flex h-[calc(100dvh-3.5rem)] min-h-[480px] flex-col">
+      {example && (
+        <div className="flex flex-wrap items-center gap-x-3 gap-y-1 border-b bg-primary/5 px-6 py-2 text-sm">
+          <span>
+            <strong className="font-semibold">Example:</strong> try anything —
+            changes aren’t saved, and reloading resets it.{" "}
+            <Link href="/examples" className="underline underline-offset-2">
+              All examples
+            </Link>
+          </span>
+          <Button size="xs" className="ml-auto" onClick={() => void saveCopy()}>
+            <CopyPlusIcon /> Save a copy to my collections
+          </Button>
+        </div>
+      )}
       {readOnly && (
         <div className="border-b bg-amber-500/10 px-6 py-2 text-sm">
           This collection was saved by a newer version of srd.cards, so it’s
@@ -220,7 +272,8 @@ function ReadyView() {
         </div>
       )}
 
-      <header className="flex shrink-0 items-start gap-4 border-b px-6 py-3">
+      {/* Narrow screens: toolbar below the title, so the title keeps the full width. */}
+      <header className="flex shrink-0 flex-col gap-2 border-b px-6 py-3 md:flex-row md:items-start md:gap-4">
         <div className="min-w-0 flex-1">
           <InlineEdit
             value={collection.name}
@@ -246,8 +299,8 @@ function ReadyView() {
             className="mt-0.5 line-clamp-2 text-sm text-muted-foreground"
           />
         </div>
-        <div className="flex shrink-0 items-center gap-1 pt-1">
-          <SaveIndicator state={saveState} />
+        <div className="flex shrink-0 items-center gap-1 md:pt-1">
+          {!example && <SaveIndicator state={saveState} />}
           <ToolbarButton
             label="Undo (⌘Z)"
             disabled={!canUndo || readOnly}
@@ -291,7 +344,7 @@ function ReadyView() {
               <DropdownMenuItem onSelect={() => void exportJson()}>
                 <DownloadIcon /> Export JSON
               </DropdownMenuItem>
-              {!readOnly && (
+              {!readOnly && !example && (
                 <>
                   <DropdownMenuSeparator />
                   <DropdownMenuItem

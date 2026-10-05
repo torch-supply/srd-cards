@@ -33,13 +33,27 @@ function write(key: string, value: unknown) {
   }
 }
 
+/** The search panel starts open only where a stack still fits beside it (~360px + ~340px). */
+function defaultBrowserOpen(): boolean {
+  try {
+    return window.matchMedia("(min-width: 768px)").matches;
+  } catch {
+    return true;
+  }
+}
+
+/** View state for a collection with nothing remembered yet. */
+export function defaultCollectionUi(): CollectionUiState {
+  return { expanded: [], browserOpen: defaultBrowserOpen() };
+}
+
 export function readCollectionUi(id: string): CollectionUiState {
   const s = read<CollectionUiState>(collectionKey(id));
   return {
     expanded: Array.isArray(s.expanded)
       ? s.expanded.filter((x) => typeof x === "string")
       : [],
-    browserOpen: s.browserOpen ?? true,
+    browserOpen: s.browserOpen ?? defaultBrowserOpen(),
     lastStackId: typeof s.lastStackId === "string" ? s.lastStackId : undefined,
   };
 }

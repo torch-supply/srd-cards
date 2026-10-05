@@ -14,7 +14,10 @@ export default function HomePage() {
           Browse the System Reference Document 5.2.1 and organize spells,
           monsters, classes, and equipment into stacks of cards — for a
           character, an encounter, or a whole campaign. Everything is saved in
-          your browser.
+          your browser.{" "}
+          <Link href="/examples" className="underline underline-offset-2">
+            See examples
+          </Link>
         </p>
         <p className="max-w-2xl text-muted-foreground">
           Writing 5E compatible material? Check the exact SRD wording and page

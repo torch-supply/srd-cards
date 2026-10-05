@@ -12,9 +12,13 @@ import { createStore, type StoreApi, useStore } from "zustand";
 import { apply, type Command } from "@/lib/model/commands";
 import type { Collection } from "@/lib/model/schema";
 import { getRepository, StorageError } from "@/lib/storage";
-import type { StorageErrorKind } from "@/lib/storage/repository";
+import type {
+  CollectionRepository,
+  StorageErrorKind,
+} from "@/lib/storage/repository";
 import {
   type CollectionUiState,
+  defaultCollectionUi,
   readCollectionUi,
   writeCollectionUi,
 } from "@/lib/storage/ui-state";
@@ -52,10 +56,18 @@ const SAVE_DEBOUNCE_MS = 250;
 const SAVE_MAX_WAIT_MS = 1000;
 const COALESCE_MS = 2000;
 
+export interface CollectionStoreOptions {
+  /** Defaults to browser storage; example collections use a `MemoryRepository`. */
+  repository?: CollectionRepository;
+  /** Remember expanded cards and panel visibility (default true). */
+  persistUi?: boolean;
+}
+
 export function createCollectionStore(
   id: string,
+  { repository, persistUi: rememberUi = true }: CollectionStoreOptions = {},
 ): StoreApi<CollectionState> & { connect(): () => void } {
-  const repo = getRepository();
+  const repo = repository ?? getRepository();
   /** The document as last loaded/saved; a save is needed when the current one differs. */
   let saved: Collection | null = null;
   let baseRev = 0;
@@ -65,7 +77,9 @@ export function createCollectionStore(
   let lastCoalesce: { key: string; at: number } | undefined;
 
   const store = createStore<CollectionState>()((set, get) => {
-    const persistUi = (ui: CollectionUiState) => writeCollectionUi(id, ui);
+    const persistUi = (ui: CollectionUiState) => {
+      if (rememberUi) writeCollectionUi(id, ui);
+    };
 
     const save = async (): Promise<void> => {
       if (saving) await saving;
@@ -131,12 +145,12 @@ export function createCollectionStore(
       past: [],
       future: [],
       saveState: "saved",
-      ui: { expanded: [], browserOpen: true },
+      ui: defaultCollectionUi(),
 
       async load() {
         try {
           const result = await repo.get(id);
-          const ui = readCollectionUi(id);
+          const ui = rememberUi ? readCollectionUi(id) : defaultCollectionUi();
           if (result.status === "ok" || result.status === "newer") {
             const ids = new Set(
               result.collection.stacks.flatMap((s) => s.cards.map((c) => c.id)),
@@ -288,12 +302,15 @@ const CollectionStoreContext = createContext<StoreApi<CollectionState> | null>(
 
 export function CollectionStoreProvider({
   id,
+  options,
   children,
 }: {
   id: string;
+  /** Read once, when the store is created. */
+  options?: CollectionStoreOptions;
   children: ReactNode;
 }) {
-  const [store] = useState(() => createCollectionStore(id));
+  const [store] = useState(() => createCollectionStore(id, options));
 
   useEffect(() => {
     const disconnect = store.connect();

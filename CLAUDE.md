@@ -55,6 +55,15 @@ non-obvious.
   expanded-card list): re-rendering `DndContext` re-renders every sortable card.
 - Prose fields are always named `description`: markdown in `src/data/srd/`, sanitized HTML
   once rendered (`src/lib/srd/render.ts`). Detail components expect HTML.
+- Example collections (`/examples/<slug>`) are never stored: keep them out of
+  `getRepository()` and `srdcards:*` localStorage keys. Their names end in "(example)"
+  (a unit test checks). Custom cards that copy SRD text must set `quotes` (tested to match
+  the SRD verbatim). Check each SRD claim in an example's descriptions and notes against the
+  data (e.g. 5.2.1 says "Spirit Jar", not "phylactery").
+- The home page's random example picks render only after the collection list loads on the
+  client; keep it that way, or the random pick causes a hydration mismatch.
+- The site header must fit a 360px-wide screen without horizontal scroll (an e2e test
+  checks); on narrow screens the logo is icon-only and spacing is tighter.
 - Tailwind can't see dynamically built class names: card-type colors come from the fixed
   map in `src/lib/srd/card-types.ts`.
 

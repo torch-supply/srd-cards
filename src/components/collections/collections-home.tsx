@@ -14,6 +14,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
+import { ExampleList } from "@/components/examples/example-list";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -36,6 +37,7 @@ import {
   exportFileName,
   parseImport,
 } from "@/lib/export";
+import { randomExamples } from "@/lib/examples";
 import { apply, createCollection } from "@/lib/model/commands";
 import type { CollectionSummary } from "@/lib/model/core";
 import type { Collection } from "@/lib/model/schema";
@@ -84,6 +86,8 @@ export function CollectionsHome() {
   const [editing, setEditing] = useState<CollectionSummary | null>(null);
   const [deleting, setDeleting] = useState<CollectionSummary | null>(null);
   const fileInput = useRef<HTMLInputElement>(null);
+  // Only shown once the list has loaded on the client, so the random pick can't cause a hydration mismatch.
+  const [featuredExamples] = useState(() => randomExamples(3));
 
   const sorted = useMemo(() => sortList(list, sort), [list, sort]);
 
@@ -252,23 +256,46 @@ export function CollectionsHome() {
           that cookies and site data are allowed for this site.
         </p>
       ) : sorted.length === 0 ? (
-        <div className="flex flex-col items-center gap-3 rounded-xl border border-dashed px-6 py-14 text-center">
-          <LayersIcon className="size-8 text-muted-foreground" />
-          <div>
-            <p className="font-medium">No collections yet</p>
-            <p className="text-sm text-muted-foreground">
-              Create one for a campaign or an encounter, then fill its stacks
-              with cards.
-            </p>
+        <div className="space-y-8">
+          <div className="flex flex-col items-center gap-3 rounded-xl border border-dashed px-6 py-14 text-center">
+            <LayersIcon className="size-8 text-muted-foreground" />
+            <div>
+              <p className="font-medium">No collections yet</p>
+              <p className="text-sm text-muted-foreground">
+                Create one for a campaign or an encounter, then fill its stacks
+                with cards.
+              </p>
+            </div>
+            <div className="flex gap-2">
+              <Button onClick={() => setCreating(true)}>
+                <PlusIcon /> New collection
+              </Button>
+              <Button variant="outline" asChild>
+                <Link href="/spells">Browse the SRD</Link>
+              </Button>
+            </div>
           </div>
-          <div className="flex gap-2">
-            <Button onClick={() => setCreating(true)}>
-              <PlusIcon /> New collection
-            </Button>
-            <Button variant="outline" asChild>
-              <Link href="/spells">Browse the SRD</Link>
-            </Button>
-          </div>
+          <section className="space-y-3" aria-labelledby="examples-heading">
+            <div>
+              <h3
+                id="examples-heading"
+                className="font-serif text-lg font-semibold"
+              >
+                New here? Explore an example
+              </h3>
+              <p className="text-sm text-muted-foreground">
+                Try them out freely: changes to an example aren’t saved unless
+                you save a copy.
+              </p>
+            </div>
+            <ExampleList examples={featuredExamples} />
+            <Link
+              href="/examples"
+              className="inline-block text-sm underline underline-offset-2"
+            >
+              See more examples
+            </Link>
+          </section>
         </div>
       ) : (
         <ul className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
@@ -328,6 +355,15 @@ export function CollectionsHome() {
             </li>
           ))}
         </ul>
+      )}
+      {status === "ready" && sorted.length > 0 && (
+        <p className="text-sm text-muted-foreground">
+          Looking for ideas?{" "}
+          <Link href="/examples" className="underline underline-offset-2">
+            See the example collections
+          </Link>
+          .
+        </p>
       )}
 
       <CollectionDialog

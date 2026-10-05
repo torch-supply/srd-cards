@@ -20,6 +20,20 @@ export default function AboutPage() {
       </header>
 
       <section className="space-y-2">
+        <h2 className="font-serif text-xl font-semibold">Getting started</h2>
+        <p>
+          The{" "}
+          <Link href="/examples" className="underline underline-offset-2">
+            example collections
+          </Link>{" "}
+          show different ways to use srd.cards, from a party of characters and a
+          short adventure to a druid’s Wild Shape forms and a shopping list.
+          Open one and try anything; changes aren’t saved unless you save a
+          copy.
+        </p>
+      </section>
+
+      <section className="space-y-2">
         <h2 className="font-serif text-xl font-semibold">Your data</h2>
         <p>
           Collections are saved in this browser’s local storage and never leave

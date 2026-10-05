@@ -59,14 +59,16 @@ the PDF wins; the report lists the differences.
 
 ```
 src/app/                      routes: / (collections), /collections/[id] (board),
-                              /[type] and /[type]/[slug] (static reference pages), /about
+                              /[type] and /[type]/[slug] (static reference pages),
+                              /examples and /examples/[slug] (example collections), /about
 src/components/cards/         card header, type icons, detail views (spell, stat block, class…)
 src/components/collection/    board, columns, cards, browser panel, drag and drop
 src/components/collections/   home page (collections grid, dialogs)
 src/components/reference/     reference list, filters, "Add to collection"
 src/lib/srd/                  schema, card types/colors, server loader, client loader, search
 src/lib/model/                collection model (zod/mini), commands (pure reducer)
-src/lib/storage/              CollectionRepository interface + localStorage implementation
+src/lib/examples/             example collection definitions (SRD ids) and their builder
+src/lib/storage/              CollectionRepository interface + localStorage and memory implementations
 src/lib/export/               JSON export/import
 src/stores/                   zustand stores (open collection with autosave/undo; home list)
 ```
@@ -86,6 +88,14 @@ src/stores/                   zustand stores (open collection with autosave/undo
   implementation in `src/lib/storage/index.ts` to add a backend. Corrupt data is never
   overwritten, collections saved by a newer schema open read-only, and quota errors show a
   banner suggesting an export.
+- **Examples** (`src/lib/examples/`) are defined in code by SRD id and built into
+  collections at build time, so they never go stale (the build fails on an unknown id). They
+  open on the regular board backed by a `MemoryRepository`: everything is editable, nothing is
+  stored, and "Save a copy" saves a regular collection with fresh ids. There are 12, linked
+  from the header, the home intro, and the empty home page (3 picked at random per visit).
+  To add one, append to `EXAMPLES` in `src/lib/examples/index.ts`; the unit tests check every
+  example automatically. Custom cards that copy SRD text set `quotes` to the entry they quote,
+  and a test checks the text still matches word for word.
 
 ## Licensing
 

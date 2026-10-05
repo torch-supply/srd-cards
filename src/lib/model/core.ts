@@ -31,3 +31,22 @@ export function summarize(c: Collection): CollectionSummary {
 export function newId(): string {
   return crypto.randomUUID();
 }
+
+/** A copy with fresh ids for the collection, its stacks, and cards, dated `now`. */
+export function copyCollection(
+  c: Collection,
+  now = new Date().toISOString(),
+): Collection {
+  return {
+    ...c,
+    id: newId(),
+    createdAt: now,
+    updatedAt: now,
+    rev: 0,
+    stacks: c.stacks.map((s) => ({
+      ...s,
+      id: newId(),
+      cards: s.cards.map((card) => ({ ...card, id: newId() })),
+    })),
+  };
+}

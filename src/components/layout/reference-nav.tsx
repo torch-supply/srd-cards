@@ -27,7 +27,7 @@ export function ReferenceNav({
       <DropdownMenuTrigger asChild>
         <Button
           variant="ghost"
-          className="text-muted-foreground data-[active=true]:text-foreground"
+          className="px-1.5 text-muted-foreground data-[active=true]:text-foreground sm:px-4"
           data-active={!!active}
         >
           {active ? active.label : "Browse SRD"}
