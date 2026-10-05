@@ -101,6 +101,8 @@ async function main() {
       [
         "class",
         "subclass",
+        "background",
+        "species",
         "spell",
         "monster",
         "equipment",
@@ -117,6 +119,7 @@ async function main() {
     ["Playing the Game", CHAPTERS.playingTheGame],
     ["Character Creation", CHAPTERS.characterCreation],
     ["Classes", CHAPTERS.classes],
+    ["Character Origins", CHAPTERS.origins],
     ["Feats", CHAPTERS.feats],
     ["Equipment", CHAPTERS.equipment],
     ["Spells", CHAPTERS.spellDescriptions],

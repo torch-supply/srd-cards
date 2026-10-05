@@ -130,6 +130,11 @@ export function entryDescription(entry: SrdEntry): string {
         .map((t) => `${t.label}: ${inline(t.value)}`)
         .join("; ");
       break;
+    case "background":
+      text = entry.fields
+        .map((f) => `${f.label}: ${inline(f.value)}`)
+        .join("; ");
+      break;
     case "equipment": {
       if (entry.description) {
         text = `${lead} ${plainText(entry.description)}`;

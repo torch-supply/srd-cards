@@ -3,12 +3,14 @@ import { Fragment } from "react";
 import { referenceHref } from "@/lib/srd/card-types";
 import { hrefFor, type SrdLinks } from "@/lib/srd/links";
 import type {
+  BackgroundEntry,
   ClassEntry,
   ConditionEntry,
   EquipmentEntry,
   FeatEntry,
   MagicItemEntry,
   RuleEntry,
+  SpeciesEntry,
   SpellEntry,
   SrdEntry,
   SubclassEntry,
@@ -35,6 +37,10 @@ export function EntryDetail({
   links?: SrdLinks;
 }) {
   switch (entry.type) {
+    case "background":
+      return <BackgroundDetail entry={entry} links={links} />;
+    case "species":
+      return <SpeciesDetail entry={entry} />;
     case "spell":
       return <SpellDetail entry={entry} links={links} />;
     case "monster":
@@ -238,6 +244,64 @@ function SubclassDetail({
       <Html html={entry.description} />
       <SectionTitle>Subclass Features</SectionTitle>
       <Features features={entry.features} compact={compact} />
+    </div>
+  );
+}
+
+function BackgroundDetail({
+  entry,
+  links,
+}: {
+  entry: BackgroundEntry;
+  links?: SrdLinks;
+}) {
+  const feat = links?.byId.get(entry.featId);
+  return (
+    <Facts
+      rows={entry.fields.map((f) => ({
+        label: f.label,
+        value:
+          // “Magic Initiate (Cleric) (see “Feats”)”: link the feat's name.
+          f.label === "Feat" && feat && f.value.startsWith(entry.feat) ? (
+            <>
+              <Link href={feat.href} className={entryLinkClass}>
+                {entry.feat}
+              </Link>
+              <span
+                className="srd-inline"
+                dangerouslySetInnerHTML={{
+                  __html: f.value.slice(entry.feat.length),
+                }}
+              />
+            </>
+          ) : f.label === "Tool Proficiency" &&
+            hrefFor(links, "equipment", f.value) ? (
+            <LinkedNames
+              names={[f.value]}
+              href={(name) => hrefFor(links, "equipment", name)}
+            />
+          ) : (
+            <span
+              className="srd-inline"
+              dangerouslySetInnerHTML={{ __html: f.value }}
+            />
+          ),
+      }))}
+    />
+  );
+}
+
+function SpeciesDetail({ entry }: { entry: SpeciesEntry }) {
+  return (
+    <div className="space-y-3">
+      <Facts
+        rows={[
+          { label: "Creature Type", value: entry.creatureType },
+          { label: "Size", value: entry.size },
+          { label: "Speed", value: entry.speed },
+        ]}
+      />
+      <Html html={entry.description} />
     </div>
   );
 }

@@ -43,6 +43,8 @@ const SAMPLES: Record<string, string> = {
   "class:wizard": "caster table header groups, spell list, sidebar",
   "class:sorcerer": "metamagic options folded into a feature",
   "subclass:circle-of-the-land": "subclass spell tables",
+  "background:soldier": "label lines with wrapped and italic values",
+  "species:elf": "table set inside another species (Goliath)",
   "equipment:hand-crossbow": "weapon row with wrapped properties",
   "equipment:plate-armor": "armor with don/doff fields",
   "equipment:smiths-tools": "tool block split across a page break",

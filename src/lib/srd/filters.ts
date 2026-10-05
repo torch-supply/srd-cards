@@ -63,6 +63,8 @@ export const FILTERS: Record<SrdType, FacetFilterDef[]> = {
   ],
   feat: [{ key: "category", label: "Category", kind: "select" }],
   class: [],
+  background: [],
+  species: [],
   subclass: [{ key: "class", label: "Class", kind: "select" }],
   condition: [],
   rule: [{ key: "section", label: "Section", kind: "select" }],

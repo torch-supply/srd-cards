@@ -161,7 +161,7 @@ export function parseRuleChapters(ctx: Ctx, taken: Set<string>): RuleEntry[] {
   return rules;
 }
 
-function makeRule(
+export function makeRule(
   ctx: Ctx,
   taken: Set<string>,
   chapter: string,

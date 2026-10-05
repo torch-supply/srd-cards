@@ -2,8 +2,9 @@
 
 Browse the **System Reference Document 5.2.1** and organize its content as cards.
 **Collections** (a campaign, an encounter) hold ordered **stacks** (a character, an
-encounter setup), which hold **cards**: classes, subclasses, spells, monsters,
-equipment, magic items, feats, conditions, rules, and custom homebrew cards.
+encounter setup), which hold **cards**: classes, subclasses, backgrounds, species,
+spells, monsters, equipment, magic items, feats, conditions, rules, and custom homebrew
+cards.
 Everything is saved in the browser (localStorage) behind a storage interface that a
 backend can replace later.
 
@@ -53,7 +54,8 @@ The SRD 5.2.1 PDF is the source of truth. `pnpm srd:import` parses it directly:
    and de-hyphenation), bullets, sidebars, and tables rebuilt from cell positions. Short
    header-less lists set like tables ("Attack Dodge Influence…") become markdown lists.
 3. **Parsers** (`scripts/srd/parse/*.ts`): one per chapter (spells, monsters, classes,
-   equipment, magic items, feats, rules glossary + conditions, rules chapters). Embedded stat
+   character origins, equipment, magic items, feats, rules glossary + conditions, rules
+   chapters). Embedded stat
    blocks (Find Steed, Figurine of Wondrous Power, …) are attached to their spell or item.
 4. **Validate and write**: every entry is validated with zod (`src/lib/srd/schema.ts`);
    counts must match the PDF (`scripts/srd/expected.ts`); ids are locked.

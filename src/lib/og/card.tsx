@@ -16,6 +16,8 @@ import type { CardKind } from "../srd/card-types";
 export const OG_TYPE_COLORS: Record<CardKind, string> = {
   class: "#fbbf24",
   subclass: "#fb923c",
+  background: "#e879f9",
+  species: "#a3e635",
   spell: "#a78bfa",
   monster: "#f87171",
   equipment: "#a8a29e",

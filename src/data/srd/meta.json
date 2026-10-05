@@ -4,12 +4,14 @@
   "counts": {
     "class": 12,
     "subclass": 12,
+    "background": 4,
+    "species": 9,
     "spell": 339,
     "monster": 330,
     "equipment": 213,
     "magic-item": 258,
     "feat": 17,
     "condition": 15,
-    "rule": 284
+    "rule": 286
   }
 }

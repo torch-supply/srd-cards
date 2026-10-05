@@ -1,0 +1,166 @@
+[
+ {
+  "id": "background:acolyte",
+  "type": "background",
+  "slug": "acolyte",
+  "name": "Acolyte",
+  "subtitle": "Magic Initiate (Cleric) · Insight and Religion",
+  "page": 83,
+  "abilityScores": [
+   "Intelligence",
+   "Wisdom",
+   "Charisma"
+  ],
+  "feat": "Magic Initiate (Cleric)",
+  "featId": "feat:magic-initiate",
+  "skillProficiencies": [
+   "Insight",
+   "Religion"
+  ],
+  "fields": [
+   {
+    "label": "Ability Scores",
+    "value": "Intelligence, Wisdom, Charisma"
+   },
+   {
+    "label": "Feat",
+    "value": "Magic Initiate (Cleric) (see “Feats”)"
+   },
+   {
+    "label": "Skill Proficiencies",
+    "value": "Insight and Religion"
+   },
+   {
+    "label": "Tool Proficiency",
+    "value": "Calligrapher’s Supplies"
+   },
+   {
+    "label": "Equipment",
+    "value": "*Choose A or B:* (A) Calligrapher’s Supplies, Book (prayers), Holy Symbol, Parchment (10 sheets), Robe, 8 GP; or (B) 50 GP"
+   }
+  ]
+ },
+ {
+  "id": "background:criminal",
+  "type": "background",
+  "slug": "criminal",
+  "name": "Criminal",
+  "subtitle": "Alert · Sleight of Hand and Stealth",
+  "page": 83,
+  "abilityScores": [
+   "Dexterity",
+   "Constitution",
+   "Intelligence"
+  ],
+  "feat": "Alert",
+  "featId": "feat:alert",
+  "skillProficiencies": [
+   "Sleight of Hand",
+   "Stealth"
+  ],
+  "fields": [
+   {
+    "label": "Ability Scores",
+    "value": "Dexterity, Constitution, Intelligence"
+   },
+   {
+    "label": "Feat",
+    "value": "Alert (see “Feats”)"
+   },
+   {
+    "label": "Skill Proficiencies",
+    "value": "Sleight of Hand and Stealth"
+   },
+   {
+    "label": "Tool Proficiency",
+    "value": "Thieves’ Tools"
+   },
+   {
+    "label": "Equipment",
+    "value": "*Choose A or B:* (A) 2 Daggers, Thieves’ Tools, Crowbar, 2 Pouches, Traveler’s Clothes, 16 GP; or (B) 50 GP"
+   }
+  ]
+ },
+ {
+  "id": "background:sage",
+  "type": "background",
+  "slug": "sage",
+  "name": "Sage",
+  "subtitle": "Magic Initiate (Wizard) · Arcana and History",
+  "page": 83,
+  "abilityScores": [
+   "Constitution",
+   "Intelligence",
+   "Wisdom"
+  ],
+  "feat": "Magic Initiate (Wizard)",
+  "featId": "feat:magic-initiate",
+  "skillProficiencies": [
+   "Arcana",
+   "History"
+  ],
+  "fields": [
+   {
+    "label": "Ability Scores",
+    "value": "Constitution, Intelligence, Wisdom"
+   },
+   {
+    "label": "Feat",
+    "value": "Magic Initiate (Wizard) (see “Feats”)"
+   },
+   {
+    "label": "Skill Proficiencies",
+    "value": "Arcana and History"
+   },
+   {
+    "label": "Tool Proficiency",
+    "value": "Calligrapher’s Supplies"
+   },
+   {
+    "label": "Equipment",
+    "value": "*Choose A or B:* (A) Quarterstaff, Calligrapher’s Supplies, Book (history), Parchment (8 sheets), Robe, 8 GP; or (B) 50 GP"
+   }
+  ]
+ },
+ {
+  "id": "background:soldier",
+  "type": "background",
+  "slug": "soldier",
+  "name": "Soldier",
+  "subtitle": "Savage Attacker · Athletics and Intimidation",
+  "page": 83,
+  "abilityScores": [
+   "Strength",
+   "Dexterity",
+   "Constitution"
+  ],
+  "feat": "Savage Attacker",
+  "featId": "feat:savage-attacker",
+  "skillProficiencies": [
+   "Athletics",
+   "Intimidation"
+  ],
+  "fields": [
+   {
+    "label": "Ability Scores",
+    "value": "Strength, Dexterity, Constitution"
+   },
+   {
+    "label": "Feat",
+    "value": "Savage Attacker (see “Feats”)"
+   },
+   {
+    "label": "Skill Proficiencies",
+    "value": "Athletics and Intimidation"
+   },
+   {
+    "label": "Tool Proficiency",
+    "value": "*Choose one kind of Gaming Set* (see “Equipment”)"
+   },
+   {
+    "label": "Equipment",
+    "value": "*Choose A or B:* (A) Spear, Shortbow, 20 Arrows, Gaming Set (same as above), Healer’s Kit, Quiver, Traveler’s Clothes, 14 GP; or (B) 50 GP"
+   }
+  ]
+ }
+]

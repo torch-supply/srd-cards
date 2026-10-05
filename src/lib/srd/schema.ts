@@ -204,6 +204,32 @@ export const featSchema = z.object({
   description: z.string(),
 });
 
+export const backgroundSchema = z.object({
+  ...base,
+  type: z.literal("background"),
+  /** The three abilities the background can increase. */
+  abilityScores: z.array(z.string()),
+  /** Origin feat as written, e.g. "Magic Initiate (Cleric)". */
+  feat: z.string(),
+  featId: z.string(),
+  skillProficiencies: z.array(z.string()),
+  /** Ability Scores, Feat, Skill Proficiencies, Tool Proficiency, Equipment (inline markdown). */
+  fields: z.array(labelValue),
+});
+
+export const speciesSchema = z.object({
+  ...base,
+  type: z.literal("species"),
+  creatureType: z.string(),
+  /** Full text, e.g. "Medium (about 5–7 feet tall)". */
+  size: z.string(),
+  /** Size categories the species can be: ["Medium"], ["Medium", "Small"]. */
+  sizes: z.array(z.string()),
+  speed: z.string(),
+  /** Special traits. */
+  description: z.string(),
+});
+
 export const conditionSchema = z.object({
   ...base,
   type: z.literal("condition"),
@@ -223,6 +249,8 @@ export const ruleSchema = z.object({
 export const srdEntrySchema = z.discriminatedUnion("type", [
   classSchema,
   subclassSchema,
+  backgroundSchema,
+  speciesSchema,
   spellSchema,
   monsterSchema,
   equipmentSchema,
@@ -239,6 +267,8 @@ export type ClassEntry = z.infer<typeof classSchema>;
 export type SubclassEntry = z.infer<typeof subclassSchema>;
 export type EquipmentEntry = z.infer<typeof equipmentSchema>;
 export type MagicItemEntry = z.infer<typeof magicItemSchema>;
+export type BackgroundEntry = z.infer<typeof backgroundSchema>;
+export type SpeciesEntry = z.infer<typeof speciesSchema>;
 export type FeatEntry = z.infer<typeof featSchema>;
 export type ConditionEntry = z.infer<typeof conditionSchema>;
 export type RuleEntry = z.infer<typeof ruleSchema>;

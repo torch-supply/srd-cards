@@ -26,6 +26,7 @@ import { parseEquipment } from "./parse/equipment";
 import { parseFeats } from "./parse/feats";
 import { parseMagicItems } from "./parse/magic-items";
 import { parseMonsters } from "./parse/monsters";
+import { parseOrigins } from "./parse/origins";
 import { parseGlossary, parseRuleChapters } from "./parse/rules";
 import { parseSpells } from "./parse/spells";
 
@@ -108,6 +109,12 @@ function toIndex(entry: SrdEntry): IndexEntry {
       };
     case "feat":
       return { ...common, facets: { category: entry.category } };
+    case "background":
+      return {
+        ...common,
+        facets: {},
+        keywords: entry.skillProficiencies.join(" "),
+      };
     case "subclass":
       return {
         ...common,
@@ -123,6 +130,7 @@ function toIndex(entry: SrdEntry): IndexEntry {
         },
       };
     case "class":
+    case "species":
     case "condition":
       return { ...common, facets: {} };
   }
@@ -150,10 +158,13 @@ async function main() {
     [...glossary.rules, ...equipment.rules].map((r) => r.id),
   );
   const chapterRules = parseRuleChapters(ctx, taken);
+  const origins = parseOrigins(ctx, taken);
 
   const all: SrdEntry[] = [
     ...classes,
     ...subclasses,
+    ...origins.backgrounds,
+    ...origins.species,
     ...spells,
     ...monsters,
     ...equipment.equipment,
@@ -163,6 +174,7 @@ async function main() {
     ...glossary.rules,
     ...equipment.rules,
     ...chapterRules,
+    ...origins.rules,
   ];
 
   // Validate.
@@ -173,6 +185,8 @@ async function main() {
   }
   const seen = new Set<string>();
   for (const entry of all) {
+    if (entry.type === "background" && !all.some((e) => e.id === entry.featId))
+      errors.push(`${entry.id}: unknown feat ${entry.featId}`);
     if (seen.has(entry.id)) errors.push(`Duplicate id ${entry.id}`);
     seen.add(entry.id);
   }

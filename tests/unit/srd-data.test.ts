@@ -21,6 +21,8 @@ describe("SRD data", () => {
     expect(count("monster")).toBe(330);
     expect(count("class")).toBe(12);
     expect(count("subclass")).toBe(12);
+    expect(count("background")).toBe(4);
+    expect(count("species")).toBe(9);
     expect(count("feat")).toBe(17);
     expect(count("condition")).toBe(15);
   });
@@ -56,6 +58,15 @@ describe("SRD data", () => {
         if (s?.type === "subclass") expect(s.classId).toBe(c.id);
       }
     }
+  });
+
+  it("gives every background an Origin feat", () => {
+    for (const b of all)
+      if (b.type === "background") {
+        const feat = byId.get(b.featId);
+        expect(feat?.type, b.featId).toBe("feat");
+        if (feat?.type === "feat") expect(feat.category).toBe("Origin");
+      }
   });
 
   it("names a real class for every spell", () => {

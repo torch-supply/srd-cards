@@ -3,6 +3,8 @@
 export const SRD_TYPES = [
   "class",
   "subclass",
+  "background",
+  "species",
   "spell",
   "monster",
   "equipment",

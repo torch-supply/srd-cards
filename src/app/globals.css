@@ -19,6 +19,12 @@
   --color-type-subclass: var(--type-subclass);
   --color-type-subclass-fg: var(--type-subclass-fg);
   --color-type-subclass-soft: var(--type-subclass-soft);
+  --color-type-background: var(--type-background);
+  --color-type-background-fg: var(--type-background-fg);
+  --color-type-background-soft: var(--type-background-soft);
+  --color-type-species: var(--type-species);
+  --color-type-species-fg: var(--type-species-fg);
+  --color-type-species-soft: var(--type-species-soft);
   --color-type-spell: var(--type-spell);
   --color-type-spell-fg: var(--type-spell-fg);
   --color-type-spell-soft: var(--type-spell-soft);
@@ -120,6 +126,10 @@
   --type-class-fg: var(--color-amber-800);
   --type-subclass: var(--color-orange-600);
   --type-subclass-fg: var(--color-orange-800);
+  --type-background: var(--color-fuchsia-600);
+  --type-background-fg: var(--color-fuchsia-800);
+  --type-species: var(--color-lime-600);
+  --type-species-fg: var(--color-lime-800);
   --type-spell: var(--color-violet-600);
   --type-spell-fg: var(--color-violet-700);
   --type-monster: var(--color-red-600);
@@ -177,6 +187,10 @@
   --type-class-fg: var(--color-amber-300);
   --type-subclass: var(--color-orange-400);
   --type-subclass-fg: var(--color-orange-300);
+  --type-background: var(--color-fuchsia-400);
+  --type-background-fg: var(--color-fuchsia-300);
+  --type-species: var(--color-lime-400);
+  --type-species-fg: var(--color-lime-300);
   --type-spell: var(--color-violet-400);
   --type-spell-fg: var(--color-violet-300);
   --type-monster: var(--color-red-400);
@@ -206,6 +220,16 @@
   --type-subclass-soft: color-mix(
     in oklab,
     var(--type-subclass) var(--type-soft-mix),
+    transparent
+  );
+  --type-background-soft: color-mix(
+    in oklab,
+    var(--type-background) var(--type-soft-mix),
+    transparent
+  );
+  --type-species-soft: color-mix(
+    in oklab,
+    var(--type-species) var(--type-soft-mix),
     transparent
   );
   --type-spell-soft: color-mix(

@@ -473,6 +473,16 @@
   "description": "Challenge Rating is defined in “Rules Glossary,” while guidance on using CR to plan potential combat encounters is in “Gameplay Toolbox.”\n\n#### Experience Points\n\nThe number of Experience Points (XP) a monster is worth is based on its CR, as detailed in the Experience Points by Challenge Rating table. XP is awarded for defeating the monster in combat or otherwise neutralizing it.\n\nUnless a rule says otherwise, a monster summoned by a spell or another magical ability is worth the XP noted in its stat block.\n\n**Experience Points by Challenge Rating**\n\n| CR | XP | CR | XP |\n| --- | --- | --- | --- |\n| 0 | 0 or 10 | 14 | 11,500 |\n| 1/8 | 25 | 15 | 13,000 |\n| 1/4 | 50 | 16 | 15,000 |\n| 1/2 | 100 | 17 | 18,000 |\n| 1 | 200 | 18 | 20,000 |\n| 2 | 450 | 19 | 22,000 |\n| 3 | 700 | 20 | 25,000 |\n| 4 | 1,100 | 21 | 33,000 |\n| 5 | 1,800 | 22 | 41,000 |\n| 6 | 2,300 | 23 | 50,000 |\n| 7 | 2,900 | 24 | 62,000 |\n| 8 | 3,900 | 25 | 75,000 |\n| 9 | 5,000 | 26 | 90,000 |\n| 10 | 5,900 | 27 | 105,000 |\n| 11 | 7,200 | 28 | 120,000 |\n| 12 | 8,400 | 29 | 135,000 |\n| 13 | 10,000 | 30 | 155,000 |\n\n#### Proficiency Bonus\n\nA monster’s Proficiency Bonus (PB) is determined by its CR, as shown in the Proficiency Bonus by Challenge Rating table, and is reflected in saving throws, skills, and other statistics where the monster’s exceptional aptitude is a factor.\n\n**Proficiency Bonus by Challenge Rating**\n\n| CR | PB | CR | PB |\n| --- | --- | --- | --- |\n| 0–4 | +2 | 17–20 | +6 |\n| 5–8 | +3 | 21–24 | +7 |\n| 9–12 | +4 | 25–28 | +8 |\n| 13–16 | +5 | 29–30 | +9 |"
  },
  {
+  "id": "rule:character-backgrounds",
+  "type": "rule",
+  "slug": "character-backgrounds",
+  "name": "Character Backgrounds",
+  "subtitle": "Character Origins",
+  "page": 83,
+  "section": "Character Origins",
+  "description": "Your character’s background is a collection of characteristics that represent the place and occupation that were most formative before your character embarked on a life of adventure.\n\n#### Parts of a Background\n\nA background includes the following parts.\n\n#### Ability Scores\n\nA background lists three of your character’s ability scores. Increase one by 2 and another one by 1, or increase all three by 1. None of these increases can raise a score above 20.\n\n#### Feat\n\nA background gives your character a specified Origin feat (described in “Feats”).\n\n#### Skill Proficiencies\n\nA background gives your character proficiency in two specified skills.\n\n#### Tool Proficiency\n\nEach background gives a character proficiency with one tool—either a specific tool or one chosen from the Artisan’s Tools category. Tools are detailed in “Equipment.”\n\n#### Equipment\n\nEach background offers a choice between a package of equipment and 50 GP."
+ },
+ {
   "id": "rule:character-sheet",
   "type": "rule",
   "slug": "character-sheet",
@@ -481,6 +491,16 @@
   "page": 178,
   "section": "Rules Glossary",
   "description": "A character sheet is a paper or digital record that you use to track your character’s information. *See also* “Character Creation.”"
+ },
+ {
+  "id": "rule:character-species",
+  "type": "rule",
+  "slug": "character-species",
+  "name": "Character Species",
+  "subtitle": "Character Origins",
+  "page": 83,
+  "section": "Character Origins",
+  "description": "When you choose your character’s species, you determine whether your character is a human or a member of a fantastical species, such as dragonborn or gnome.\n\nThe peoples of the multiverse hail from different worlds and include many kinds of sapient life forms. A player character’s species is the set of game traits that an adventurer gains from being one of those life forms.\n\nSome species can trace their origin to a single world, plane of existence, or god, while other species first appeared in multiple realms at once. Whatever a species’ genesis, its members have spread across the multiverse and contribute to many different cultures.\n\nMembers of most species live for about 80 years, with exceptions noted in the text about the species in “Character Origins.” Regardless of life span, members of all species reach physical maturity at about the same age. Your character can be any age that isn’t beyond their species’ normal life span.\n\n#### Parts of a Species\n\nA species includes the following parts.\n\n#### Creature Type\n\nA character’s species determines the character’s creature type, which is described in “Rules Glossary.” Every species in “Character Origins” is Humanoid; playable non-Humanoid species appear in other books.\n\n#### Size\n\nYour character’s species determines the character’s size. Individuals within a species cover a wide range of heights, and some species include such diversity of size that you can choose whether your character is Small or Medium.\n\n#### Speed\n\nYour character’s species determines the character’s Speed.\n\n#### Special Traits\n\nEach species gives a character special traits—unique characteristics based on the species’ physiology or magical nature. When you choose a species, your character gets all the special traits listed for it. Some traits involve making a choice from a handful of options."
  },
  {
   "id": "rule:choose-a-character-sheet",

@@ -6,6 +6,8 @@ export const EXPECTED_COUNTS: Partial<Record<SrdType, number>> = {
   monster: 330,
   class: 12,
   subclass: 12,
+  background: 4,
+  species: 9,
   feat: 17,
   condition: 15,
   "magic-item": 258,

@@ -146,6 +146,12 @@ export function renderEntry<T extends SrdEntry>(entry: T, links?: SrdLinks): T {
             }
           : {}),
       } as T;
+    case "background":
+      return {
+        ...e,
+        fields: e.fields.map((f) => ({ ...f, value: renderInline(f.value) })),
+      } as T;
+    case "species":
     case "feat":
     case "condition":
     case "rule":
