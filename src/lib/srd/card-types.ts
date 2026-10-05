@@ -219,6 +219,24 @@ export const REFERENCE_TYPES: SrdType[] = [
   "rule",
 ];
 
+const CHARACTER_TYPES: SrdType[] = [
+  "class",
+  "subclass",
+  "background",
+  "species",
+  "feat",
+  "spell",
+];
+
+/** Reference sections grouped for the home page: player options, then the rest. */
+export const REFERENCE_GROUPS: { label: string; types: SrdType[] }[] = [
+  { label: "Build a character", types: CHARACTER_TYPES },
+  {
+    label: "Run the game",
+    types: REFERENCE_TYPES.filter((t) => !CHARACTER_TYPES.includes(t)),
+  },
+];
+
 export function typeForRoute(route: string): SrdType | undefined {
   return REFERENCE_TYPES.find((t) => CARD_TYPES[t].route === route);
 }

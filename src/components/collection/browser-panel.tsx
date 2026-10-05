@@ -62,7 +62,8 @@ const EntryDetail = dynamic(
   },
 );
 
-export const BROWSER_WIDTH = 360;
+/** Wide enough for the type filter buttons to fit on one row. */
+export const BROWSER_WIDTH = 380;
 
 function PanelButton({
   label,
@@ -157,7 +158,7 @@ export function BrowserPanel({
   return (
     <aside
       className="flex shrink-0 flex-col border-r bg-background"
-      style={{ width: BROWSER_WIDTH }}
+      style={{ width: `min(${BROWSER_WIDTH}px, 100vw)` }}
       aria-label="SRD browser"
     >
       <div className="space-y-2 border-b p-3">
