@@ -26,6 +26,23 @@ Requires Node 20.9+ (developed on Node 24) and pnpm 11.
 | `pnpm format` / `pnpm format:check`      | Prettier (default config): write or check formatting.                                          |
 | `pnpm test`                              | Vitest unit tests (`tests/unit`).                                                              |
 | `pnpm test:e2e`                          | Playwright end-to-end tests (`tests/e2e`). Reuses a dev server on port 3000 if one is running. |
+| `pnpm preview` / `pnpm deploy`           | Build for Cloudflare Workers with OpenNext, then run it locally (port 8787) or deploy it.      |
+
+## Deployment (Cloudflare Workers)
+
+The app runs on Cloudflare Workers via [OpenNext](https://opennext.js.org/cloudflare)
+(`wrangler.jsonc`, `open-next.config.ts`). Every page except `/collections/[id]` is
+prerendered and served from Workers static assets through OpenNext's read-only
+static-assets cache, so no R2/KV bindings are needed. `public/_headers` sets cache headers
+for static assets (they bypass `next.config.ts` `headers()`).
+
+In the Cloudflare dashboard (Workers → Settings → Build), set:
+
+- **Build command:** `pnpm exec opennextjs-cloudflare build`
+- **Deploy command:** `pnpm exec opennextjs-cloudflare deploy`
+
+Don't use a plain `wrangler deploy`: OpenNext's deploy also copies the prerendered pages
+into the static assets; without that step, SSG pages return 404.
 
 ## SRD data pipeline
 

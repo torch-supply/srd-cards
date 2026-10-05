@@ -32,7 +32,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
     <html
       lang="en"
       suppressHydrationWarning
-      data-srd-hash={srdDataHash()}
+      data-srd-hash={process.env.SRD_DATA_HASH ?? srdDataHash()}
       className={`${geistSans.variable} ${geistMono.variable} ${crimson.variable} h-full antialiased`}
     >
       <body className="flex min-h-full flex-col">

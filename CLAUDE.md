@@ -84,6 +84,11 @@ non-obvious.
   with 50 cards expanded at 4× CPU throttle, expanding a card takes ~150ms; drag jank there
   comes from browser layout/paint of the large DOM, not JS — column virtualization is the
   next step if needed.
+- Hosting is Cloudflare Workers (OpenNext; see README). Server code that runs at request
+  time (only `/collections/[id]` today, plus the root layout it renders in) can't read
+  project files with `fs`. That's why `next.config.ts` bakes `SRD_DATA_HASH` into production
+  builds. Keep new `fs` reads in build-time-only code (SSG pages with `dynamicParams = false`).
+  Test with `pnpm preview`, not `next start`.
 - Known gaps: class spell lists store names only (no School/Special columns); the Rules
   Glossary "conventions" intro isn't imported.
 
